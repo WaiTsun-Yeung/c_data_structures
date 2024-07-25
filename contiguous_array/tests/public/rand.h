@@ -1,0 +1,1 @@
+int cds_rand_positive();
