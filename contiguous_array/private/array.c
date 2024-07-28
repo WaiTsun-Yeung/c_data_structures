@@ -14,6 +14,9 @@
 //TODO: Add constructors for variadic arguments: https://en.cppreference.com/w/cpp/utility/variadic
 //TODO: Attemp implement most if not all methods in std::vector.
 //TODO: Implement Move constructor, move assignment and swap function. 
+//TODO: Create an iterator struct with associated functions. The iterator struct 
+// should reference its parent container and cleanup of the parent container 
+// should also cleanup the iterator.
 
 void* cds_create_byte_array(const size_t length){
     void* array = (void*)0;
