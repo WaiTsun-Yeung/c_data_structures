@@ -2,7 +2,9 @@
 #include "rand.h"
 
 int main(){
-    for (int i = 0; i < 1000000; ++i)
-        cds_destroy_array(cds_create_byte_array(cds_rand_positive()));
+    for (int i = 0; i < 1000000; ++i){
+        struct cds_array array = cds_create_byte_array(cds_rand_positive());
+        cds_destroy_array(&array);
+    }
     return 0;
 }

@@ -17,63 +17,65 @@ static size_t cds_next_power_of_two(const size_t n){
     return power;
 }
 
-void* cds_create_array(
+struct cds_array cds_create_array(
     const size_t length, const size_t bytes_per_element
 ){
-    void* array = (void*)0;
-    const size_t reserved_length = cds_next_power_of_two(length);
-    while(!array) array = malloc(
-        reserved_length * bytes_per_element + sizeof(struct cds_array)
-    );
-    ((struct cds_array* const)array)->data_length = length;
-    ((struct cds_array* const)array)->reserved_length = reserved_length;
-    ((struct cds_array* const)array)->bytes_per_element = bytes_per_element;
-    ((struct cds_array* const)array)->data 
-        = (void*)((size_t)array + sizeof(struct cds_array));
+    struct cds_array array = {
+        .data_length = length,
+        .reserved_length = cds_next_power_of_two(length),
+        .bytes_per_element = bytes_per_element
+    };
+    do array.data = malloc(array.reserved_length * bytes_per_element);
+    while (!array.data);
     return array;
 }
 
-void* cds_resize_array(void* array, const size_t new_length){
-    if (new_length <= ((struct cds_array* const)array)->reserved_length){
-        ((struct cds_array* const)array)->data_length = new_length;
-        return array;
-    }
-    const size_t new_reserved_length = cds_next_power_of_two(new_length);
-    void* new_array = (void*)0;
-    while(!new_array) new_array = realloc(
-        array, 
-        new_reserved_length 
-                * ((struct cds_array* const)array)->bytes_per_element
-            + sizeof(struct cds_array)
+struct cds_array cds_copy_and_create_array(
+    const struct cds_array* const old_array
+){
+    struct cds_array new_array = cds_create_array(
+        old_array->data_length, old_array->bytes_per_element
     );
-    ((struct cds_array* const)new_array)->data_length = new_length;
-    ((struct cds_array* const)new_array)->reserved_length = new_reserved_length;
-    ((struct cds_array* const)new_array)->data 
-        = (void*)((size_t)new_array + sizeof(struct cds_array));
+    memcpy(
+        new_array.data, old_array->data, 
+        old_array->data_length * old_array->bytes_per_element
+    );
     return new_array;
 }
 
-void* cds_copy_array(
-    void* const new_array, const void* const old_array
+struct cds_array* cds_resize_array(
+    struct cds_array* const array, const size_t new_length
 ){
-    if (new_array == old_array) return new_array;
-    if (
-        ((const struct cds_array* const)old_array)->data_length
-            > ((const struct cds_array* const)new_array)->reserved_length
-    ) cds_resize_array(
-        new_array, 
-        ((const struct cds_array* const)old_array)->data_length,
-        ((const struct cds_array* const)old_array)->bytes_per_element
-    );
-    return memcpy(
-        new_array, 
-        old_array, 
-        ((const struct cds_array* const)old_array)->data_length
-            * ((const struct cds_array* const)old_array)->bytes_per_element
-    );
+    if (new_length > array->reserved_length){
+        array->reserved_length = cds_next_power_of_two(new_length);
+        do array->data = realloc(
+            array->data, array->reserved_length * array->bytes_per_element
+        );
+        while (!array->data);
+    }
+    array->data_length = new_length;
+    return array;
 }
 
-void* cds_destroy_array(void* array){
-    free(array);
-    return (void*)0;
+struct cds_array* cds_copy_array(
+    struct cds_array* const new_array, const struct cds_array* const old_array
+){
+    if (new_array == old_array) return new_array;
+    cds_resize_array(new_array, old_array->data_length);
+    memcpy(
+        new_array->data, old_array->data, 
+        old_array->data_length * old_array->bytes_per_element
+    );
+    new_array->data_length = old_array->data_length;
+    new_array->bytes_per_element = old_array->bytes_per_element;
+    return new_array;
+}
+
+struct cds_array* cds_destroy_array(struct cds_array* const array){
+    free(array->data);
+    array->data = (void*)0;
+    array->data_length = 0;
+    array->reserved_length = 0;
+    array->bytes_per_element = 0;
+    return array;
 }
