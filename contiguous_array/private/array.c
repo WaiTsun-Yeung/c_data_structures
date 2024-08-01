@@ -33,13 +33,15 @@ struct cds_array cds_create_array(
 struct cds_array cds_copy_and_create_array(
     const struct cds_array* const old_array
 ){
+    if (!old_array->reserved_length) return (struct cds_array){0};
     struct cds_array new_array = cds_create_array(
         old_array->data_length, old_array->bytes_per_element
     );
-    memcpy(
-        new_array.data, old_array->data, 
-        old_array->data_length * old_array->bytes_per_element
-    );
+    if (old_array->data_length)
+        memcpy(
+            new_array.data, old_array->data, 
+            old_array->data_length * old_array->bytes_per_element
+        );
     return new_array;
 }
 
@@ -48,10 +50,12 @@ struct cds_array* cds_resize_array(
 ){
     if (new_length > array->reserved_length){
         array->reserved_length = cds_next_power_of_two(new_length);
-        do array->data = realloc(
-            array->data, array->reserved_length * array->bytes_per_element
-        );
-        while (!array->data);
+        void* realloced_data = (void*)0;
+        while (!realloced_data)
+            realloced_data = realloc(
+                array->data, array->reserved_length * array->bytes_per_element
+            );
+        array->data = realloced_data;
     }
     array->data_length = new_length;
     return array;
@@ -62,16 +66,18 @@ struct cds_array* cds_copy_array(
 ){
     if (new_array == old_array) return new_array;
     cds_resize_array(new_array, old_array->data_length);
-    memcpy(
-        new_array->data, old_array->data, 
-        old_array->data_length * old_array->bytes_per_element
-    );
+    if (old_array->data_length)
+        memcpy(
+            new_array->data, old_array->data, 
+            old_array->data_length * old_array->bytes_per_element
+        );
     new_array->data_length = old_array->data_length;
     new_array->bytes_per_element = old_array->bytes_per_element;
     return new_array;
 }
 
 struct cds_array* cds_destroy_array(struct cds_array* const array){
+    if (!array->reserved_length) return array;
     free(array->data);
     array->data = (void*)0;
     array->data_length = 0;
