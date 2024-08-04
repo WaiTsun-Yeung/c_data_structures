@@ -31,17 +31,19 @@ struct cds_array cds_create_array(
 }
 
 struct cds_array cds_copy_and_create_array(
-    const struct cds_array* const old_array
+    const struct cds_array* const src
 ){
-    if (!old_array->reserved_length) return (struct cds_array){0};
-    struct cds_array new_array = cds_create_array(
-        old_array->data_length, old_array->bytes_per_element
+    if (!src->reserved_length) return (struct cds_array){0};
+    struct cds_array dest = cds_create_array(
+        src->data_length, src->bytes_per_element
     );
-    if (old_array->data_length)
+    if (src->data_length)
         memcpy(
-            new_array.data, old_array->data, 
-            old_array->data_length * old_array->bytes_per_element
+            dest.data, src->data, 
+            src->data_length * src->bytes_per_element
         );
+    return dest;
+}
     return new_array;
 }
 
@@ -62,18 +64,19 @@ struct cds_array* cds_resize_array(
 }
 
 struct cds_array* cds_copy_array(
-    struct cds_array* const new_array, const struct cds_array* const old_array
+    struct cds_array* const dest, const struct cds_array* const src
 ){
-    if (new_array == old_array) return new_array;
-    cds_resize_array(new_array, old_array->data_length);
-    if (old_array->data_length)
+    if (dest == src) return dest;
+    cds_resize_array(dest, src->data_length);
+    if (src->data_length)
         memcpy(
-            new_array->data, old_array->data, 
-            old_array->data_length * old_array->bytes_per_element
+            dest->data, src->data, 
+            src->data_length * src->bytes_per_element
         );
-    new_array->data_length = old_array->data_length;
-    new_array->bytes_per_element = old_array->bytes_per_element;
-    return new_array;
+    dest->data_length = src->data_length;
+    dest->bytes_per_element = src->bytes_per_element;
+    return dest;
+}
 }
 
 struct cds_array* cds_destroy_array(struct cds_array* const array){
