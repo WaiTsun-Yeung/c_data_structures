@@ -7,9 +7,12 @@ int main(){
         struct cds_array array_0 = cds_create_array(array_length, sizeof(int));
         struct cds_array array_1 = cds_create_array(array_length, sizeof(int));
         cds_copy_array(&array_1, &array_0);
-        for (int j = 0; j < array_0.data_length; ++j)
-            if (((int*)array_0.data)[j] != ((int*)array_1.data)[j])
-                return 1;
+        for (
+            const int *data_0 = array_0.data, *data_1 = array_1.data; 
+            data_0 < (int*)array_0.data + array_length; 
+            ++data_0, ++data_1
+        ) if (*data_0 != *data_1)
+            return 1;
         cds_destroy_array(&array_1);
         cds_destroy_array(&array_0);
     }
