@@ -1,5 +1,13 @@
 add_library(array STATIC private/array.c)
 target_include_directories(array PUBLIC public)
+set(DEBUG_BUILDS Debug RelWithDebInfo)
+if(MSVC AND CMAKE_BUILD_TYPE IN_LIST DEBUG_BUILDS)
+    target_compile_options(array PUBLIC 
+        /fsanitize=address 
+        /fsanitize=fuzzer
+        /fsanitize-address-use-after-return
+    )
+endif()
 
 add_subdirectory(tests)
 
