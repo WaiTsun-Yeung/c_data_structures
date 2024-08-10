@@ -99,13 +99,13 @@ struct cds_array* cds_resize_array(
 ){
     if (new_length > array->reserved_length){
         array->reserved_length = cds_next_power_of_two(new_length);
-        struct cds_array* realloced_array = (struct cds_array*)0;
+        struct cds_array* realloced_array;
         const size_t array_buffer_length
             = cds_compute_array_buffer_length(
                 array->reserved_length, array->bytes_per_element
             );
-        while (!realloced_array)
-            realloced_array = realloc(array, array_buffer_length);
+        do realloced_array = realloc(array, array_buffer_length);
+        while (!realloced_array);
         array = realloced_array;
     }
     array->data_length = new_length;
