@@ -8,6 +8,7 @@ if(MSVC AND CMAKE_BUILD_TYPE IN_LIST DEBUG_BUILDS)
         /fsanitize-address-use-after-return
     )
 endif()
+target_link_libraries(array PRIVATE utilities)
 
 add_subdirectory(tests)
 

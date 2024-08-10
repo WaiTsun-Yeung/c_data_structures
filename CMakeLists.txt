@@ -15,4 +15,5 @@ endif(UNIX)
 include(CTest)
 enable_testing()
 
+add_subdirectory(utilities)
 add_subdirectory(contiguous_array)
