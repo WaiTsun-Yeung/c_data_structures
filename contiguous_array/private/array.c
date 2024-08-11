@@ -84,32 +84,28 @@ struct cds_array* cds_copy_and_create_array(
     return array;
 }
 
-/// @brief Resize the input array to new data buffer length new_length. 
-///     The buffer will only be reallocated if new_length is greater than the 
-///     reserved length of the data buffer. Note that the input array pointer
-///     should be assumed to be invalidated and the returned pointer should be
-///     taken instead.
-/// @param[in] array Array to be resized. This pointer should be assumed
-///     to be invalidated.
+/// @brief Resize the input array to new data buffer length.
+///     The buffer will only be reallocated if new_length is greater than the
+///     reserved length of the data buffer.
+/// @param[in,out] array (Pointer to the pointer to the) Array to be resized.
 /// @param[in] new_length New data buffer length.
-/// @return The resized array, this pointer should be taken to replace to input
-///     buffer.
+/// @return (Pointer to) The resized array.
 struct cds_array* cds_resize_array(
-    struct cds_array* array, const size_t new_length
+    struct cds_array** const array, const size_t new_length
 ){
-    if (new_length > array->reserved_length){
-        array->reserved_length = cds_next_power_of_two(new_length);
+    if (new_length > (*array)->reserved_length){
+        (*array)->reserved_length = cds_next_power_of_two(new_length);
         struct cds_array* realloced_array;
-        const size_t array_buffer_length
+        const size_t array_buffer_length 
             = cds_compute_array_buffer_length(
-                array->reserved_length, array->bytes_per_element
+                (*array)->reserved_length, (*array)->bytes_per_element
             );
-        do realloced_array = realloc(array, array_buffer_length);
+        do realloced_array = realloc(*array, array_buffer_length);
         while (!realloced_array);
-        array = realloced_array;
+        *array = realloced_array;
     }
-    array->data_length = new_length;
-    return array;
+    (*array)->data_length = new_length;
+    return *array;
 }
 
 /// @brief Copies the data from src to dest. The length of the reserved buffer 
@@ -122,7 +118,7 @@ struct cds_array* cds_copy_array(
     struct cds_array* dest, const struct cds_array* const src
 ){
     if (dest == src) return dest;
-    dest = cds_resize_array(dest, src->data_length);
+    cds_resize_array(&dest, src->data_length);
     if (src->data_length)
         memcpy(
             dest->data, src->data, 
@@ -133,13 +129,13 @@ struct cds_array* cds_copy_array(
     return dest;
 }
 
-/// @brief Free the allocated buffer, and return a null pointer.
-///     Users are strongly adviced to replace the pointer 
-///     with the returned null pointer to avoid undefined behaviour.
-/// @param[in] The array to be freed.
+/// @brief Free the allocated buffer, and replace the pointer to the array with
+///     a null pointer.
+/// @param[in,out] array The (pointer to the pointer to the) array to be freed.
 /// @return A null pointer.
-struct cds_array* cds_destroy_array(struct cds_array* const array){
-    if (!array) return array;
-    free(array);
-    return (struct cds_array*)0;
+struct cds_array* cds_destroy_array(struct cds_array** const array){
+    if (!*array) return *array;
+    free(*array);
+    *array = (struct cds_array*)0;
+    return *array;
 }

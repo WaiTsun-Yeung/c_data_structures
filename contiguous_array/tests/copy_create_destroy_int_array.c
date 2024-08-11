@@ -18,8 +18,8 @@ int main(){
             ++data_0, ++data_1
         ) if (*data_0 != *data_1)
             return 1;
-        array_1 = cds_destroy_array(array_1);
-        array_0 = cds_destroy_array(array_0);
+        cds_destroy_array(&array_1);
+        cds_destroy_array(&array_0);
     }
     return 0;
 }

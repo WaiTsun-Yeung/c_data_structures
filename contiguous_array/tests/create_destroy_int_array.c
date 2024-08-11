@@ -11,7 +11,7 @@ int main(){
                 cds_rand_range(1, max_array_bytes / sizeof(int)), 
                 sizeof(int)
             );
-        array = cds_destroy_array(array);
+        cds_destroy_array(&array);
     }
     return 0;
 }
