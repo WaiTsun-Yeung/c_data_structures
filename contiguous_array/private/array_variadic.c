@@ -191,7 +191,9 @@ struct cds_array* cds_create_float_array(const size_t values_count, ...){
     va_start(args, values_count);
     float* data = array->data;
     for (size_t i = 0; i < values_count; ++i, ++data)
-        *data = va_arg(args, float);
+    // The float values are promoted to double when retrieved from va_arg.
+    // See: https://stackoverflow.com/a/11270603/12483740
+        *data = va_arg(args, double);
     va_end(args);
     return array;
 }

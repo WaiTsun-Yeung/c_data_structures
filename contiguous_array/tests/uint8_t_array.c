@@ -1,12 +1,34 @@
+#include <stdlib.h>
+
 #include "array_variadic.h"
 #include "array.h"
-#include <stdlib.h>
+
 int main(){
+    const size_t values_count = 10;
+    uint8_t* const values = malloc(values_count * sizeof(uint8_t));
+    uint8_t* values_ptr = values;
+    *values_ptr++ = 171;
+    *values_ptr++ = 107;
+    *values_ptr++ = 170;
+    *values_ptr++ = 234;
+    *values_ptr++ = 98;
+    *values_ptr++ = 16;
+    *values_ptr++ = 219;
+    *values_ptr++ = 209;
+    *values_ptr++ = 22;
+    *values_ptr++ = 113;
     struct cds_array* array
         = cds_create_uint8_t_array(
-            10, 
+            values_count, 
             171, 107, 170, 234, 98, 16, 219, 209, 22, 113
         );
+    for (
+        const uint8_t* array_ptr = array->data, *values_ptr = values;
+        array_ptr < (uint8_t*)array->data + array->data_length;
+        ++array_ptr, ++values_ptr
+    ) if (*array_ptr != *values_ptr)
+        return 1;
     cds_destroy_array(&array);
+    free(values);
     return 0;
 }

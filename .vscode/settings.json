@@ -4,5 +4,6 @@
         "array": "c",
         "stdlib.h": "c",
         "array.h": "c",
+        "array_variadic.h": "c"
     }
 }
