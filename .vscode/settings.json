@@ -2,6 +2,7 @@
     "cmake.configureOnOpen": true,
     "files.associations": {
         "array": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "array.h": "c",
     }
 }

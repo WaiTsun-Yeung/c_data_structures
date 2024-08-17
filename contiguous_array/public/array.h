@@ -15,7 +15,12 @@ struct cds_array* cds_resize_array(
 );
 
 struct cds_array* cds_copy_array(
-    struct cds_array* const dest, const struct cds_array* const src
+#if _MSC_VER
+    struct cds_array* dest, const struct cds_array* const src
 );
+#else
+    struct cds_array dest[static 1], const struct cds_array const src[static 1]
+);
+#endif
 
 struct cds_array* cds_destroy_array(struct cds_array** const array);

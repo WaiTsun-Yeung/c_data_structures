@@ -6,8 +6,7 @@
 #include "utilities.h"
 #include "array_type.h"
 
-//TODO: Attemp implement most if not all methods in std::vector.
-//TODO: Implement Move constructor, move assignment and swap function. 
+//TODO: Attemp implement most if not all methods in std::vector.\
 //TODO: Implement range-based copy constructor.
 //TODO: Implement array_view.
 //TODO: Create an iterator struct with associated functions. The iterator struct 
@@ -87,12 +86,15 @@ struct cds_array* cds_copy_and_create_array(
 /// @brief Resize the input array to new data buffer length.
 ///     The buffer will only be reallocated if new_length is greater than the
 ///     reserved length of the data buffer.
+///     If the input array is null, this function will return null as there is
+///     no bytes_per_element to determine the size of the data buffer.
 /// @param[in,out] array (Pointer to the pointer to the) Array to be resized.
 /// @param[in] new_length New data buffer length.
 /// @return (Pointer to) The resized array.
 struct cds_array* cds_resize_array(
     struct cds_array** const array, const size_t new_length
 ){
+    if (!*array) return (struct cds_array*)0;
     if (new_length > (*array)->reserved_length){
         (*array)->reserved_length = cds_next_power_of_two(new_length);
         struct cds_array* realloced_array;
@@ -111,12 +113,22 @@ struct cds_array* cds_resize_array(
 /// @brief Copies the data from src to dest. The length of the reserved buffer 
 ///     is not copied if dest already has a reserved buffer length 
 ///     greater than src.
+///     If compiled with MSVC, this function will exit the program if either
+///     dest or src is null.
+///     With other compilers that fully support the C99 standard, this function
+///     will return a compiler error if either dest or src is null.
 /// @param[out] dest The destination of copied data.
 /// @param[in] src The source of the copied data.
 /// @return The same pointer as dest.
 struct cds_array* cds_copy_array(
+#if _MSC_VER
     struct cds_array* dest, const struct cds_array* const src
 ){
+    if (!dest || !src) exit(1);
+#else
+    struct cds_array dest[static 1], const struct cds_array const src[static 1]
+){
+#endif
     if (dest == src) return dest;
     cds_resize_array(&dest, src->data_length);
     if (src->data_length)
