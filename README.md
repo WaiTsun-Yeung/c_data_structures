@@ -45,4 +45,4 @@ ctest -C Release
 ## LICENSE
 
 This project is licensed under the MIT License - see the
-[LICENSE](licenses/LICENSE) file.
+[LICENSE](LICENSE) file.
