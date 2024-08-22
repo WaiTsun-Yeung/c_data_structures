@@ -15,7 +15,7 @@ This repository has only been tested with MSVC on Windows 10.
 
 This repository's MSVC debug build is configured to work with Visual Studio's
 address sanitiser. Hence, when building this repository with MSVC on debug mode,
-the following paths must be included in the shell's Path environment variable 
+the following paths must be included in the shell's Path environment variable
 for CMake to build properly:
 
 - clang_rt.asan_dbg_dynamic-x86_64.dll
@@ -41,3 +41,8 @@ ctest -C Debug
 # if built in Release mode
 ctest -C Release
 ```
+
+## LICENSE
+
+This project is licensed under the MIT License - see the
+[LICENSE](licenses/LICENSE) file.
