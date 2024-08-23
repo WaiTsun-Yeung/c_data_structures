@@ -151,3 +151,22 @@ struct cds_array* cds_destroy_array(struct cds_array** const array){
     *array = (struct cds_array*)0;
     return *array;
 }
+
+/// @brief Get the data element at the specified index.
+///     If the input array is null or the index is out of bounds, this function
+///     will return a null pointer.
+///     This function is only provided for convenience and is suboptimal for
+///     repeated access to the data buffer. In most cases, it is better to
+///     directly access the data buffer with pointer arithmetic
+///     or use this library's iterator functions.
+///     This function is the equivalent 
+///     of (void*)(&(<element_type>*)array_1->data)[j].
+/// @param[in] array The array to get the data element from.
+/// @param[in] index The index of the data element to get.
+/// @return The data element at the specified index.
+void* cds_get_array_element(
+    const struct cds_array* const array, const size_t index
+){
+    if (!array || index >= array->data_length) return (void*)0;
+    return (uint8_t*)array->data + index * array->bytes_per_element;
+}

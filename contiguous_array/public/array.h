@@ -24,3 +24,7 @@ struct cds_array* cds_copy_array(
 #endif
 
 struct cds_array* cds_destroy_array(struct cds_array** const array);
+
+void* cds_get_array_element(
+    const struct cds_array* const array, const size_t index
+);
