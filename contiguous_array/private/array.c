@@ -36,6 +36,7 @@ static inline size_t cds_compute_array_buffer_length(
 
 /// @brief This function heap-allocates an empty cds_array struct without
 ///     instantiating any of its fields, including the data pointer.
+///     This function is meant for internal use only.
 /// @param[in] reserved_length The number of elements of the data buffer 
 ///     to be reserved.
 /// @param[in] bytes_per_element The number of bytes per element of the intended
@@ -54,6 +55,8 @@ static inline struct cds_array* cds_malloc_array(
 /// @param[in] bytes_per_element The number of bytes per element of the intended
 ///     data type.
 /// @return The created array.
+///     The user should free the array with cds_destroy_array()
+///     at the end of its lifetime to prevent memory leaks.
 struct cds_array* cds_create_array(
     const size_t length, const size_t bytes_per_element
 ){
@@ -70,6 +73,8 @@ struct cds_array* cds_create_array(
 /// @brief Copy src to create a new heap-allocated cds_array.
 /// @param[in] src The source cds_array to copy from.
 /// @return The copied array.
+///     The user should free the array with cds_destroy_array()
+///     at the end of its lifetime to prevent memory leaks.
 struct cds_array* cds_copy_and_create_array(
     const struct cds_array* const src
 ){
@@ -91,6 +96,8 @@ struct cds_array* cds_copy_and_create_array(
 /// @param[in,out] array (Pointer to the pointer to the) Array to be resized.
 /// @param[in] new_length New data buffer length.
 /// @return (Pointer to) The resized array.
+///     The user should free the array with cds_destroy_array()
+///     at the end of its lifetime to prevent memory leaks.
 struct cds_array* cds_resize_array(
     struct cds_array** const array, const size_t new_length
 ){
