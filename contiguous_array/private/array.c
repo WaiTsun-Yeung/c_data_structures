@@ -28,7 +28,7 @@ static size_t cds_next_power_of_two(const size_t n){
 /// @param[in] bytes_per_element The number of bytes per intended 
 ///     data element type.
 /// @return The buffer length required to allocate the cds_array struct.
-static inline size_t cds_compute_array_buffer_length(
+static inline size_t cds_compute_array_bytes_count(
     const size_t reserved_length, const size_t bytes_per_element
 ){
     return sizeof(struct cds_array) + reserved_length * bytes_per_element;
@@ -46,7 +46,7 @@ static inline struct cds_array* cds_malloc_array(
     const size_t reserved_length, const size_t bytes_per_element
 ){
     return cds_malloc_buffer(
-        cds_compute_array_buffer_length(reserved_length, bytes_per_element)
+        cds_compute_array_bytes_count(reserved_length, bytes_per_element)
     );
 }
 
@@ -79,12 +79,12 @@ struct cds_array* cds_copy_and_create_array(
     const struct cds_array* const src
 ){
     if (!src) return (struct cds_array*)0;
-    const size_t array_buffer_length 
-        = cds_compute_array_buffer_length(
+    const size_t array_bytes_count 
+        = cds_compute_array_bytes_count(
             src->reserved_length, src->bytes_per_element
         );
-    struct cds_array* const array = cds_malloc_buffer(array_buffer_length);
-    memcpy(array, src, array_buffer_length);
+    struct cds_array* const array = cds_malloc_buffer(array_bytes_count);
+    memcpy(array, src, array_bytes_count);
     return array;
 }
 
@@ -105,11 +105,11 @@ struct cds_array* cds_resize_array(
     if (new_length > (*array)->reserved_length){
         (*array)->reserved_length = cds_next_power_of_two(new_length);
         struct cds_array* realloced_array;
-        const size_t array_buffer_length 
-            = cds_compute_array_buffer_length(
+        const size_t array_bytes_count 
+            = cds_compute_array_bytes_count(
                 (*array)->reserved_length, (*array)->bytes_per_element
             );
-        do realloced_array = realloc(*array, array_buffer_length);
+        do realloced_array = realloc(*array, array_bytes_count);
         while (!realloced_array);
         *array = realloced_array;
     }
