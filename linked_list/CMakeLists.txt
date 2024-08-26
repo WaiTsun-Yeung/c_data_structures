@@ -47,3 +47,51 @@ add_test(
     NAME create_destroy_list
     COMMAND create_destroy_list.exe
 )
+add_executable(destroy_list_node
+    tests/destroy_list_node.c
+)
+target_link_libraries(destroy_list_node PRIVATE list)
+add_test(
+    NAME destroy_list_node
+    COMMAND destroy_list_node.exe
+)
+add_executable(erase_following_list_nodes
+    tests/erase_following_list_nodes.c
+)
+target_link_libraries(erase_following_list_nodes PRIVATE list)
+add_test(
+    NAME erase_following_list_nodes
+    COMMAND erase_following_list_nodes.exe
+)
+add_executable(push_next_node
+    tests/push_next_node.c
+)
+target_link_libraries(push_next_node PRIVATE list)
+add_test(
+    NAME push_next_node
+    COMMAND push_next_node.exe
+)
+add_executable(reverse_list
+    tests/reverse_list.c
+)
+target_link_libraries(reverse_list PRIVATE list)
+add_test(
+    NAME reverse_list
+    COMMAND reverse_list.exe
+)
+add_executable(swap_list_nodes
+    tests/swap_list_nodes.c
+)
+target_link_libraries(swap_list_nodes PRIVATE list)
+add_test(
+    NAME swap_list_nodes
+    COMMAND swap_list_nodes.exe
+)
+add_executable(pop_next_node 
+    tests/pop_next_node.c
+)
+target_link_libraries(pop_next_node PRIVATE list)
+add_test(
+    NAME pop_next_node
+    COMMAND pop_next_node.exe
+)

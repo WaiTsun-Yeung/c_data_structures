@@ -10,6 +10,7 @@ This repository has only been tested with MSVC on Windows 10.
 ## Dependencies
 
 - CMake 3.22
+- OpenMP 4.5
 
 ## Build and Install
 

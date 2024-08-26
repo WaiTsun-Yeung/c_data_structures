@@ -7,6 +7,7 @@
 
     struct cds_list_node{
         size_t bytes_per_element;
+        omp_lock_t* lock;
         struct cds_list_node* next;
         void* data;
     };
