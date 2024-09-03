@@ -13,17 +13,18 @@
 /// @param[in] bytes_per_element The number of bytes for the data element.
 /// @return The number of bytes of a cds_singly_linked_list_node with the given 
 ///     bytes_per_element.
-static inline size_t cds_compute_list_node_bytes_count(
+static inline size_t cds_compute_singly_linked_list_node_bytes_count(
     const size_t bytes_per_element
 ){
     return sizeof(struct cds_singly_linked_list_node) + bytes_per_element;
 }
 
-static inline struct cds_singly_linked_list_node* cds_malloc_list_node(
+static inline struct cds_singly_linked_list_node* 
+cds_malloc_singly_linked_list_node(
     const size_t bytes_per_element
 ){
     return cds_malloc_buffer(
-        cds_compute_list_node_bytes_count(bytes_per_element)
+        cds_compute_singly_linked_list_node_bytes_count(bytes_per_element)
     );
 }
 
@@ -31,7 +32,7 @@ struct cds_singly_linked_list_node* cds_create_singly_linked_list_node(
     const size_t bytes_per_element
 ){
     struct cds_singly_linked_list_node* const node 
-        = cds_malloc_list_node(bytes_per_element);
+        = cds_malloc_singly_linked_list_node(bytes_per_element);
     node->bytes_per_element = bytes_per_element;
     node->lock = (omp_lock_t*)0;
     node->next = (struct cds_singly_linked_list_node*)0;
@@ -63,7 +64,9 @@ struct cds_singly_linked_list_node* cds_copy_and_create_singly_linked_list_node(
 ){
     if (!src) return (struct cds_singly_linked_list_node*)0;
     const size_t node_bytes_count 
-        = cds_compute_list_node_bytes_count(src->bytes_per_element);
+        = cds_compute_singly_linked_list_node_bytes_count(
+            src->bytes_per_element
+        );
     struct cds_singly_linked_list_node* const node 
         = cds_malloc_buffer(node_bytes_count);
     memcpy(node, src, node_bytes_count);
@@ -99,7 +102,7 @@ struct cds_singly_linked_list* cds_copy_and_create_singly_linked_list(
     return list;
 }
 
-static struct cds_singly_linked_list* cds_destroy_empty_list(
+static struct cds_singly_linked_list* cds_destroy_empty_singly_linked_list(
     struct cds_singly_linked_list** const list
 ){
     omp_destroy_lock(&(*list)->lock);
@@ -112,7 +115,7 @@ struct cds_singly_linked_list* cds_destroy_singly_linked_list(
     struct cds_singly_linked_list** const list
 ){
     if (!*list) return *list;
-    if (!(*list)->front) return cds_destroy_empty_list(list);
+    if (!(*list)->front) return cds_destroy_empty_singly_linked_list(list);
     struct cds_singly_linked_list_node* node = (*list)->front;
     while (node->next){
         struct cds_singly_linked_list_node* const next_node = node->next;
@@ -120,7 +123,7 @@ struct cds_singly_linked_list* cds_destroy_singly_linked_list(
         node = next_node;
     }
     free(node);
-    return cds_destroy_empty_list(list);
+    return cds_destroy_empty_singly_linked_list(list);
 }
 
 /// @brief Destroy the input list node.
@@ -138,7 +141,8 @@ struct cds_singly_linked_list_node* cds_destroy_free_singly_linked_list_node(
     return *node;
 }
 
-static struct cds_singly_linked_list* cds_list_push_front_internal(
+static struct cds_singly_linked_list* 
+cds_singly_linked_list_push_front_internal(
     struct cds_singly_linked_list* const list,
     struct cds_singly_linked_list_node* const node
 ){
@@ -160,7 +164,7 @@ struct cds_singly_linked_list* cds_singly_linked_list_push_front(
 ){
     if (!list || !node) return (struct cds_singly_linked_list*)0;
     omp_set_lock(&list->lock);
-    cds_list_push_front_internal(list, node);
+    cds_singly_linked_list_push_front_internal(list, node);
     omp_unset_lock(&list->lock);
     return list;
 }
@@ -278,7 +282,7 @@ struct cds_singly_linked_list* cds_copy_and_create_reverse_singly_linked_list(
     do {
         struct cds_singly_linked_list_node* const dest_node 
             = cds_copy_and_create_singly_linked_list_node(src_node);
-        cds_list_push_front_internal(list, dest_node);
+        cds_singly_linked_list_push_front_internal(list, dest_node);
         src_node = src_node->next;
     } while (src_node);
     omp_unset_lock(&src->lock);
