@@ -16,5 +16,5 @@ include(CTest)
 enable_testing()
 
 add_subdirectory(utilities)
-add_subdirectory(linked_list)
+add_subdirectory(singly_linked_list)
 add_subdirectory(contiguous_array)

@@ -5,17 +5,17 @@
 
     #include <omp.h>
 
-    struct cds_list_node{
+    struct cds_singly_linked_list_node{
+        void* data;
         size_t bytes_per_element;
         omp_lock_t* lock;
-        struct cds_list_node* next;
-        void* data;
+        struct cds_singly_linked_list_node* next;
     };
 
-    struct cds_list{
+    struct cds_singly_linked_list{
         omp_lock_t lock;
         omp_sync_hint_t hint;
-        struct cds_list_node* front;
+        struct cds_singly_linked_list_node* front;
     };
 
 #endif // LIST_TYPE_H
