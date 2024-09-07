@@ -11,7 +11,7 @@ int main(){
             cds_singly_linked_list_push_front(
                 list, cds_create_singly_linked_list_node(sizeof(int))
             );
-        cds_erase_preceding_singly_linked_list_nodes(list, last_node);
+        cds_erase_preceding_singly_linked_list_nodes(list, last_node, false);
         cds_singly_linked_list_destroy_front(list);
         cds_destroy_singly_linked_list(&list);
     }

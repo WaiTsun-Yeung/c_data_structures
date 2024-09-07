@@ -1,4 +1,7 @@
-add_library(singly_linked_list STATIC private/singly_linked_list.c)
+add_library(singly_linked_list STATIC 
+    private/singly_linked_list.c
+    private/linked_list.c
+)
 target_include_directories(singly_linked_list PUBLIC public)
 set(DEBUG_BUILDS Debug RelWithDebInfo)
 if(MSVC)

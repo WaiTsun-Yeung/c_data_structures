@@ -7,6 +7,7 @@
         "array_variadic.h": "c",
         "omp.h": "c",
         "xutility": "c",
-        "list": "c"
+        "list": "c",
+        "singly_linked_list_type.h": "c"
     }
 }
