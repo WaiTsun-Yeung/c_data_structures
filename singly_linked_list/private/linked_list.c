@@ -10,12 +10,16 @@
 #include "singly_linked_list_type.h"
 
 void* cds_create_linked_list_node(
-    const size_t bytes_per_node_type, const size_t bytes_per_element
+    const size_t bytes_per_node_type, const size_t bytes_per_element,
+    const size_t data_align
 ){
+    const size_t data_offset 
+        = cds_compute_data_offset(bytes_per_node_type, data_align);
     struct cds_singly_linked_list_node* const node 
-        = cds_malloc_buffer(bytes_per_node_type + bytes_per_element);
-    node->data = (uint8_t*)node + bytes_per_node_type;
+        = cds_malloc_buffer(data_offset + bytes_per_element);
+    node->data = (uint8_t*)node + data_offset;
     node->bytes_per_element = bytes_per_element;
+    node->data_align = data_align;
     node->lock = (omp_lock_t*)0;
     node->next = (struct cds_singly_linked_list_node*)0;
     return node;
@@ -36,12 +40,17 @@ void* cds_copy_and_create_linked_list_node(
     const size_t bytes_per_node_type, const void* const src
 ){
     if (!src) return (void*)0;
+    const size_t data_offset 
+        = (uint8_t*)((const struct cds_singly_linked_list_node* const)src)->data 
+            - (uint8_t*)src;
     const size_t node_bytes_count 
-        = bytes_per_node_type 
+        = data_offset 
             + ((const struct cds_singly_linked_list_node* const)src)
                 ->bytes_per_element;
     void* const node = cds_malloc_buffer(node_bytes_count);
     memcpy(node, src, node_bytes_count);
+    ((struct cds_singly_linked_list_node*)node)->data 
+        = (uint8_t*)node + data_offset;
     return node;
 }
 

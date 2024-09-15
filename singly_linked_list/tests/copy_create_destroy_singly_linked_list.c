@@ -1,3 +1,5 @@
+#include <stdalign.h>
+
 #include "singly_linked_list_type.h"
 #include "singly_linked_list.h"
 
@@ -6,7 +8,9 @@ int main(){
         struct cds_singly_linked_list* list = cds_create_singly_linked_list();
         for (size_t j = 0; j < 10; ++j)
             cds_singly_linked_list_push_front(
-                list, cds_create_singly_linked_list_node(sizeof(int))
+                list, cds_create_singly_linked_list_node(
+                    sizeof(int), alignof(int)
+                )
             );
         struct cds_singly_linked_list* list_copy 
             = cds_copy_and_create_singly_linked_list(list);

@@ -1,7 +1,8 @@
 #include <stddef.h>
 
 void* cds_create_linked_list_node(
-    const size_t bytes_per_node_type, const size_t bytes_per_element
+    const size_t bytes_per_node_type, const size_t bytes_per_element,
+    const size_t data_align
 );
 
 void* cds_create_linked_list_with_hint(

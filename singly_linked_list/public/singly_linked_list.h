@@ -48,10 +48,11 @@ struct cds_singly_linked_list* cds_erase_preceding_singly_linked_list_nodes(
 
     static inline struct cds_singly_linked_list_node* 
     cds_create_singly_linked_list_node(
-        const size_t bytes_per_element
+        const size_t bytes_per_element, const size_t data_align
     ){
         return cds_create_linked_list_node(
-            sizeof(struct cds_singly_linked_list_node), bytes_per_element
+            sizeof(struct cds_singly_linked_list_node), bytes_per_element, 
+            data_align
         );
     }
 

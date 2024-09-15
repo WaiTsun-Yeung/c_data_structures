@@ -8,6 +8,7 @@
     struct cds_singly_linked_list_node{
         void* data;
         size_t bytes_per_element;
+        size_t data_align;
         omp_lock_t* lock;
         struct cds_singly_linked_list_node* next;
     };
