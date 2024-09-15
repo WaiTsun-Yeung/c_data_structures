@@ -1,4 +1,4 @@
-# C Data Strues
+# C Data Structures
 
 ## Description
 
