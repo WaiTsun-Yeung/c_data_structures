@@ -8,6 +8,9 @@
         "omp.h": "c",
         "xutility": "c",
         "list": "c",
-        "singly_linked_list_type.h": "c"
+        "singly_linked_list_type.h": "c",
+        "singly_linked_list.h": "c",
+        "stddef.h": "c",
+        "stdbool.h": "c"
     }
 }
