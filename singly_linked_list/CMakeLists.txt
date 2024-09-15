@@ -58,6 +58,16 @@ add_test(
     NAME create_destroy_singly_linked_list
     COMMAND create_destroy_singly_linked_list.exe
 )
+add_executable(change_singly_linked_list_node_data_type 
+    tests/change_singly_linked_list_node_data_type.c
+)
+target_link_libraries(change_singly_linked_list_node_data_type PRIVATE 
+    singly_linked_list
+)
+add_test(
+    NAME change_singly_linked_list_node_data_type
+    COMMAND change_singly_linked_list_node_data_type.exe
+)
 add_executable(destroy_singly_linked_list_node
     tests/destroy_singly_linked_list_node.c
 )

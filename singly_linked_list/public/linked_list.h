@@ -22,6 +22,11 @@ void* cds_copy_and_create_linked_list(
         (void* const dest_list, void* const dest_node)
 );
 
+void* cds_change_linked_list_node_data_type(
+    const size_t bytes_per_node_type, void** const node, 
+    const size_t bytes_per_element, const size_t data_align
+);
+
 void* cds_destroy_linked_list(void** const list);
 
 void* cds_push_next_linked_list_node(

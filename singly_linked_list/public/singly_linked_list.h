@@ -98,6 +98,17 @@ struct cds_singly_linked_list* cds_erase_preceding_singly_linked_list_nodes(
         );
     }
 
+    static inline struct cds_singly_linked_list_node*
+    cds_change_singly_linked_list_node_data_type(
+        struct cds_singly_linked_list_node** const node,
+        const size_t bytes_per_element, const size_t data_align
+    ){
+        return cds_change_linked_list_node_data_type(
+            sizeof(struct cds_singly_linked_list_node), 
+            (void**)node, bytes_per_element, data_align
+        );
+    }
+
     static inline struct cds_singly_linked_list* cds_destroy_singly_linked_list(
         struct cds_singly_linked_list** const list
     ){return cds_destroy_linked_list((void** const)list);}
