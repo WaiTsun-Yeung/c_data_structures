@@ -49,7 +49,7 @@ void* cds_copy_and_create_linked_list(
     const size_t bytes_per_list_type, const size_t bytes_per_node_type, 
     void* const src_list, 
     void* (*doubly_linked_list_null_front_callback)
-        (void* const dest_list, void* const src_list),
+        (void* const dest_list),
     void (*doubly_linked_list_copy_node_callback)(void* const dest_node),
     void (*doubly_linked_list_closing_callback)
         (void* const dest_list, void* const dest_node)
@@ -63,8 +63,8 @@ void* cds_copy_and_create_linked_list(
     if (!((struct cds_singly_linked_list*)src_list)->front){
         omp_unset_lock(&((struct cds_singly_linked_list*)src_list)->lock);
         dest_list->front = ((struct cds_singly_linked_list*)src_list)->front;
-        return doubly_linked_list_null_front_callback(dest_list, src_list)
-            ? doubly_linked_list_null_front_callback(dest_list, src_list)
+        return doubly_linked_list_null_front_callback
+            ? doubly_linked_list_null_front_callback(dest_list)
             : (void*)0;
     }
     const struct cds_singly_linked_list_node* src_node 
@@ -72,16 +72,20 @@ void* cds_copy_and_create_linked_list(
     void* dest_node 
         = cds_copy_and_create_linked_list_node(bytes_per_node_type, src_node);
     dest_list->front = dest_node;
-    while (src_node->next){
-        ((struct cds_singly_linked_list_node*)dest_node)->lock = &dest_list->lock;
+    for (
         src_node = src_node->next;
+        src_node; 
+        src_node = src_node->next,
+        dest_node = ((struct cds_singly_linked_list_node*)dest_node)->next
+    ){
+        ((struct cds_singly_linked_list_node*)dest_node)->lock 
+            = &dest_list->lock;
         ((struct cds_singly_linked_list_node*)dest_node)->next 
             = cds_copy_and_create_linked_list_node(
                 bytes_per_node_type, src_node
             );
         if (doubly_linked_list_copy_node_callback)
             doubly_linked_list_copy_node_callback(dest_node);
-        dest_node = ((struct cds_singly_linked_list_node*)dest_node)->next;
     }
     ((struct cds_singly_linked_list_node*)dest_node)->lock = &dest_list->lock;
     if (doubly_linked_list_closing_callback)
@@ -97,6 +101,38 @@ static void* cds_destroy_empty_linked_list(void** const list){
     return *list;
 }
 
+void* cds_empty_linked_list(
+    void* const list, void (*doubly_linked_list_callback)(void* const list),
+    const bool toggle_guards_and_cleanups
+){
+    if (toggle_guards_and_cleanups){
+        if (!list) return list;
+        omp_set_lock(&((struct cds_singly_linked_list*)list)->lock);
+        if (!((struct cds_singly_linked_list*)list)->front){
+            omp_unset_lock(&((struct cds_singly_linked_list*)list)->lock);
+            return list;
+        }
+    }
+    struct cds_singly_linked_list_node* node 
+        = ((struct cds_singly_linked_list*)list)->front;
+    for (
+        struct cds_singly_linked_list_node* next_node = node->next; 
+        next_node; 
+        next_node = node->next
+    ){
+        free(node);
+        node = next_node;
+    }
+    if (toggle_guards_and_cleanups){
+        ((struct cds_singly_linked_list*)list)->front 
+            = (struct cds_singly_linked_list_node*)0;
+        if (doubly_linked_list_callback) doubly_linked_list_callback(list);
+        omp_unset_lock(&((struct cds_singly_linked_list*)list)->lock);
+    }
+    free(node);
+    return list;
+}
+
 void* cds_destroy_linked_list(void** const list){
     if (!*list) return *list;
     omp_set_lock(&((struct cds_singly_linked_list*)*list)->lock);
@@ -104,14 +140,7 @@ void* cds_destroy_linked_list(void** const list){
         omp_unset_lock(&((struct cds_singly_linked_list*)*list)->lock);
         return cds_destroy_empty_linked_list(list);
     }
-    struct cds_singly_linked_list_node* node 
-        = ((struct cds_singly_linked_list*)*list)->front;
-    while (node->next){
-        struct cds_singly_linked_list_node* const next_node = node->next;
-        free(node);
-        node = next_node;
-    }
-    free(node);
+    cds_empty_linked_list(*list, (void*)0, false);
     return cds_destroy_empty_linked_list(list);
 }
 
@@ -140,8 +169,10 @@ void* cds_copy_and_create_reverse_linked_list(
     const size_t bytes_per_list_type, const size_t bytes_per_node_type, 
     void* const src_list,
     void* (*doubly_linked_list_null_front_callback)(void* const dest_list),
-    void* (*push_list_front_callback)
-        (void* const dest_list, void* const dest_node)
+    void* (*push_list_front_callback)(
+        void* const dest_list, void* const dest_node, 
+        const bool toggle_safety_guards
+    )
 ){
     if (!src_list) return src_list;
     struct cds_singly_linked_list* const dest_list 
@@ -155,22 +186,25 @@ void* cds_copy_and_create_reverse_linked_list(
         return doubly_linked_list_null_front_callback 
             ? doubly_linked_list_null_front_callback(dest_list) : dest_list;
     }
+    for (
     const struct cds_singly_linked_list_node* src_node 
         = ((struct cds_singly_linked_list*)src_list)->front;
-    do {
-        struct cds_singly_linked_list_node* const dest_node 
-            = cds_copy_and_create_linked_list_node(
+        src_node;
+        src_node = src_node->next
+    ) push_list_front_callback(
+        dest_list, 
+        cds_copy_and_create_linked_list_node(
                 bytes_per_node_type, src_node
+        ),
+        false
             );
-        push_list_front_callback(dest_list, dest_node);
-        src_node = src_node->next;
-    } while (src_node);
     omp_unset_lock(&((struct cds_singly_linked_list*)src_list)->lock);
     return dest_list;
 }
 
 void* cds_linked_list_pop_front(
-    void* const list, void (*doubly_linked_list_callback)(void* const node)
+    void* const list, 
+    void (*doubly_linked_list_callback)(void* list, void* const node)
 ){
     if (!list) return (void*)0;
     omp_set_lock(&((struct cds_singly_linked_list*)list)->lock);
@@ -181,7 +215,7 @@ void* cds_linked_list_pop_front(
     struct cds_singly_linked_list_node* const node 
         = ((struct cds_singly_linked_list*)list)->front;
     if (doubly_linked_list_callback) 
-        doubly_linked_list_callback(node);
+        doubly_linked_list_callback(list, node);
     ((struct cds_singly_linked_list*)list)->front = node->next;
     omp_unset_lock(&((struct cds_singly_linked_list*)list)->lock);
     node->lock = (omp_lock_t*)0;
@@ -190,7 +224,9 @@ void* cds_linked_list_pop_front(
 }
 
 void cds_linked_list_destroy_front(
-    void* const list, void (*doubly_linked_list_callback)(void* const node)
+    void* const list, 
+    void (*doubly_linked_list_callback)
+        (void* const list, const void* const node)
 ){
     if (!list) return;
     omp_set_lock(&((struct cds_singly_linked_list*)list)->lock);
@@ -202,34 +238,10 @@ void cds_linked_list_destroy_front(
         = ((struct cds_singly_linked_list*)list)->front;
     ((struct cds_singly_linked_list*)list)->front = node->next;
     if (doubly_linked_list_callback) 
-        doubly_linked_list_callback(node);
+        doubly_linked_list_callback(list, node);
     omp_unset_lock(&((struct cds_singly_linked_list*)list)->lock);
     free(node);
     return;
-}
-
-void* cds_empty_linked_list(
-    void* const list, void (*doubly_linked_list_callback)(void* const list)
-){
-    if (!list) return list;
-    omp_set_lock(&((struct cds_singly_linked_list*)list)->lock);
-    if (!((struct cds_singly_linked_list*)list)->front){
-        omp_unset_lock(&((struct cds_singly_linked_list*)list)->lock);
-        return list;
-    }
-    struct cds_singly_linked_list_node* node 
-        = ((struct cds_singly_linked_list*)list)->front;
-    while (node->next){
-        struct cds_singly_linked_list_node* const next_node = node->next;
-        free(node);
-        node = next_node;
-    }
-    ((struct cds_singly_linked_list*)list)->front 
-        = (struct cds_singly_linked_list_node*)0;
-    if (doubly_linked_list_callback) doubly_linked_list_callback(list);
-    omp_unset_lock(&((struct cds_singly_linked_list*)list)->lock);
-    free(node);
-    return list;
 }
 
 void cds_erase_following_linked_list_nodes_core(void* const node){
@@ -271,10 +283,10 @@ void cds_swap_linked_list_nodes(
     ((struct cds_singly_linked_list_node*)*node_0)->next 
         = ((struct cds_singly_linked_list_node*)*node_1)->next;
     ((struct cds_singly_linked_list_node*)*node_1)->next = temp_next;
-    if (((struct cds_singly_linked_list_node*)*node_0)->lock) 
-        omp_unset_lock(((struct cds_singly_linked_list_node*)*node_0)->lock);
     if (needs_lock_node_1) 
         omp_unset_lock(((struct cds_singly_linked_list_node*)*node_1)->lock);
+    if (((struct cds_singly_linked_list_node*)*node_0)->lock) 
+        omp_unset_lock(((struct cds_singly_linked_list_node*)*node_0)->lock);
     return;
 };
 

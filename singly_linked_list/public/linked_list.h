@@ -15,8 +15,7 @@ void* cds_copy_and_create_linked_list_node(
 void* cds_copy_and_create_linked_list(
     const size_t bytes_per_list_type, const size_t bytes_per_node_type, 
     void* const src_list, 
-    void* (*doubly_linked_list_null_front_callback)
-        (void* const dest_list, void* const src_list),
+    void* (*doubly_linked_list_null_front_callback)(void* const dest_list),
     void (*doubly_linked_list_copy_node_callback)(void* const dest_node),
     void (*doubly_linked_list_closing_callback)
         (void* const dest_list, void* const dest_node)
@@ -35,21 +34,25 @@ void* cds_copy_and_create_reverse_linked_list(
     void* const src_list,
     void* (*doubly_linked_list_null_front_callback)(void* const dest_list),
     void* (*push_list_front_callback)(
-        void* const dest_list, void* const dest_node
+        void* const dest_list, void* const dest_node, 
+        const bool toggle_safety_guards
     )
 );
 
 void* cds_linked_list_pop_front(
-    void* const list, void (*doubly_linked_list_callback)(void* const node)
+    void* const list, 
+    void (*doubly_linked_list_callback)(void* list, void* const node)
 );
 
 void cds_linked_list_destroy_front(
-    void* const list, void (*doubly_linked_list_callback)(void* const node)
+    void* const list, 
+    void (*doubly_linked_list_callback)
+        (void* const list, const void* const node)
 );
 
 void* cds_empty_linked_list(
-    void* const list,
-    void (*doubly_linked_list_callback)(void* const list)
+    void* const list, void (*doubly_linked_list_callback)(void* const list),
+    const bool toggle_guards_and_cleanups
 );
 
 void cds_erase_following_linked_list_nodes_core(void* const node);

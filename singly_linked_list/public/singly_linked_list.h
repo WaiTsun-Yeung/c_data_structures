@@ -129,6 +129,17 @@ struct cds_singly_linked_list* cds_erase_preceding_singly_linked_list_nodes(
         cds_linked_list_destroy_front(list, (void*)0);
     }
 
+    static inline struct cds_singly_linked_list*
+    cds_singly_linked_list_push_front_with_toggle(
+        struct cds_singly_linked_list* const list,
+        struct cds_singly_linked_list_node* const node,
+        const bool toggle_safety_guards
+    ){
+        return toggle_safety_guards 
+            ? cds_singly_linked_list_push_front(list, node) 
+            : cds_singly_linked_list_push_front_core(list, node);
+    }
+
     static inline struct cds_singly_linked_list* 
     cds_copy_and_create_reverse_singly_linked_list(
         struct cds_singly_linked_list* const src_list
@@ -138,13 +149,13 @@ struct cds_singly_linked_list* cds_erase_preceding_singly_linked_list_nodes(
             sizeof(struct cds_singly_linked_list_node), 
             src_list, 
             (void*)0,
-            cds_singly_linked_list_push_front_core
+            cds_singly_linked_list_push_front_with_toggle
         );
     }
 
     static inline struct cds_singly_linked_list* cds_empty_singly_linked_list(
         struct cds_singly_linked_list* const list
-    ){return cds_empty_linked_list(list, (void*)0);}
+    ){return cds_empty_linked_list(list, (void*)0, true);}
 
     /// @brief Swap the nodes of the input list. If one of the nodes 
     ///     is a nullptr, the function will return immediately.
