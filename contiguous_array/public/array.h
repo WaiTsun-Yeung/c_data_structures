@@ -3,7 +3,7 @@
 #include "array_type.h"
 
 struct cds_array* cds_create_array(
-    const size_t length, const size_t bytes_per_element
+    const size_t length, const size_t bytes_per_element, const size_t data_align
 );
 
 struct cds_array* cds_copy_and_create_array(
@@ -16,10 +16,11 @@ struct cds_array* cds_resize_array(
 
 struct cds_array* cds_copy_array(
 #if _MSC_VER
-    struct cds_array* dest, const struct cds_array* const src
+    struct cds_array** const dest, const struct cds_array* const src
 );
 #else
-    struct cds_array dest[static 1], const struct cds_array const src[static 1]
+    struct cds_array (* const dest)[static 1], 
+    const struct cds_array const src[static 1]
 );
 #endif
 

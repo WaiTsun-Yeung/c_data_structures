@@ -1,5 +1,6 @@
 #include "array.h"
 #include "rand.h"
+#include <stdalign.h>
 
 int main(){
     for (int i = 0; i < 1000000; ++i){
@@ -9,7 +10,7 @@ int main(){
         struct cds_array* array 
             = cds_create_array(
                 cds_rand_range(1, max_array_bytes / sizeof(int)), 
-                sizeof(int)
+                sizeof(int), alignof(int)
             );
         cds_destroy_array(&array);
     }
