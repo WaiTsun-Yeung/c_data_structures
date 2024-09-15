@@ -109,6 +109,14 @@ struct cds_singly_linked_list* cds_erase_preceding_singly_linked_list_nodes(
         );
     }
 
+    static inline struct cds_singly_linked_list_node*
+    cds_copy_singly_linked_list_node(
+        struct cds_singly_linked_list_node** const dest,
+        const struct cds_singly_linked_list_node* const src
+    ){
+        return cds_copy_linked_list_node((void**)dest, src);
+    }
+
     static inline struct cds_singly_linked_list* cds_destroy_singly_linked_list(
         struct cds_singly_linked_list** const list
     ){return cds_destroy_linked_list((void** const)list);}

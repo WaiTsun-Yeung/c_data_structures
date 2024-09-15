@@ -82,7 +82,7 @@ void* cds_copy_and_create_linked_list(
         = cds_copy_and_create_linked_list_node(bytes_per_node_type, src_node);
     dest_list->front = dest_node;
     for (
-        src_node = src_node->next;
+        src_node = src_node->next; 
         src_node; 
         src_node = src_node->next,
         dest_node = ((struct cds_singly_linked_list_node*)dest_node)->next
@@ -133,6 +133,44 @@ void* cds_change_linked_list_node_data_type(
     return cds_set_linked_list_node_after_realloc(
         node, data_offset, bytes_per_element, data_align
     );
+}
+
+void* cds_copy_linked_list_node(
+    void** const dest, const void* const src
+){
+    if (!*dest || !src) exit(1);
+    if (*dest == src) return *dest;
+    const size_t data_offset 
+        = (uint8_t*)((const struct cds_singly_linked_list_node* const)src)->data 
+            - (uint8_t*)src;
+    if (
+        ((struct cds_singly_linked_list_node*)*dest)->bytes_per_element 
+                != ((const struct cds_singly_linked_list_node* const)src)
+                    ->bytes_per_element
+            || ((struct cds_singly_linked_list_node*)*dest)->data_align 
+                != ((const struct cds_singly_linked_list_node* const)src)
+                    ->data_align
+    ){ 
+        cds_realloc_buffer(
+            dest, 
+            data_offset 
+                + ((const struct cds_singly_linked_list_node* const)src)
+                    ->bytes_per_element
+        );
+        cds_set_linked_list_node_after_realloc(
+            dest, data_offset, 
+            ((const struct cds_singly_linked_list_node* const)src)
+                ->bytes_per_element, 
+            ((const struct cds_singly_linked_list_node* const)src)->data_align
+        );
+    }
+    memcpy(
+        ((struct cds_singly_linked_list_node*)*dest)->data, 
+        ((const struct cds_singly_linked_list_node* const)src)->data, 
+        ((const struct cds_singly_linked_list_node* const)src)
+            ->bytes_per_element
+    );
+    return *dest;
 }
 
 static void* cds_destroy_empty_linked_list(void** const list){
@@ -228,17 +266,17 @@ void* cds_copy_and_create_reverse_linked_list(
             ? doubly_linked_list_null_front_callback(dest_list) : dest_list;
     }
     for (
-    const struct cds_singly_linked_list_node* src_node 
-        = ((struct cds_singly_linked_list*)src_list)->front;
+        const struct cds_singly_linked_list_node* src_node 
+            = ((struct cds_singly_linked_list*)src_list)->front;
         src_node;
         src_node = src_node->next
     ) push_list_front_callback(
         dest_list, 
         cds_copy_and_create_linked_list_node(
-                bytes_per_node_type, src_node
+            bytes_per_node_type, src_node
         ),
         false
-            );
+    );
     omp_unset_lock(&((struct cds_singly_linked_list*)src_list)->lock);
     return dest_list;
 }

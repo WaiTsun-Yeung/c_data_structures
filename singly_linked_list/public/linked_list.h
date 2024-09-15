@@ -27,6 +27,10 @@ void* cds_change_linked_list_node_data_type(
     const size_t bytes_per_element, const size_t data_align
 );
 
+void* cds_copy_linked_list_node(
+    void** const dest, const void* const src
+);
+
 void* cds_destroy_linked_list(void** const list);
 
 void* cds_push_next_linked_list_node(
