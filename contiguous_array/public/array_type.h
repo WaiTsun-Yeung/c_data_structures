@@ -1,5 +1,5 @@
-#ifndef ARRAY_TYPE_H
-#define ARRAY_TYPE_H    
+#ifndef CDS_ARRAY_TYPE_H
+#define CDS_ARRAY_TYPE_H    
 
     #include <stddef.h>
 
@@ -10,4 +10,4 @@
         size_t reserved_length;
     };
 
-#endif // ARRAY_TYPE_H
+#endif // CDS_ARRAY_TYPE_H
