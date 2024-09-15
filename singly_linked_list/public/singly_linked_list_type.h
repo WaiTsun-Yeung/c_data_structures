@@ -1,5 +1,5 @@
-#ifndef LIST_TYPE_H
-#define LIST_TYPE_H
+#ifndef CDS_SINGLY_LINKED_LIST_TYPE_H
+#define CDS_SINGLY_LINKED_LIST_TYPE_H
 
     #include <stddef.h>
 
@@ -18,4 +18,4 @@
         struct cds_singly_linked_list_node* front;
     };
 
-#endif // LIST_TYPE_H
+#endif // CDS_SINGLY_LINKED_LIST_TYPE_H

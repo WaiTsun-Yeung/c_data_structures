@@ -43,8 +43,8 @@ struct cds_singly_linked_list* cds_erase_preceding_singly_linked_list_nodes(
     const bool is_inclusive
 );
 
-#ifndef CDS_LIST_H
-#define CDS_LIST_H
+#ifndef CDS_SINGLY_LINKED_LIST_H
+#define CDS_SINGLY_LINKED_LIST_H
 
     static inline struct cds_singly_linked_list_node* 
     cds_create_singly_linked_list_node(
@@ -189,4 +189,4 @@ struct cds_singly_linked_list* cds_erase_preceding_singly_linked_list_nodes(
         struct cds_singly_linked_list_node** const node
     ){return cds_linked_list_node_next((void** const)node);}
 
-#endif // CDS_LIST_H
+#endif // CDS_SIGNLY_LINKED_LIST_H
