@@ -1,5 +1,6 @@
 #include <stdalign.h>
 
+#include "utilities.h"
 #include "singly_linked_list_type.h"
 #include "singly_linked_list.h"
 
@@ -32,7 +33,8 @@ int main() {
             node_pop_push != cds_singly_linked_list_end(list_pop_push);
             cds_singly_linked_list_node_next(&node_pop_push), 
                 cds_singly_linked_list_node_next(&node_reverse)
-        )if (*(int*)node_pop_push->data != *(int*)node_reverse->data) return 1;
+        ) if (*(int*)cds_data(node_pop_push) != *(int*)cds_data(node_reverse)) 
+            return 1;
         cds_destroy_singly_linked_list(&list_pop_push);
         cds_destroy_singly_linked_list(&list_reverse);
         cds_destroy_singly_linked_list(&list_copy);
