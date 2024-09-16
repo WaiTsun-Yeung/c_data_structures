@@ -12,6 +12,9 @@
         "singly_linked_list.h": "c",
         "stddef.h": "c",
         "stdalign.h": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "utilities.h": "c",
+        "rand.h": "c",
+        "array_type.h": "c"
     }
 }

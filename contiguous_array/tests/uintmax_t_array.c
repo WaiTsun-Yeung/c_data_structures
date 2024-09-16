@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#include "utilities.h"
 #include "array_variadic.h"
 #include "array.h"
 
@@ -24,9 +25,9 @@ int main(){
             48665ULL, 56380ULL, 13220ULL, 111ULL
         );
     for (
-        const uintmax_t* array_ptr = array->data, 
+        const uintmax_t* array_ptr = cds_data(array), 
             *values_ptr = values;
-        array_ptr < (uintmax_t*)array->data + array->data_length;
+        array_ptr < (uintmax_t*)cds_data(array) + array->data_length;
         ++array_ptr, ++values_ptr
     ) if (*array_ptr != *values_ptr)
         return 1;

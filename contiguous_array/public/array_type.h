@@ -4,9 +4,8 @@
     #include <stddef.h>
     
     struct cds_array{
-        void* data;
+        ptrdiff_t data_offset;
         size_t bytes_per_element;
-        size_t data_align;
         size_t data_length;
         size_t reserved_length;
     };

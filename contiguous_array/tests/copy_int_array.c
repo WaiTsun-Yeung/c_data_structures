@@ -1,6 +1,8 @@
+#include <stdalign.h>
+
+#include "utilities.h"
 #include "array.h"
 #include "rand.h"
-#include <stdalign.h>
 
 int main(){
     for (int i = 0; i < 1000000; ++i){
@@ -15,8 +17,9 @@ int main(){
             = cds_create_array(array_length, sizeof(int), alignof(int));
         cds_copy_array(&array_1, array_0);
         for (
-            const int *data_0 = array_0->data, *data_1 = array_1->data; 
-            data_0 < (int*)array_0->data + array_length; 
+            const int *data_0 = cds_data(array_0), 
+                *data_1 = cds_data(array_1); 
+            data_0 < (int*)cds_data(array_0) + array_length; 
             ++data_0, ++data_1
         ) if (*data_0 != *data_1)
             return 1;

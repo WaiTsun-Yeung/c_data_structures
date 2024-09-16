@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#include "utilities.h"
 #include "array_variadic.h"
 #include "array.h"
 
@@ -23,12 +24,11 @@ int main(){
             171, 107, 170, 234, 98, 16, 219, 209, 22, 113
         );
     for (
-        const unsigned char* array_ptr = array->data, 
+        const unsigned char* array_ptr = cds_data(array), 
             *values_ptr = values;
-        array_ptr < (unsigned char*)array->data + array->data_length;
+        array_ptr < (unsigned char*)cds_data(array) + array->data_length;
         ++array_ptr, ++values_ptr
-    ) if (*array_ptr != *values_ptr)
-        return 1;
+    ) if (*array_ptr != *values_ptr) return 1;
     cds_destroy_array(&array);
     free(values);
     return 0;

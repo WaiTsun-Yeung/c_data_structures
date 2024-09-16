@@ -33,10 +33,8 @@ static size_t cds_next_power_of_two(const size_t n){
 ///     allocated buffer.
 static inline size_t cds_compute_array_bytes_count(
     const size_t element_count, const size_t bytes_per_element, 
-    const size_t data_offset
-){
-    return data_offset + element_count * bytes_per_element;
-}
+    const ptrdiff_t data_offset
+){return data_offset + element_count * bytes_per_element;}
 
 /// @brief This function heap-allocates an empty cds_array struct without
 ///     instantiating any of its fields, including the data pointer.
@@ -50,7 +48,7 @@ static inline size_t cds_compute_array_bytes_count(
 /// @return The allocated buffer.
 static inline struct cds_array* cds_malloc_array(
     const size_t reserved_length, const size_t bytes_per_element, 
-    const size_t data_offset
+    const ptrdiff_t data_offset
 ){
     return cds_malloc_buffer(
         cds_compute_array_bytes_count(
@@ -74,15 +72,14 @@ struct cds_array* cds_create_array(
     const size_t length, const size_t bytes_per_element, const size_t data_align
 ){
     const size_t reserved_length = cds_next_power_of_two(length);
-    const size_t data_offset 
+    const ptrdiff_t data_offset 
         = cds_compute_data_offset(sizeof(struct cds_array), data_align);
     struct cds_array* const array 
         = cds_malloc_array(reserved_length, bytes_per_element, data_offset);
     array->data_length = length;
     array->reserved_length = reserved_length;
     array->bytes_per_element = bytes_per_element;
-    array->data_align = data_align;
-    array->data = (uint8_t*)array + data_offset;
+    array->data_offset = data_offset;
     return array;
 }
 
@@ -95,20 +92,18 @@ struct cds_array* cds_copy_and_create_array(
     const struct cds_array* const src
 ){
     if (!src) return (struct cds_array*)0;
-    const size_t data_offset = (uint8_t*)src->data - (uint8_t*)src;
     struct cds_array* const array 
         = cds_malloc_buffer(
             cds_compute_array_bytes_count(
-                src->reserved_length, src->bytes_per_element, data_offset
+                src->reserved_length, src->bytes_per_element, src->data_offset
             )
         );
     memcpy(
         array, src, 
         cds_compute_array_bytes_count(
-            src->data_length, src->bytes_per_element, data_offset
+            src->data_length, src->bytes_per_element, src->data_offset
         )
     );
-    array->data = (uint8_t*)array + data_offset;
     return array;
 }
 
@@ -128,16 +123,14 @@ struct cds_array* cds_resize_array(
     if (!*array) return (struct cds_array*)0;
     if (new_length > (*array)->reserved_length){
         (*array)->reserved_length = cds_next_power_of_two(new_length);
-        const size_t data_offset = (uint8_t*)(*array)->data - (uint8_t*)*array;
         cds_realloc_buffer(
             array, 
             cds_compute_array_bytes_count(
                 (*array)->reserved_length, 
                 (*array)->bytes_per_element, 
-                data_offset
+                (*array)->data_offset
             )
         );
-        (*array)->data = (uint8_t*)*array + data_offset;
     }
     (*array)->data_length = new_length;
     return *array;
@@ -164,15 +157,14 @@ struct cds_array* cds_copy_array(
 ){
 #endif
     if (*dest == src) return *dest;
-    const size_t src_data_offset = (uint8_t*)src->data - (uint8_t*)src;
     const size_t src_active_bytes_count 
         = cds_compute_array_bytes_count(
-            src->data_length, src->bytes_per_element, src_data_offset
+            src->data_length, src->bytes_per_element, src->data_offset
         );
     const size_t dest_full_bytes_count 
         = cds_compute_array_bytes_count(
             (*dest)->reserved_length, (*dest)->bytes_per_element, 
-            src_data_offset
+            src->data_offset
         );
     const bool is_realloc_needed 
         = dest_full_bytes_count < src_active_bytes_count;
@@ -180,13 +172,12 @@ struct cds_array* cds_copy_array(
         cds_realloc_buffer(
             dest, 
             cds_compute_array_bytes_count(
-                src->reserved_length, src->bytes_per_element, src_data_offset
+                src->reserved_length, src->bytes_per_element, src->data_offset
             )
         );
     memcpy(*dest, src, src_active_bytes_count);
-    (*dest)->data = (uint8_t*)(*dest) + src_data_offset;
     if (!is_realloc_needed)
-        (*dest)->reserved_length = (dest_full_bytes_count - src_data_offset) 
+        (*dest)->reserved_length = (dest_full_bytes_count - src->data_offset) 
             / (*dest)->bytes_per_element;
     return *dest;
 }
@@ -218,5 +209,6 @@ void* cds_get_array_element(
     const struct cds_array* const array, const size_t index
 ){
     if (!array || index >= array->data_length) return (void*)0;
-    return (uint8_t*)array->data + index * array->bytes_per_element;
+    return (uint8_t*)array + array->data_offset 
+        + index * array->bytes_per_element;
 }

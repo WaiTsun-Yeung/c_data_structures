@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdalign.h>
 
+#include "utilities.h"
 #include "array_type.h"
 #include "array.h"
 
@@ -15,7 +16,7 @@ struct cds_array* cds_create_uintmax_t_array(const size_t values_count, ...){
         = cds_create_array(values_count, sizeof(uintmax_t), alignof(uintmax_t));
     va_list args;
     va_start(args, values_count);
-    uintmax_t* data = array->data;
+    uintmax_t* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
         *data = va_arg(args, uintmax_t);
     va_end(args);
@@ -32,7 +33,7 @@ struct cds_array* cds_create_int_array(const size_t values_count, ...){
         = cds_create_array(values_count, sizeof(int), alignof(int));
     va_list args;
     va_start(args, values_count);
-    int* data = array->data;
+    int* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
         *data = va_arg(args, int);
     va_end(args);
@@ -49,7 +50,7 @@ struct cds_array* cds_create_intmax_t_array(const size_t values_count, ...){
         = cds_create_array(values_count, sizeof(intmax_t), alignof(intmax_t));
     va_list args;
     va_start(args, values_count);
-    intmax_t* data = array->data;
+    intmax_t* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
         *data = va_arg(args, intmax_t);
     va_end(args);
@@ -66,7 +67,7 @@ struct cds_array* cds_create_uint8_t_array(const size_t values_count, ...){
         = cds_create_array(values_count, sizeof(uint8_t), alignof(uint8_t));
     va_list args;
     va_start(args, values_count);
-    uint8_t* data = array->data;
+    uint8_t* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
         *data = va_arg(args, uint8_t);
     va_end(args);
@@ -83,7 +84,7 @@ struct cds_array* cds_create_uint16_t_array(const size_t values_count, ...){
         = cds_create_array(values_count, sizeof(uint16_t), alignof(uint16_t));
     va_list args;
     va_start(args, values_count);
-    uint16_t* data = array->data;
+    uint16_t* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
         *data = va_arg(args, uint16_t);
     va_end(args);
@@ -100,7 +101,7 @@ struct cds_array* cds_create_uint32_t_array(const size_t values_count, ...){
         = cds_create_array(values_count, sizeof(uint32_t), alignof(uint32_t));
     va_list args;
     va_start(args, values_count);
-    uint32_t* data = array->data;
+    uint32_t* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
         *data = va_arg(args, uint32_t);
     va_end(args);
@@ -117,7 +118,7 @@ struct cds_array* cds_create_uint64_t_array(const size_t values_count, ...){
         = cds_create_array(values_count, sizeof(uint64_t), alignof(uint64_t));
     va_list args;
     va_start(args, values_count);
-    uint64_t* data = array->data;
+    uint64_t* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
         *data = va_arg(args, uint64_t);
     va_end(args);
@@ -134,7 +135,7 @@ struct cds_array* cds_create_int8_t_array(const size_t values_count, ...){
         = cds_create_array(values_count, sizeof(int8_t), alignof(int8_t));
     va_list args;
     va_start(args, values_count);
-    int8_t* data = array->data;
+    int8_t* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
         *data = va_arg(args, int8_t);
     va_end(args);
@@ -151,7 +152,7 @@ struct cds_array* cds_create_int16_t_array(const size_t values_count, ...){
         = cds_create_array(values_count, sizeof(int16_t), alignof(int16_t));
     va_list args;
     va_start(args, values_count);
-    int16_t* data = array->data;
+    int16_t* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
         *data = va_arg(args, int16_t);
     va_end(args);
@@ -168,7 +169,7 @@ struct cds_array* cds_create_int32_t_array(const size_t values_count, ...){
         = cds_create_array(values_count, sizeof(int32_t), alignof(int32_t));
     va_list args;
     va_start(args, values_count);
-    int32_t* data = array->data;
+    int32_t* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
         *data = va_arg(args, int32_t);
     va_end(args);
@@ -185,7 +186,7 @@ struct cds_array* cds_create_int64_t_array(const size_t values_count, ...){
         = cds_create_array(values_count, sizeof(int64_t), alignof(int64_t));
     va_list args;
     va_start(args, values_count);
-    int64_t* data = array->data;
+    int64_t* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
         *data = va_arg(args, int64_t);
     va_end(args);
@@ -202,7 +203,7 @@ struct cds_array* cds_create_float_array(const size_t values_count, ...){
         = cds_create_array(values_count, sizeof(float), alignof(float));
     va_list args;
     va_start(args, values_count);
-    float* data = array->data;
+    float* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
     // The float values are promoted to double when retrieved from va_arg.
     // See: https://stackoverflow.com/a/11270603/12483740
@@ -221,7 +222,7 @@ struct cds_array* cds_create_double_array(const size_t values_count, ...){
         = cds_create_array(values_count, sizeof(double), alignof(double));
     va_list args;
     va_start(args, values_count);
-    double* data = array->data;
+    double* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
         *data = va_arg(args, double);
     va_end(args);
@@ -238,7 +239,7 @@ struct cds_array* cds_create_long_double_array(const size_t values_count, ...){
         = cds_create_array(values_count, sizeof(long double), alignof(long double));
     va_list args;
     va_start(args, values_count);
-    long double* data = array->data;
+    long double* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
         *data = va_arg(args, long double);
     va_end(args);
@@ -255,7 +256,7 @@ struct cds_array* cds_create_char_array(const size_t values_count, ...){
         = cds_create_array(values_count, sizeof(char), alignof(char));
     va_list args;
     va_start(args, values_count);
-    char* data = array->data;
+    char* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
         *data = va_arg(args, int);
     va_end(args);
@@ -276,7 +277,7 @@ struct cds_array* cds_create_unsigned_char_array(
         );
     va_list args;
     va_start(args, values_count);
-    unsigned char* data = array->data;
+    unsigned char* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
         *data = va_arg(args, int);
     va_end(args);
@@ -295,7 +296,7 @@ struct cds_array* cds_create_signed_char_array(const size_t values_count, ...){
         );
     va_list args;
     va_start(args, values_count);
-    signed char* data = array->data;
+    signed char* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
         *data = va_arg(args, int);
     va_end(args);

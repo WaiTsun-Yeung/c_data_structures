@@ -1,6 +1,8 @@
+#include <stdalign.h>
+
+#include "utilities.h"
 #include "array.h"
 #include "rand.h"
-#include <stdalign.h>
 
 int main(){
     for (int i = 0; i < 1000000; ++i){
@@ -16,7 +18,7 @@ int main(){
         for (size_t j = 0; j < array_0->data_length; ++j)
             if (
                 *(int*)cds_get_array_element(array_0, j) 
-                    != ((int*)array_1->data)[j]
+                    != ((int*)cds_data(array_1))[j]
             ) return 1;
         cds_destroy_array(&array_1);
         cds_destroy_array(&array_0);

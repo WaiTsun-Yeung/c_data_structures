@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#include "utilities.h"
 #include "array_variadic.h"
 #include "array.h"
 
@@ -23,8 +24,8 @@ int main(){
             171, 107, 170, 234, 98, 16, 219, 209, 22, 113
         );
     for (
-        const uint8_t* array_ptr = array->data, *values_ptr = values;
-        array_ptr < (uint8_t*)array->data + array->data_length;
+        const uint8_t* array_ptr = cds_data(array), *values_ptr = values;
+        array_ptr < (uint8_t*)cds_data(array) + array->data_length;
         ++array_ptr, ++values_ptr
     ) if (*array_ptr != *values_ptr)
         return 1;

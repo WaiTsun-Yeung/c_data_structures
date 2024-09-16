@@ -7,7 +7,7 @@ if(MSVC AND CMAKE_BUILD_TYPE IN_LIST DEBUG_BUILDS)
         /fsanitize=fuzzer
     )
 endif()
-target_link_libraries(array PRIVATE utilities)
+target_link_libraries(array PUBLIC utilities)
 
 add_subdirectory(tests)
 
