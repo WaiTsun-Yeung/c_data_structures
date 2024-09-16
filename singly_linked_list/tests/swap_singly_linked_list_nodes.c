@@ -1,5 +1,6 @@
 #include <stdalign.h>
 
+#include "utilities.h"
 #include "singly_linked_list_type.h"
 #include "singly_linked_list.h"
 
@@ -40,8 +41,8 @@ int main() {
                 cds_singly_linked_list_node_next(&node_1),
                 cds_singly_linked_list_node_next(&node_0_copy), 
                 cds_singly_linked_list_node_next(&node_1_copy)
-        ) if (*(int*)node_0->data != *(int*)node_1_copy->data ||
-            *(int*)node_1->data != *(int*)node_0_copy->data) {
+        ) if (*(int*)cds_data(node_0) != *(int*)cds_data(node_1_copy) ||
+            *(int*)cds_data(node_1) != *(int*)cds_data(node_0_copy)) {
             cds_destroy_singly_linked_list(&list_1_copy);
             cds_destroy_singly_linked_list(&list_0_copy);
             cds_destroy_singly_linked_list(&list_1);

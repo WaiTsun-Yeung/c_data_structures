@@ -13,7 +13,7 @@ if(MSVC)
         )
     endif()
 endif()
-target_link_libraries(singly_linked_list PRIVATE utilities)
+target_link_libraries(singly_linked_list PUBLIC utilities)
 
 find_package(OpenMP REQUIRED)
 target_link_libraries(singly_linked_list PUBLIC OpenMP::OpenMP_C)

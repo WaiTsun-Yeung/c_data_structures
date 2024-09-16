@@ -13,13 +13,12 @@ void* cds_create_linked_list_node(
     const size_t bytes_per_node_type, const size_t bytes_per_element,
     const size_t data_align
 ){
-    const size_t data_offset 
+    const ptrdiff_t data_offset 
         = cds_compute_data_offset(bytes_per_node_type, data_align);
     struct cds_singly_linked_list_node* const node 
         = cds_malloc_buffer(data_offset + bytes_per_element);
-    node->data = (uint8_t*)node + data_offset;
     node->bytes_per_element = bytes_per_element;
-    node->data_align = data_align;
+    node->data_offset = data_offset;
     node->lock = (omp_lock_t*)0;
     node->next = (struct cds_singly_linked_list_node*)0;
     return node;
@@ -40,17 +39,12 @@ void* cds_copy_and_create_linked_list_node(
     const size_t bytes_per_node_type, const void* const src
 ){
     if (!src) return (void*)0;
-    const size_t data_offset 
-        = (uint8_t*)((const struct cds_singly_linked_list_node* const)src)->data 
-            - (uint8_t*)src;
     const size_t node_bytes_count 
-        = data_offset 
+        = ((const struct cds_singly_linked_list_node* const)src)->data_offset
             + ((const struct cds_singly_linked_list_node* const)src)
                 ->bytes_per_element;
     void* const node = cds_malloc_buffer(node_bytes_count);
     memcpy(node, src, node_bytes_count);
-    ((struct cds_singly_linked_list_node*)node)->data 
-        = (uint8_t*)node + data_offset;
     return node;
 }
 
@@ -104,14 +98,12 @@ void* cds_copy_and_create_linked_list(
 }
 
 static void* cds_set_linked_list_node_after_realloc(
-    void** const node, const size_t data_offset,
-    const size_t bytes_per_element, const size_t data_align
+    void** const node, const ptrdiff_t data_offset,
+    const size_t bytes_per_element
 ){
-    ((struct cds_singly_linked_list_node*)*node)->data 
-        = (uint8_t*)*node + data_offset;
     ((struct cds_singly_linked_list_node*)*node)->bytes_per_element 
         = bytes_per_element;
-    ((struct cds_singly_linked_list_node*)*node)->data_align = data_align;
+    ((struct cds_singly_linked_list_node*)*node)->data_offset = data_offset;
     return *node;
 }
 
@@ -119,19 +111,19 @@ void* cds_change_linked_list_node_data_type(
     const size_t bytes_per_node_type, void** const node, 
     const size_t bytes_per_element, const size_t data_align
 ){
+    const ptrdiff_t data_offset 
+        = cds_compute_data_offset(bytes_per_node_type, data_align);
     if (
         !*node || (
             ((struct cds_singly_linked_list_node*)*node)->bytes_per_element 
                     == bytes_per_element
-                && ((struct cds_singly_linked_list_node*)*node)->data_align 
-                    == data_align
+                && ((struct cds_singly_linked_list_node*)*node)->data_offset
+                    == data_offset
         )
     ) return node;
-    const size_t data_offset 
-        = cds_compute_data_offset(bytes_per_node_type, data_align);
     cds_realloc_buffer(node, data_offset + bytes_per_element);
     return cds_set_linked_list_node_after_realloc(
-        node, data_offset, bytes_per_element, data_align
+        node, data_offset, bytes_per_element
     );
 }
 
@@ -140,33 +132,29 @@ void* cds_copy_linked_list_node(
 ){
     if (!*dest || !src) exit(1);
     if (*dest == src) return *dest;
-    const size_t data_offset 
-        = (uint8_t*)((const struct cds_singly_linked_list_node* const)src)->data 
-            - (uint8_t*)src;
     if (
         ((struct cds_singly_linked_list_node*)*dest)->bytes_per_element 
                 != ((const struct cds_singly_linked_list_node* const)src)
                     ->bytes_per_element
-            || ((struct cds_singly_linked_list_node*)*dest)->data_align 
+            || ((struct cds_singly_linked_list_node*)*dest)->data_offset
                 != ((const struct cds_singly_linked_list_node* const)src)
-                    ->data_align
+                    ->data_offset
     ){ 
         cds_realloc_buffer(
             dest, 
-            data_offset 
+            ((const struct cds_singly_linked_list_node* const)src)->data_offset 
                 + ((const struct cds_singly_linked_list_node* const)src)
                     ->bytes_per_element
         );
         cds_set_linked_list_node_after_realloc(
-            dest, data_offset, 
+            dest, 
+            ((const struct cds_singly_linked_list_node* const)src)->data_offset, 
             ((const struct cds_singly_linked_list_node* const)src)
-                ->bytes_per_element, 
-            ((const struct cds_singly_linked_list_node* const)src)->data_align
+                ->bytes_per_element
         );
     }
     memcpy(
-        ((struct cds_singly_linked_list_node*)*dest)->data, 
-        ((const struct cds_singly_linked_list_node* const)src)->data, 
+        cds_data(*dest), cds_data(src), 
         ((const struct cds_singly_linked_list_node* const)src)
             ->bytes_per_element
     );
