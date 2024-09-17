@@ -1,7 +1,6 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
 #include <stdbool.h>
 
 #include "utilities.h"
@@ -209,6 +208,6 @@ void* cds_get_array_element(
     const struct cds_array* const array, const size_t index
 ){
     if (!array || index >= array->data_length) return (void*)0;
-    return (uint8_t*)array + array->data_offset 
+    return (char*)array + array->data_offset 
         + index * array->bytes_per_element;
 }

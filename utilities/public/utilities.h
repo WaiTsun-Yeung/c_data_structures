@@ -1,5 +1,4 @@
 #include <stddef.h>
-#include <stdint.h>
 
 void* cds_malloc_buffer(const size_t bytes);
 
@@ -20,7 +19,7 @@ void* cds_destroy_buffer(void** const buffer);
     }
 
     static inline void* cds_data(const void* const container){
-        return (uint8_t*)container + *((ptrdiff_t*)container);
+        return (char*)container + *(ptrdiff_t*)container;
     }
 
 #endif // CDS_UTILITIES_H
