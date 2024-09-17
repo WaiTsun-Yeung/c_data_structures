@@ -358,7 +358,6 @@ void cds_swap_linked_list_nodes(
 };
 
 void* cds_linked_list_node_next(void** const node){
-    if (!*node) return (void*)0;
     *node = ((struct cds_singly_linked_list_node*)*node)->next;
     return *node;
 }
