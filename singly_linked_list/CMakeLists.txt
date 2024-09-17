@@ -38,6 +38,16 @@ add_test(
     NAME create_destroy_singly_linked_list_node
     COMMAND create_destroy_singly_linked_list_node.exe
 )
+add_executable(copy_create_destroy_singly_linked_list_node 
+    tests/copy_create_destroy_singly_linked_list_node.c
+)
+target_link_libraries(copy_create_destroy_singly_linked_list_node PRIVATE 
+    singly_linked_list
+)
+add_test(
+    NAME copy_create_destroy_singly_linked_list_node
+    COMMAND copy_create_destroy_singly_linked_list_node.exe
+)
 add_executable(create_destroy_singly_linked_list_with_hint 
     tests/create_destroy_singly_linked_list_with_hint.c
 )
