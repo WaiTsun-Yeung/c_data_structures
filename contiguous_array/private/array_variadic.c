@@ -236,7 +236,9 @@ struct cds_array* cds_create_double_array(const size_t values_count, ...){
 /// @return The created array.
 struct cds_array* cds_create_long_double_array(const size_t values_count, ...){
     struct cds_array* array 
-        = cds_create_array(values_count, sizeof(long double), alignof(long double));
+        = cds_create_array(
+            values_count, sizeof(long double), alignof(long double)
+        );
     va_list args;
     va_start(args, values_count);
     long double* data = cds_data(array);

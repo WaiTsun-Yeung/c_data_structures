@@ -22,8 +22,8 @@ int main(){
             values_count, 11, 124, 69, 8, 7, 106, 127, 32, 49, 99
         );
     for (
-        const char* array_ptr = array->data, *values_ptr = values;
-        array_ptr < (char*)array->data + array->data_length;
+        const char* array_ptr = cds_data(array), *values_ptr = values;
+        array_ptr < (char*)cds_data(array) + array->data_length;
         ++array_ptr, ++values_ptr
     ) if (*array_ptr != *values_ptr)
         return 1;
