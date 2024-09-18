@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <stdbool.h>
 
 #include "array_type.h"
 
@@ -29,3 +30,12 @@ struct cds_array* cds_destroy_array(struct cds_array** const array);
 void* cds_get_array_element(
     const struct cds_array* const array, const size_t index
 );
+
+#ifndef CDS_ARRAY_H
+#define CDS_ARRAY_H
+
+    static inline bool cds_is_array_empty(const struct cds_array* const array){
+        return !array->data_length;
+    }
+
+#endif // CDS_ARRAY_H

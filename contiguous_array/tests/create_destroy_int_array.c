@@ -1,6 +1,7 @@
+#include <stdalign.h>
+
 #include "array.h"
 #include "rand.h"
-#include <stdalign.h>
 
 int main(){
     for (int i = 0; i < 1000000; ++i){
@@ -12,6 +13,8 @@ int main(){
                 cds_rand_range(1, max_array_bytes / sizeof(int)), 
                 sizeof(int), alignof(int)
             );
+        if (cds_is_array_empty(array))
+            return 1;
         cds_destroy_array(&array);
     }
     return 0;
