@@ -209,4 +209,8 @@ struct cds_singly_linked_list* cds_erase_preceding_singly_linked_list_nodes(
         struct cds_singly_linked_list_node** const node
     ){return cds_linked_list_node_next((void** const)node);}
 
+    static inline bool cds_is_singly_linked_list_empty(
+        const struct cds_singly_linked_list* const list
+    ){return cds_is_linked_list_empty(list);}
+
 #endif // CDS_SIGNLY_LINKED_LIST_H

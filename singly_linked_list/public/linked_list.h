@@ -1,5 +1,7 @@
 #include <stddef.h>
 
+#include "singly_linked_list_type.h"
+
 void* cds_create_linked_list_node(
     const size_t bytes_per_node_type, const size_t bytes_per_element,
     const size_t data_align
@@ -73,3 +75,12 @@ void cds_swap_linked_list_nodes(
 );
 
 void* cds_linked_list_node_next(void** const node);
+
+#ifndef CDS_LINKED_LIST_H
+#define CDS_LINKED_LIST_H
+
+    static inline bool cds_is_linked_list_empty(const void* const list){
+        return !((const struct cds_singly_linked_list* const)list)->front;
+    }
+
+#endif // CDS_LINKED_LIST_H

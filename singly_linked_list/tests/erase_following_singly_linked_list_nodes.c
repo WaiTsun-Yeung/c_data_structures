@@ -13,6 +13,8 @@ int main() {
             );
         cds_erase_following_singly_linked_list_nodes(list->front);
         cds_singly_linked_list_destroy_front(list);
+        if (!cds_is_singly_linked_list_empty(list))
+            return 1;
         cds_destroy_singly_linked_list(&list);
     }
     return 0;

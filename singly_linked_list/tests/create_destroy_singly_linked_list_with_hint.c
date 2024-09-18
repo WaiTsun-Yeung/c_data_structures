@@ -16,6 +16,8 @@ int main() {
                 list, 
                 cds_create_singly_linked_list_node(sizeof(int), alignof(int))
             );
+        if (cds_is_singly_linked_list_empty(list))
+            return 1;
         cds_destroy_singly_linked_list(&list);
     }
     return 0;
