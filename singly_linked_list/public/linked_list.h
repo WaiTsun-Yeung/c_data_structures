@@ -1,4 +1,7 @@
 #include <stddef.h>
+#include <stdbool.h>
+
+#include "omp.h"
 
 #include "singly_linked_list_type.h"
 
