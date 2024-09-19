@@ -35,6 +35,11 @@ void* cds_copy_linked_list_node(
 
 void* cds_destroy_linked_list(void** const list);
 
+void* cds_push_next_linked_list_node_core(
+    void* const node, void* const new_node,
+    void (*doubly_linked_list_callback)(void* const node, void* const new_node)
+);
+
 void* cds_push_next_linked_list_node(
     void* const node,
     void* const new_node,
