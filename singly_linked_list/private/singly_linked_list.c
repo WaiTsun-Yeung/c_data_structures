@@ -157,3 +157,27 @@ struct cds_singly_linked_list* cds_erase_preceding_singly_linked_list_nodes(
     omp_unset_lock(&list->lock);
     return list;
 }
+
+struct cds_singly_linked_list* cds_singly_linked_list_remove_if(
+    struct cds_singly_linked_list* const list,
+    bool (*predicate)(const struct cds_singly_linked_list_node* const node)
+){
+    if (!list || !predicate) return list;
+    omp_set_lock(&list->lock);
+    struct cds_singly_linked_list_node* prev 
+        = (struct cds_singly_linked_list_node*)0;
+    struct cds_singly_linked_list_node* node = list->front;
+    while (node){
+        if (predicate(node)){
+            struct cds_singly_linked_list_node* const next_node = node->next;
+            if (prev) prev->next = next_node; else list->front = next_node;
+            free(node);
+            node = next_node;
+            continue;
+        }
+        prev = node;
+        node = node->next;
+    }
+    omp_unset_lock(&list->lock);
+    return list;
+}

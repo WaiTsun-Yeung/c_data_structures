@@ -170,3 +170,11 @@ add_test(
     NAME invert_singly_linked_list
     COMMAND invert_singly_linked_list.exe
 )
+add_executable(singly_linked_list_remove_if
+    tests/singly_linked_list_remove_if.c
+)
+target_link_libraries(singly_linked_list_remove_if PRIVATE singly_linked_list)
+add_test(
+    NAME singly_linked_list_remove_if
+    COMMAND singly_linked_list_remove_if.exe
+)

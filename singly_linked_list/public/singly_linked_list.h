@@ -43,6 +43,11 @@ struct cds_singly_linked_list* cds_erase_preceding_singly_linked_list_nodes(
     const bool is_inclusive
 );
 
+struct cds_singly_linked_list* cds_singly_linked_list_remove_if(
+    struct cds_singly_linked_list* const list,
+    bool (*predicate)(const struct cds_singly_linked_list_node* const node)
+);
+
 #ifndef CDS_SINGLY_LINKED_LIST_H
 #define CDS_SINGLY_LINKED_LIST_H
 
