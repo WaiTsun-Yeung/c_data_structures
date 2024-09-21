@@ -15,7 +15,7 @@
 struct cds_singly_linked_list_node* cds_destroy_free_singly_linked_list_node(
     struct cds_singly_linked_list_node** const node
 ){
-    if (!*node || (*node)->lock) return *node;
+    if (!*node || (*node)->list) return *node;
     free(*node);
     *node = (struct cds_singly_linked_list_node*)0;
     return *node;
@@ -26,7 +26,7 @@ cds_singly_linked_list_push_front_core(
     struct cds_singly_linked_list* const list,
     struct cds_singly_linked_list_node* const node
 ){
-    node->lock = &list->lock;
+    node->list = list;
     node->next = list->front;
     list->front = node;
     return list;
@@ -58,16 +58,16 @@ struct cds_singly_linked_list* cds_singly_linked_list_push_front(
 struct cds_singly_linked_list_node* cds_pop_next_singly_linked_list_node(
     struct cds_singly_linked_list_node* const prev
 ){
-    if (!prev || !prev->lock) return (struct cds_singly_linked_list_node*)0;
-    omp_set_lock(prev->lock);
+    if (!prev || !prev->list) return (struct cds_singly_linked_list_node*)0;
+    omp_set_lock(&prev->list->lock);
     if (!prev->next){
-        omp_unset_lock(prev->lock);
+        omp_unset_lock(&prev->list->lock);
         return prev->next;
     }
     struct cds_singly_linked_list_node* const node = prev->next;
-    node->lock = (omp_lock_t*)0;
+    node->list = (struct cds_singly_linked_list*)0;
     prev->next = node->next;
-    omp_unset_lock(prev->lock);
+    omp_unset_lock(&prev->list->lock);
     return node;
 }
 
@@ -78,15 +78,15 @@ struct cds_singly_linked_list_node* cds_pop_next_singly_linked_list_node(
 void cds_destroy_next_singly_linked_list_node(
     struct cds_singly_linked_list_node* const prev
 ){
-    if (!prev || !prev->lock) return;
-    omp_set_lock(prev->lock);
+    if (!prev || !prev->list) return;
+    omp_set_lock(&prev->list->lock);
     if (!prev->next){
-        omp_unset_lock(prev->lock);
+        omp_unset_lock(&prev->list->lock);
         return;
     }
     struct cds_singly_linked_list_node* const next_node = prev->next;
     prev->next = next_node->next;
-    omp_unset_lock(prev->lock);
+    omp_unset_lock(&prev->list->lock);
     free(next_node);
     return;
 }
@@ -120,15 +120,15 @@ struct cds_singly_linked_list* cds_invert_singly_linked_list(
 void cds_erase_following_singly_linked_list_nodes(
     struct cds_singly_linked_list_node* const prev
 ){
-    if (!prev || !prev->lock) return;
-    omp_set_lock(prev->lock);
+    if (!prev || !prev->list) return;
+    omp_set_lock(&prev->list->lock);
     if (!prev->next){
-        omp_unset_lock(prev->lock);
+        omp_unset_lock(&prev->list->lock);
         return;
     }
     cds_erase_following_linked_list_nodes_core(prev);
     prev->next = (struct cds_singly_linked_list_node*)0;
-    omp_unset_lock(prev->lock);
+    omp_unset_lock(&prev->list->lock);
     return;
 }
 
@@ -139,7 +139,7 @@ struct cds_singly_linked_list* cds_erase_preceding_singly_linked_list_nodes(
 ){
     if (!list) return list;
     if (!node) return cds_empty_singly_linked_list(list);
-    if (!node->lock || node->lock != &list->lock) return list;
+    if (!node->list || node->list != list) return list;
     omp_set_lock(&list->lock);
     if (!list->front || list->front == node){ 
         omp_unset_lock(&list->lock);
