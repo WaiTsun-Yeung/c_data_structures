@@ -57,6 +57,18 @@ struct cds_singly_linked_list* cds_singly_linked_list_remove_if_with_timeout(
     const struct timespec *restrict const mutex_timeout
 );
 
+enum cds_status cds_swap_next_singly_linked_list_nodes_with_timeout(
+    struct cds_singly_linked_list_node* const prev_node_0,
+    struct cds_singly_linked_list_node* const prev_node_1,
+    const struct timespec *restrict const mutex_timeout
+);
+
+enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
+    struct cds_singly_linked_list_node *restrict const prev_node,
+    struct cds_singly_linked_list_node *restrict *restrict const free_node,
+    const struct timespec *restrict const mutex_timeout
+);
+
 #ifndef CDS_SINGLY_LINKED_LIST_H
 #define CDS_SINGLY_LINKED_LIST_H
 
@@ -156,17 +168,6 @@ struct cds_singly_linked_list* cds_singly_linked_list_remove_if_with_timeout(
     /// @param[in,out] node The free node to insert.
     /// @return The inserted node if successful; otherwise, nullptr.
     static inline struct cds_singly_linked_list_node* 
-    cds_push_next_singly_linked_list_node_with_timeout(
-        struct cds_singly_linked_list_node *restrict const prev,
-        struct cds_singly_linked_list_node *restrict const node,
-        const struct timespec *restrict const mutex_timeout
-    ){
-        return cds_push_next_linked_list_node_with_timeout(
-            prev, node, (void*)0, mutex_timeout
-        );
-    }
-
-    static inline struct cds_singly_linked_list_node*
     cds_push_next_singly_linked_list_node(
         struct cds_singly_linked_list_node *restrict const prev,
         struct cds_singly_linked_list_node *restrict const node
@@ -274,47 +275,22 @@ struct cds_singly_linked_list* cds_singly_linked_list_remove_if_with_timeout(
         );
     }
 
-    static inline enum cds_status
-    cds_swap_singly_linked_list_nodes_pf_with_timeout(
-        struct cds_singly_linked_list_node *restrict const prev_node,
-        struct cds_singly_linked_list_node *restrict *restrict const free_node,
-        const struct timespec *restrict const mutex_timeout
+    static inline enum cds_status cds_swap_next_singly_linked_list_nodes(
+        struct cds_singly_linked_list_node* const prev_node_0,
+        struct cds_singly_linked_list_node* const prev_node_1
     ){
-        return cds_swap_linked_list_nodes_with_timeout(
-            (void** const)&prev_node->next, (void** const)free_node, (void*)0,
-            (void*)0, mutex_timeout
+        return cds_swap_next_singly_linked_list_nodes_with_timeout(
+            prev_node_0, prev_node_1, &cds_default_mutex_timeout
         );
     }
 
-    static inline enum cds_status 
+    static inline enum cds_status
     cds_swap_free_and_next_singly_linked_list_nodes(
         struct cds_singly_linked_list_node *restrict const prev_node,
         struct cds_singly_linked_list_node *restrict *restrict const free_node
     ){
-        return cds_swap_singly_linked_list_nodes_pf_with_timeout(
+        return cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
             prev_node, free_node, &cds_default_mutex_timeout
-        );
-    }
-
-    static inline enum cds_status
-    cds_swap_singly_linked_list_nodes_pp_with_timeout(
-        struct cds_singly_linked_list_node* const prev_node_0,
-        struct cds_singly_linked_list_node* const prev_node_1,
-        const struct timespec *restrict const mutex_timeout
-    ){
-        return cds_swap_linked_list_nodes_with_timeout(
-            (void** const)&prev_node_0->next, (void** const)&prev_node_1->next,
-            (void*)0, (void*)0, mutex_timeout
-        );
-    }
-
-    static inline enum cds_status
-    cds_swap_singly_linked_list_nodes_pp(
-        struct cds_singly_linked_list_node* const prev_node_0,
-        struct cds_singly_linked_list_node* const prev_node_1
-    ){
-        return cds_swap_singly_linked_list_nodes_pp_with_timeout(
-            prev_node_0, prev_node_1, &cds_default_mutex_timeout
         );
     }
 

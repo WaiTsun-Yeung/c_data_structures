@@ -19,8 +19,12 @@ int main() {
             = cds_create_singly_linked_list_node(sizeof(int), alignof(int));
         struct cds_singly_linked_list_node *free_node_copy
             = cds_create_singly_linked_list_node(sizeof(int), alignof(int));
-        cds_swap_singly_linked_list_nodes_pf(list->front, &free_node);
-        cds_swap_singly_linked_list_nodes_pf(list_copy->front, &free_node_copy);
+        cds_swap_free_and_next_singly_linked_list_nodes(
+            list->front, &free_node
+        );
+        cds_swap_free_and_next_singly_linked_list_nodes(
+            list_copy->front, &free_node_copy
+        );
         for (
             struct cds_singly_linked_list_node *node 
                     = cds_singly_linked_list_begin(list),

@@ -132,25 +132,25 @@ add_test(
     NAME reverse_singly_linked_list
     COMMAND reverse_singly_linked_list.exe
 )
-add_executable(swap_singly_linked_list_nodes_pp
-    tests/swap_singly_linked_list_nodes_pp.c
+add_executable(swap_next_singly_linked_list_nodes
+    tests/swap_next_singly_linked_list_nodes.c
 )
-target_link_libraries(swap_singly_linked_list_nodes_pp PRIVATE 
+target_link_libraries(swap_next_singly_linked_list_nodes PRIVATE 
     singly_linked_list
 )
 add_test(
-    NAME swap_singly_linked_list_nodes_pp
-    COMMAND swap_singly_linked_list_nodes_pp.exe
+    NAME swap_next_singly_linked_list_nodes
+    COMMAND swap_next_singly_linked_list_nodes.exe
 )
-add_executable(swap_singly_linked_list_nodes_pf
-    tests/swap_singly_linked_list_nodes_pf.c
+add_executable(swap_free_and_next_singly_linked_list_nodes
+    tests/swap_free_and_next_singly_linked_list_nodes.c
 )
-target_link_libraries(swap_singly_linked_list_nodes_pf PRIVATE 
+target_link_libraries(swap_free_and_next_singly_linked_list_nodes PRIVATE 
     singly_linked_list
 )
 add_test(
-    NAME swap_singly_linked_list_nodes_pf
-    COMMAND swap_singly_linked_list_nodes_pf.exe
+    NAME swap_free_and_next_singly_linked_list_nodes
+    COMMAND swap_free_and_next_singly_linked_list_nodes.exe
 )
 add_executable(pop_next_singly_linked_list_node 
     tests/pop_next_singly_linked_list_node.c

@@ -84,14 +84,6 @@ void* cds_empty_linked_list_with_timeout(
 
 void cds_erase_following_linked_list_nodes_core(void* const node);
 
-enum cds_status cds_swap_linked_list_nodes_with_timeout(
-    void** const node_0, void** const node_1,
-    void* (*doubly_linked_list_pop_node_callback)(void* const node),
-    void (*doubly_linked_list_swap_nodes_callback)
-        (void* const node_0, void* const node_1),
-    const struct timespec *restrict const mutex_timeout
-);
-
 void* cds_linked_list_node_next(void** const node);
 
 #ifndef CDS_LINKED_LIST_H
@@ -178,18 +170,6 @@ void* cds_linked_list_node_next(void** const node);
     ){
         return cds_linked_list_destroy_front_with_timeout(
             list, doubly_linked_list_callback, &cds_default_mutex_timeout
-        );
-    }
-
-    static inline enum cds_status cds_swap_linked_list_nodes(
-        void** const node_0, void** const node_1,
-        void* (*doubly_linked_list_pop_node_callback)(void* const node),
-        void (*doubly_linked_list_swap_nodes_callback)
-            (void* const node_0, void* const node_1)
-    ){
-        return cds_swap_linked_list_nodes_with_timeout(
-            node_0, node_1, doubly_linked_list_pop_node_callback,
-            doubly_linked_list_swap_nodes_callback, &cds_default_mutex_timeout
         );
     }
 
