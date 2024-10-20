@@ -81,22 +81,21 @@ void* cds_copy_and_create_linked_list_with_timeout(
     }
     const struct cds_singly_linked_list_node* src_node 
         = ((struct cds_singly_linked_list*)src_list)->front;
-    void* dest_node 
+    struct cds_singly_linked_list_node* dest_node 
         = cds_copy_and_create_linked_list_node(src_node);
     dest_list->front = dest_node;
     for (
         src_node = src_node->next; 
         src_node; 
         src_node = src_node->next,
-        dest_node = ((struct cds_singly_linked_list_node*)dest_node)->next
+        dest_node = dest_node->next
     ){
-        ((struct cds_singly_linked_list_node*)dest_node)->list = dest_list; 
-        ((struct cds_singly_linked_list_node*)dest_node)->next 
-            = cds_copy_and_create_linked_list_node(src_node);
+        dest_node->list = dest_list; 
+        dest_node->next = cds_copy_and_create_linked_list_node(src_node);
         if (doubly_linked_list_copy_node_callback)
             doubly_linked_list_copy_node_callback(dest_node);
     }
-    ((struct cds_singly_linked_list_node*)dest_node)->list = dest_list;
+    dest_node->list = dest_list;
     if (doubly_linked_list_closing_callback)
         doubly_linked_list_closing_callback(dest_list, dest_node);
     cds_mutex_unlock(&((struct cds_singly_linked_list*)src_list)->mutex);
