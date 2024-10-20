@@ -117,22 +117,24 @@ struct cds_array* cds_copy_and_create_array(
 ///     The user should free the array with cds_destroy_array()
 ///     at the end of its lifetime to prevent memory leaks.
 struct cds_array* cds_resize_array(
-    struct cds_array** const array, const size_t new_length
+    struct cds_array** const array_holder, const size_t new_length
 ){
-    if (!*array) return (struct cds_array*)0;
-    if (new_length > (*array)->reserved_length){
-        (*array)->reserved_length = cds_next_power_of_two(new_length);
+    struct cds_array* array = *array_holder;
+    if (!array) return (struct cds_array*)0;
+    if (new_length > array->reserved_length){
+        array->reserved_length = cds_next_power_of_two(new_length);
         cds_realloc_buffer(
-            array, 
+            array_holder, 
             cds_compute_array_bytes_count(
-                (*array)->reserved_length, 
-                (*array)->bytes_per_element, 
-                (*array)->data_offset
+                array->reserved_length, 
+                array->bytes_per_element, 
+                array->data_offset
             )
         );
     }
-    (*array)->data_length = new_length;
-    return *array;
+    struct cds_array* const new_array = *array_holder;
+    new_array->data_length = new_length;
+    return new_array;
 }
 
 /// @brief Copies the data from src to dest. The length of the reserved buffer 
@@ -147,7 +149,8 @@ struct cds_array* cds_resize_array(
 /// @return The same pointer as dest.
 struct cds_array* cds_copy_array(
 #if _MSC_VER
-    struct cds_array **restrict const dest, const struct cds_array* const src
+    struct cds_array **restrict const dest_holder, 
+    const struct cds_array* const src
 ){
     struct cds_array* const dest = *dest_holder;
     if (!dest || !src) return (struct cds_array*)0;
@@ -155,31 +158,33 @@ struct cds_array* cds_copy_array(
     struct cds_array (* const dest)[static 1], 
     const struct cds_array const src[static 1]
 ){
+    struct cds_array* const dest = *dest_holder;
 #endif
-    if (*dest == src) return *dest;
+    if (dest == src) return dest;
     const size_t src_active_bytes_count 
         = cds_compute_array_bytes_count(
             src->data_length, src->bytes_per_element, src->data_offset
         );
     const size_t dest_full_bytes_count 
         = cds_compute_array_bytes_count(
-            (*dest)->reserved_length, (*dest)->bytes_per_element, 
+            dest->reserved_length, dest->bytes_per_element, 
             src->data_offset
         );
     const bool is_realloc_needed 
         = dest_full_bytes_count < src_active_bytes_count;
     if (is_realloc_needed)
         cds_realloc_buffer(
-            dest, 
+            dest_holder, 
             cds_compute_array_bytes_count(
                 src->reserved_length, src->bytes_per_element, src->data_offset
             )
         );
-    memcpy(*dest, src, src_active_bytes_count);
+    struct cds_array* const new_dest = *dest_holder;
+    memcpy(new_dest, src, src_active_bytes_count);
     if (!is_realloc_needed)
-        (*dest)->reserved_length = (dest_full_bytes_count - src->data_offset) 
-            / (*dest)->bytes_per_element;
-    return *dest;
+        new_dest->reserved_length = (dest_full_bytes_count - src->data_offset) 
+            / new_dest->bytes_per_element;
+    return new_dest;
 }
 
 /// @brief Free the allocated buffer, and replace the pointer to the array with

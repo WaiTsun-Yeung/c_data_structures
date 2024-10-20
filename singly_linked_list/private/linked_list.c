@@ -253,19 +253,16 @@ void* cds_push_next_linked_list_node_with_timeout(
     void (*doubly_linked_list_callback)(void* const node, void* const new_node),
     const struct timespec *restrict const mutex_timeout
 ){
-    if (
-        !node || !new_node 
-            || !((struct cds_singly_linked_list_node*)node)->list
-            || cds_mutex_lock(
-                &((struct cds_singly_linked_list_node*)node)->list->mutex, 
-                mutex_timeout, 
-                ((struct cds_singly_linked_list_node*)node)->list->mutex_type
-            ) == CDS_MUTEX_TIMEOUT
+    if (!node || !new_node) return (void*)0;
+    struct cds_singly_linked_list* const list 
+        = ((struct cds_singly_linked_list_node*)node)->list;
+    if (!list || cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
+        == CDS_MUTEX_TIMEOUT
     ) return (void*)0;
     cds_push_next_linked_list_node_core(
         node, new_node, doubly_linked_list_callback
     );
-    cds_mutex_unlock(&((struct cds_singly_linked_list_node*)node)->list->mutex);
+    cds_mutex_unlock(&list->mutex);
     return new_node;
 }
 
