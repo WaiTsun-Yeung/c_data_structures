@@ -1,9 +1,9 @@
 #include <stddef.h>
 #include <stdbool.h>
-
-#include <omp.h>
+#include <stdlib.h>
 
 #include "alloc.h"
+#include "mutex.h"
 #include "singly_linked_list_type.h"
 #include "singly_linked_list.h"
 
@@ -23,8 +23,8 @@ struct cds_singly_linked_list_node* cds_destroy_free_singly_linked_list_node(
 
 struct cds_singly_linked_list* 
 cds_singly_linked_list_push_front_core(
-    struct cds_singly_linked_list* const list,
-    struct cds_singly_linked_list_node* const node
+    struct cds_singly_linked_list *restrict const list,
+    struct cds_singly_linked_list_node *restrict const node
 ){
     node->list = list;
     node->next = list->front;
@@ -38,14 +38,18 @@ cds_singly_linked_list_push_front_core(
 /// @param[in,out] list The list to push the node to.
 /// @param[in,out] node The node to push to the list.
 /// @return The input list if successful; otherwise, nullptr.
-struct cds_singly_linked_list* cds_singly_linked_list_push_front(
-    struct cds_singly_linked_list* const list,
-    struct cds_singly_linked_list_node* const node
+struct cds_singly_linked_list* cds_singly_linked_list_push_front_with_timeout(
+    struct cds_singly_linked_list *restrict const list,
+    struct cds_singly_linked_list_node *restrict const node,
+    const struct timespec *restrict const mutex_timeout
 ){
-    if (!list || !node) return (struct cds_singly_linked_list*)0;
-    omp_set_lock(&list->lock);
+    if (
+        !list || !node 
+            || cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
+                == CDS_MUTEX_TIMEOUT
+    ) return (struct cds_singly_linked_list*)0;
     cds_singly_linked_list_push_front_core(list, node);
-    omp_unset_lock(&list->lock);
+    cds_mutex_unlock(&list->mutex);
     return list;
 }
 
@@ -55,19 +59,25 @@ struct cds_singly_linked_list* cds_singly_linked_list_push_front(
 /// @param[in,out] prev The node to pop the next node from.
 /// @param[in] lock The mutex lock of the list.
 /// @return The next node of the input node if successful; otherwise, nullptr.
-struct cds_singly_linked_list_node* cds_pop_next_singly_linked_list_node(
-    struct cds_singly_linked_list_node* const prev
+struct cds_singly_linked_list_node* 
+cds_pop_next_singly_linked_list_node_with_timeout(
+    struct cds_singly_linked_list_node *restrict const prev,
+    const struct timespec *restrict const mutex_timeout
 ){
-    if (!prev || !prev->list) return (struct cds_singly_linked_list_node*)0;
-    omp_set_lock(&prev->list->lock);
+    if (
+        !prev || !prev->list
+            ||cds_mutex_lock(
+                &prev->list->mutex, mutex_timeout, prev->list->mutex_type
+            ) == CDS_MUTEX_TIMEOUT
+    ) return (struct cds_singly_linked_list_node*)0;
     if (!prev->next){
-        omp_unset_lock(&prev->list->lock);
+        cds_mutex_unlock(&prev->list->mutex);
         return prev->next;
     }
     struct cds_singly_linked_list_node* const node = prev->next;
     node->list = (struct cds_singly_linked_list*)0;
     prev->next = node->next;
-    omp_unset_lock(&prev->list->lock);
+    cds_mutex_unlock(&prev->list->mutex);
     return node;
 }
 
@@ -75,32 +85,41 @@ struct cds_singly_linked_list_node* cds_pop_next_singly_linked_list_node(
 ///     Iterating through the list while calling this function in a
 ///     multithreaded environment will result in undefined behaviour.
 /// @param[in] prev The node whose next node is to be destroyed.
-void cds_destroy_next_singly_linked_list_node(
-    struct cds_singly_linked_list_node* const prev
+enum cds_status cds_destroy_next_singly_linked_list_node_with_timeout(
+    struct cds_singly_linked_list_node *restrict const prev,
+    const struct timespec *restrict const mutex_timeout
 ){
-    if (!prev || !prev->list) return;
-    omp_set_lock(&prev->list->lock);
+    if (!prev || !prev->list) return CDS_NULL_ARG;
+    if (
+        cds_mutex_lock(
+            &prev->list->mutex, mutex_timeout, prev->list->mutex_type
+        ) == CDS_MUTEX_TIMEOUT
+    ) return CDS_MUTEX_TIMEOUT;
     if (!prev->next){
-        omp_unset_lock(&prev->list->lock);
-        return;
+        cds_mutex_unlock(&prev->list->mutex);
+        return CDS_SUCCESS;
     }
     struct cds_singly_linked_list_node* const next_node = prev->next;
     prev->next = next_node->next;
-    omp_unset_lock(&prev->list->lock);
+    cds_mutex_unlock(&prev->list->mutex);
     free(next_node);
-    return;
+    return CDS_SUCCESS;
 }
 
 /// @brief Invert the input list in place.
 /// @param[in,out] list The list to invert.
 /// @return The input list.
-struct cds_singly_linked_list* cds_invert_singly_linked_list(
-    struct cds_singly_linked_list* const list
+struct cds_singly_linked_list* cds_invert_singly_linked_list_with_timeout(
+    struct cds_singly_linked_list *restrict const list,
+    const struct timespec *restrict const mutex_timeout
 ){
-    if (!list) return (struct cds_singly_linked_list*)0;
-    omp_set_lock(&list->lock);
+    if (!list) return list;
+    if (
+        cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
+            == CDS_MUTEX_TIMEOUT
+    ) return (struct cds_singly_linked_list*)0;
     if (!list->front){
-        omp_unset_lock(&list->lock);
+        cds_mutex_unlock(&list->mutex);
         return list;
     }
     struct cds_singly_linked_list_node* prev 
@@ -113,36 +132,45 @@ struct cds_singly_linked_list* cds_invert_singly_linked_list(
         node = next_node;
     }
     list->front = prev;
-    omp_unset_lock(&list->lock);
+    cds_mutex_unlock(&list->mutex);
     return list;
 }
 
-void cds_erase_following_singly_linked_list_nodes(
-    struct cds_singly_linked_list_node* const prev
+enum cds_status cds_erase_following_singly_linked_list_nodes_with_timeout(
+    struct cds_singly_linked_list_node *restrict const prev,
+    const struct timespec *restrict const mutex_timeout
 ){
-    if (!prev || !prev->list) return;
-    omp_set_lock(&prev->list->lock);
+    if (!prev || !prev->list) return CDS_NULL_ARG;
+    if (
+        cds_mutex_lock(&prev->list->mutex, mutex_timeout, prev->list->mutex_type)
+            == CDS_MUTEX_TIMEOUT
+    ) return CDS_MUTEX_TIMEOUT;
     if (!prev->next){
-        omp_unset_lock(&prev->list->lock);
-        return;
+        cds_mutex_unlock(&prev->list->mutex);
+        return CDS_SUCCESS;
     }
     cds_erase_following_linked_list_nodes_core(prev);
     prev->next = (struct cds_singly_linked_list_node*)0;
-    omp_unset_lock(&prev->list->lock);
-    return;
+    cds_mutex_unlock(&prev->list->mutex);
+    return CDS_SUCCESS;
 }
 
-struct cds_singly_linked_list* cds_erase_preceding_singly_linked_list_nodes(
-    struct cds_singly_linked_list* const list,
-    struct cds_singly_linked_list_node* const node,
-    const bool is_inclusive
+struct cds_singly_linked_list* 
+cds_erase_preceding_singly_linked_list_nodes_with_timeout(
+    struct cds_singly_linked_list *restrict const list,
+    struct cds_singly_linked_list_node *restrict const node,
+    const bool is_inclusive,
+    const struct timespec *restrict const mutex_timeout
 ){
     if (!list) return list;
     if (!node) return cds_empty_singly_linked_list(list);
-    if (!node->list || node->list != list) return list;
-    omp_set_lock(&list->lock);
+    if (
+        !node->list || node->list != list
+            || cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
+                == CDS_MUTEX_TIMEOUT
+    ) return (struct cds_singly_linked_list*)0;
     if (!list->front || list->front == node){ 
-        omp_unset_lock(&list->lock);
+        cds_mutex_unlock(&list->mutex);
         return list;
     }
     struct cds_singly_linked_list_node* prev = list->front;
@@ -154,16 +182,20 @@ struct cds_singly_linked_list* cds_erase_preceding_singly_linked_list_nodes(
     }
     free(prev);
     list->front = next;
-    omp_unset_lock(&list->lock);
+    cds_mutex_unlock(&list->mutex);
     return list;
 }
 
-struct cds_singly_linked_list* cds_singly_linked_list_remove_if(
-    struct cds_singly_linked_list* const list,
-    bool (*predicate)(const struct cds_singly_linked_list_node* const node)
+struct cds_singly_linked_list* cds_singly_linked_list_remove_if_with_timeout(
+    struct cds_singly_linked_list *restrict const list,
+    bool (*predicate)(const struct cds_singly_linked_list_node* const node),
+    const struct timespec *restrict const mutex_timeout
 ){
     if (!list || !predicate) return list;
-    omp_set_lock(&list->lock);
+    if (
+        cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
+            == CDS_MUTEX_TIMEOUT
+    ) return (struct cds_singly_linked_list*)0;
     struct cds_singly_linked_list_node* prev 
         = (struct cds_singly_linked_list_node*)0;
     struct cds_singly_linked_list_node* node = list->front;
@@ -178,6 +210,6 @@ struct cds_singly_linked_list* cds_singly_linked_list_remove_if(
         prev = node;
         node = node->next;
     }
-    omp_unset_lock(&list->lock);
+    cds_mutex_unlock(&list->mutex);
     return list;
 }

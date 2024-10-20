@@ -1,6 +1,6 @@
 #include <stdalign.h>
 
-#include "utilities.h"
+#include "alloc.h"
 #include "singly_linked_list_type.h"
 #include "singly_linked_list.h"
 
@@ -26,10 +26,10 @@ int main() {
             struct cds_singly_linked_list_node *node_0 
                     = cds_singly_linked_list_begin(list_0),
                 *node_1 = cds_singly_linked_list_begin(list_1);
-            node_0 != cds_singly_linked_list_end(list_0);
+            node_0->next != cds_singly_linked_list_end(list_0);
             cds_singly_linked_list_node_next(&node_0), 
                 cds_singly_linked_list_node_next(&node_1)
-        ) cds_swap_singly_linked_list_nodes(&node_0, &node_1);
+        ) cds_swap_singly_linked_list_nodes_pp(node_0, node_1);
         for (
             struct cds_singly_linked_list_node *node_0 
                     = cds_singly_linked_list_begin(list_0),

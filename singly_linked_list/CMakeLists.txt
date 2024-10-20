@@ -5,7 +5,6 @@ add_library(singly_linked_list STATIC
 target_include_directories(singly_linked_list PUBLIC public)
 set(DEBUG_BUILDS Debug RelWithDebInfo)
 if(MSVC)
-    target_compile_options(singly_linked_list PUBLIC /openmp:llvm)
     if(CMAKE_BUILD_TYPE IN_LIST DEBUG_BUILDS)
         target_compile_options(singly_linked_list PUBLIC 
             /fsanitize=address 
@@ -14,9 +13,6 @@ if(MSVC)
     endif()
 endif()
 target_link_libraries(singly_linked_list PUBLIC utilities)
-
-find_package(OpenMP REQUIRED)
-target_link_libraries(singly_linked_list PUBLIC OpenMP::OpenMP_C)
 
 add_executable(copy_create_destroy_singly_linked_list 
     tests/copy_create_destroy_singly_linked_list.c
@@ -48,15 +44,15 @@ add_test(
     NAME copy_create_destroy_singly_linked_list_node
     COMMAND copy_create_destroy_singly_linked_list_node.exe
 )
-add_executable(create_destroy_singly_linked_list_with_hint 
-    tests/create_destroy_singly_linked_list_with_hint.c
+add_executable(create_destroy_singly_linked_list_with_mutex_type 
+    tests/create_destroy_singly_linked_list_with_mutex_type.c
 )
-target_link_libraries(create_destroy_singly_linked_list_with_hint PRIVATE 
+target_link_libraries(create_destroy_singly_linked_list_with_mutex_type PRIVATE 
     singly_linked_list
 )
 add_test(
-    NAME create_destroy_singly_linked_list_with_hint
-    COMMAND create_destroy_singly_linked_list_with_hint.exe
+    NAME create_destroy_singly_linked_list_with_mutex_type
+    COMMAND create_destroy_singly_linked_list_with_mutex_type.exe
 )
 add_executable(create_destroy_singly_linked_list 
     tests/create_destroy_singly_linked_list.c
@@ -136,13 +132,25 @@ add_test(
     NAME reverse_singly_linked_list
     COMMAND reverse_singly_linked_list.exe
 )
-add_executable(swap_singly_linked_list_nodes
-    tests/swap_singly_linked_list_nodes.c
+add_executable(swap_singly_linked_list_nodes_pp
+    tests/swap_singly_linked_list_nodes_pp.c
 )
-target_link_libraries(swap_singly_linked_list_nodes PRIVATE singly_linked_list)
+target_link_libraries(swap_singly_linked_list_nodes_pp PRIVATE 
+    singly_linked_list
+)
 add_test(
-    NAME swap_singly_linked_list_nodes
-    COMMAND swap_singly_linked_list_nodes.exe
+    NAME swap_singly_linked_list_nodes_pp
+    COMMAND swap_singly_linked_list_nodes_pp.exe
+)
+add_executable(swap_singly_linked_list_nodes_pf
+    tests/swap_singly_linked_list_nodes_pf.c
+)
+target_link_libraries(swap_singly_linked_list_nodes_pf PRIVATE 
+    singly_linked_list
+)
+add_test(
+    NAME swap_singly_linked_list_nodes_pf
+    COMMAND swap_singly_linked_list_nodes_pf.exe
 )
 add_executable(pop_next_singly_linked_list_node 
     tests/pop_next_singly_linked_list_node.c

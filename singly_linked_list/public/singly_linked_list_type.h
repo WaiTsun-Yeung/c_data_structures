@@ -2,12 +2,11 @@
 #define CDS_SINGLY_LINKED_LIST_TYPE_H
 
     #include <stddef.h>
-
-    #include <omp.h>
+    #include <threads.h>
 
     struct cds_singly_linked_list{
-        omp_lock_t lock;
-        omp_sync_hint_t hint;
+        mtx_t mutex;
+        int mutex_type;
         struct cds_singly_linked_list_node* front;
     };
 
