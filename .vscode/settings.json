@@ -14,6 +14,7 @@
         "stdalign.h": "c",
         "stdbool.h": "c",
         "rand.h": "c",
+        "array_type.h": "c",
         "alloc.h": "c",
     }
 }
