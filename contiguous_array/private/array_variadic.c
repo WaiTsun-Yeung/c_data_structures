@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdalign.h>
 
-#include "utilities.h"
+#include "alloc.h"
 #include "array_type.h"
 #include "array.h"
 

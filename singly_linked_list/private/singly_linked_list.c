@@ -3,7 +3,7 @@
 
 #include <omp.h>
 
-#include "utilities.h"
+#include "alloc.h"
 #include "singly_linked_list_type.h"
 #include "singly_linked_list.h"
 

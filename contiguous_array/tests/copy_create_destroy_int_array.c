@@ -1,6 +1,6 @@
 #include <stdalign.h>
 
-#include "utilities.h"
+#include "alloc.h"
 #include "array.h"
 #include "rand.h"
 

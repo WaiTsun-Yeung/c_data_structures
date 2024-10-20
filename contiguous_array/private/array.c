@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "utilities.h"
+#include "alloc.h"
 #include "array_type.h"
 
 //TODO: Attemp implement most if not all methods in std::vector.\

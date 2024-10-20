@@ -1,5 +1,5 @@
 add_library(utilities STATIC
-    private/utilities.c
+    private/alloc.c
 )
 target_include_directories(utilities INTERFACE public)
 set(DEBUG_BUILDS Debug RelWithDebInfo)

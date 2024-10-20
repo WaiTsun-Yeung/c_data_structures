@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "utilities.h"
+#include "alloc.h"
 #include "array_variadic.h"
 #include "array.h"
 

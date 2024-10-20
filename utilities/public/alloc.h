@@ -8,8 +8,8 @@ void* cds_realloc_buffer(
 
 void* cds_destroy_buffer(void** const buffer);
 
-#ifndef CDS_UTILITIES_H
-#define CDS_UTILITIES_H
+#ifndef CDS_ALLOC_H
+#define CDS_ALLOC_H
 
     static inline ptrdiff_t cds_compute_data_offset(
         const size_t bytes_per_type, const size_t data_align
@@ -22,4 +22,4 @@ void* cds_destroy_buffer(void** const buffer);
         return (char*)container + *(ptrdiff_t*)container;
     }
 
-#endif // CDS_UTILITIES_H
+#endif // CDS_ALLOC_H

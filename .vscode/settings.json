@@ -13,8 +13,7 @@
         "stddef.h": "c",
         "stdalign.h": "c",
         "stdbool.h": "c",
-        "utilities.h": "c",
         "rand.h": "c",
-        "array_type.h": "c"
+        "alloc.h": "c",
     }
 }
