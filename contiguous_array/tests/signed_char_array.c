@@ -7,17 +7,17 @@
 int main(){
     const size_t values_count = 10;
     signed char* const values = malloc(values_count * sizeof(signed char));
-    signed char* values_ptr = values;
-    *values_ptr++ = -100;
-    *values_ptr++ = -34;
-    *values_ptr++ = 71;
-    *values_ptr++ = 125;
-    *values_ptr++ = -121;
-    *values_ptr++ = 107;
-    *values_ptr++ = -76;
-    *values_ptr++ = 81;
-    *values_ptr++ = -84;
-    *values_ptr++ = 73;
+    signed char* values_initialise_ptr = values;
+    *values_initialise_ptr++ = -100;
+    *values_initialise_ptr++ = -34;
+    *values_initialise_ptr++ = 71;
+    *values_initialise_ptr++ = 125;
+    *values_initialise_ptr++ = -121;
+    *values_initialise_ptr++ = 107;
+    *values_initialise_ptr++ = -76;
+    *values_initialise_ptr++ = 81;
+    *values_initialise_ptr++ = -84;
+    *values_initialise_ptr++ = 73;
     struct cds_array* array
         = cds_create_signed_char_array(
             values_count, 

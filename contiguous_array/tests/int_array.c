@@ -7,17 +7,17 @@
 int main(){
     const size_t values_count = 10;
     int* const values = malloc(values_count * sizeof(int));
-    int* values_ptr = values;
-    *values_ptr++ = 24065;
-    *values_ptr++ = 22311;
-    *values_ptr++ = 24949;
-    *values_ptr++ = 8873;
-    *values_ptr++ = -21217;
-    *values_ptr++ = -26215;
-    *values_ptr++ = 27941;
-    *values_ptr++ = 27079;
-    *values_ptr++ = 22208;
-    *values_ptr++ = -26632;
+    int* values_initialise_ptr = values;
+    *values_initialise_ptr++ = 24065;
+    *values_initialise_ptr++ = 22311;
+    *values_initialise_ptr++ = 24949;
+    *values_initialise_ptr++ = 8873;
+    *values_initialise_ptr++ = -21217;
+    *values_initialise_ptr++ = -26215;
+    *values_initialise_ptr++ = 27941;
+    *values_initialise_ptr++ = 27079;
+    *values_initialise_ptr++ = 22208;
+    *values_initialise_ptr++ = -26632;
     struct cds_array* array
         = cds_create_int_array(
             values_count, 

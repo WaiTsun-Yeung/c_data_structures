@@ -7,17 +7,17 @@
 int main(){
     const size_t values_count = 10;
     float* const values = malloc(values_count * sizeof(float));
-    float* values_ptr = values;
-    *values_ptr++ = 5.9311750e-17f;
-    *values_ptr++ = 4.9210937e36f;
-    *values_ptr++ = 1.2678624e24f;
-    *values_ptr++ = 1.2221256e34f;
-    *values_ptr++ = 1.9729493e10f;
-    *values_ptr++ = 1.1444389e33f;
-    *values_ptr++ = 1.7260791e11f;
-    *values_ptr++ = 7.6375544e-5f;
-    *values_ptr++ = 2.1075263e31f;
-    *values_ptr++ = 3.0695549e28f;
+    float* values_initialise_ptr = values;
+    *values_initialise_ptr++ = 5.9311750e-17f;
+    *values_initialise_ptr++ = 4.9210937e36f;
+    *values_initialise_ptr++ = 1.2678624e24f;
+    *values_initialise_ptr++ = 1.2221256e34f;
+    *values_initialise_ptr++ = 1.9729493e10f;
+    *values_initialise_ptr++ = 1.1444389e33f;
+    *values_initialise_ptr++ = 1.7260791e11f;
+    *values_initialise_ptr++ = 7.6375544e-5f;
+    *values_initialise_ptr++ = 2.1075263e31f;
+    *values_initialise_ptr++ = 3.0695549e28f;
     struct cds_array* array
         = cds_create_float_array(
             10, 
