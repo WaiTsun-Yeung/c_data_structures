@@ -260,7 +260,7 @@ struct cds_array* cds_create_char_array(const size_t values_count, ...){
     va_start(args, values_count);
     char* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
-        *data = va_arg(args, int);
+        *data = (char)va_arg(args, int);
     va_end(args);
     return array;
 }
@@ -281,7 +281,7 @@ struct cds_array* cds_create_unsigned_char_array(
     va_start(args, values_count);
     unsigned char* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
-        *data = va_arg(args, int);
+        *data = (unsigned char)va_arg(args, int);
     va_end(args);
     return array;
 }
@@ -300,7 +300,7 @@ struct cds_array* cds_create_signed_char_array(const size_t values_count, ...){
     va_start(args, values_count);
     signed char* data = cds_data(array);
     for (size_t i = 0; i < values_count; ++i, ++data)
-        *data = va_arg(args, int);
+        *data = (signed char)va_arg(args, int);
     va_end(args);
     return array;
 }
