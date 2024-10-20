@@ -133,9 +133,9 @@ void* cds_change_linked_list_node_data_type(
 }
 
 void* cds_copy_linked_list_node(
-    void **restrict const dest, const void *restrict const src
+    void **restrict const dest, const void* const src
 ){
-    if (!*dest || !src) exit(1);
+    if (!*dest || !src) (void*)0;
     if (*dest == src) return *dest;
     if (
         ((struct cds_singly_linked_list_node*)*dest)->bytes_per_element 
