@@ -18,12 +18,11 @@ struct cds_array* cds_resize_array(
 struct cds_array* cds_copy_array(
 #if _MSC_VER
     struct cds_array **restrict const dest, const struct cds_array* const src
-);
 #else
     struct cds_array (* const dest)[static 1], 
     const struct cds_array const src[static 1]
-);
 #endif
+);
 
 struct cds_array* cds_destroy_array(struct cds_array** const array);
 

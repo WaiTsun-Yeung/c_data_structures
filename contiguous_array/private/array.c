@@ -149,7 +149,8 @@ struct cds_array* cds_copy_array(
 #if _MSC_VER
     struct cds_array **restrict const dest, const struct cds_array* const src
 ){
-    if (!*dest || !src) exit(1);
+    struct cds_array* const dest = *dest_holder;
+    if (!dest || !src) return (struct cds_array*)0;
 #else
     struct cds_array (* const dest)[static 1], 
     const struct cds_array const src[static 1]
