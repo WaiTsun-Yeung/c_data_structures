@@ -12,6 +12,12 @@ if(UNIX)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 endif(UNIX)
 
+if (MSVC)
+    add_compile_options(/W4)
+else()
+    add_compile_options(-Wall -Wextra -pedantic)
+endif()
+
 include(CTest)
 enable_testing()
 
