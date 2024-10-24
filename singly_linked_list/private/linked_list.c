@@ -46,8 +46,15 @@ void* cds_copy_and_create_linked_list_node(
         = ((const struct cds_singly_linked_list_node* const)src)->data_offset
             + ((const struct cds_singly_linked_list_node* const)src)
                 ->bytes_per_element;
-    void* const node = cds_malloc_buffer(node_bytes_count);
-    memcpy(node, src, node_bytes_count);
+    void* node = cds_malloc_buffer(node_bytes_count);
+    const errno_t memcpy_error 
+        = memcpy_s(node, node_bytes_count, src, node_bytes_count);
+    if (memcpy_error){
+        cds_print_error_message(
+            memcpy_error, __FILE__, __LINE__, __func__, "memcpy_s"
+        );
+        return cds_destroy_buffer(&node);
+    }
     return node;
 }
 
@@ -158,11 +165,20 @@ void* cds_copy_linked_list_node(
                 ->bytes_per_element
         );
     }
-    memcpy(
-        cds_data(*dest), cds_data(src), 
+    const errno_t memcpy_error = memcpy_s(
+        cds_data(*dest), 
+        ((const struct cds_singly_linked_list_node* const)*dest)
+            ->bytes_per_element,
+        cds_data(src), 
         ((const struct cds_singly_linked_list_node* const)src)
             ->bytes_per_element
     );
+    if (memcpy_error){
+        cds_print_error_message(
+            memcpy_error, __FILE__, __LINE__, __func__, "memcpy_s"
+        );
+        return cds_destroy_buffer(dest);
+    }
     return *dest;
 }
 

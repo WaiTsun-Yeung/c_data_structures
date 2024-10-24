@@ -13,3 +13,10 @@
     };
 
 #endif // CDS_STATUS_H
+
+void cds_print_error_message(
+    const errno_t error_code, 
+    const char* const filename, const int line_number, 
+    const char* const function_name,
+    const char* const context_description
+);

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "status.h"
 #include "alloc.h"
 #include "array_type.h"
 
@@ -91,18 +92,23 @@ struct cds_array* cds_copy_and_create_array(
     const struct cds_array* const src
 ){
     if (!src) return (struct cds_array*)0;
-    struct cds_array* const array 
-        = cds_malloc_buffer(
-            cds_compute_array_bytes_count(
+    const size_t array_bytes_count
+        = cds_compute_array_bytes_count(
                 src->reserved_length, src->bytes_per_element, src->data_offset
-            )
         );
-    memcpy(
-        array, src, 
+    struct cds_array* const array = cds_malloc_buffer(array_bytes_count);
+    const errno_t memcpy_error = memcpy_s(
+        array, array_bytes_count, src, 
         cds_compute_array_bytes_count(
             src->data_length, src->bytes_per_element, src->data_offset
         )
     );
+    if (memcpy_error){
+        cds_print_error_message(
+            memcpy_error, __FILE__, __LINE__, __func__, "memcpy_s"
+        );
+        cds_destroy_buffer((void**)&array);
+    }
     return array;
 }
 
@@ -165,22 +171,31 @@ struct cds_array* cds_copy_array(
         = cds_compute_array_bytes_count(
             src->data_length, src->bytes_per_element, src->data_offset
         );
-    const size_t dest_full_bytes_count 
+    size_t dest_full_bytes_count 
         = cds_compute_array_bytes_count(
             dest->reserved_length, dest->bytes_per_element, 
             src->data_offset
         );
     const bool is_realloc_needed 
         = dest_full_bytes_count < src_active_bytes_count;
-    if (is_realloc_needed)
-        cds_realloc_buffer(
-            dest_holder, 
-            cds_compute_array_bytes_count(
+    if (is_realloc_needed){
+        dest_full_bytes_count
+            = cds_compute_array_bytes_count(
                 src->reserved_length, src->bytes_per_element, src->data_offset
-            )
         );
+        cds_realloc_buffer(dest_holder, dest_full_bytes_count);
+    }
     struct cds_array* const new_dest = *dest_holder;
-    memcpy(new_dest, src, src_active_bytes_count);
+    const errno_t memcpy_error 
+        = memcpy_s(
+            new_dest, dest_full_bytes_count, src, src_active_bytes_count
+        );
+    if (memcpy_error){
+        cds_print_error_message(
+            memcpy_error, __FILE__, __LINE__, __func__, "memcpy_s"
+        );
+        return cds_destroy_buffer(dest_holder);
+    }
     if (!is_realloc_needed)
         new_dest->reserved_length = (dest_full_bytes_count - src->data_offset) 
             / new_dest->bytes_per_element;

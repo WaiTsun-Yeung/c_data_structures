@@ -1,4 +1,5 @@
 add_library(utilities STATIC
+    private/status.c
     private/alloc.c
     private/mutex.c
 )
