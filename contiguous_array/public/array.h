@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include "alloc.h"
 #include "array_type.h"
 
 struct cds_array* cds_create_array(
@@ -26,8 +27,6 @@ struct cds_array* cds_copy_array(
 #endif
 );
 
-struct cds_array* cds_destroy_array(struct cds_array** const array){
-
 void* cds_get_array_element(
     const struct cds_array* const array, const size_t index
 );
@@ -38,5 +37,9 @@ void* cds_get_array_element(
     static inline bool cds_is_array_empty(const struct cds_array* const array){
         return !array->data_length;
     }
+
+    static inline struct cds_array* cds_destroy_array(
+        struct cds_array** const array
+    ){ return cds_destroy_buffer(array); }
 
 #endif // CDS_ARRAY_H

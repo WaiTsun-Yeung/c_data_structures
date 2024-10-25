@@ -203,17 +203,6 @@ struct cds_array* cds_copy_array(
     return new_dest;
 }
 
-/// @brief Free the allocated buffer, and replace the pointer to the array with
-///     a null pointer.
-/// @param[in,out] array The (pointer to the pointer to the) array to be freed.
-/// @return A null pointer.
-struct cds_array* cds_destroy_array(struct cds_array** const array){
-    if (!*array) return *array;
-    free(*array);
-    *array = (struct cds_array*)0;
-    return *array;
-}
-
 /// @brief Get the data element at the specified index.
 ///     If the input array is null or the index is out of bounds, this function
 ///     will return a null pointer.
