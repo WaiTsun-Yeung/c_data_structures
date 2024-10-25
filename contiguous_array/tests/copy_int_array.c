@@ -15,7 +15,7 @@ int main(){
             = cds_create_array(array_length, sizeof(int), alignof(int));
         struct cds_array* array_1 
             = cds_create_array(array_length, sizeof(int), alignof(int));
-        cds_copy_array(&array_1, array_0);
+        cds_copy_array(&array_1, array_0, true);
         for (
             const int *data_0 = cds_data(array_0), 
                 *data_1 = cds_data(array_1); 

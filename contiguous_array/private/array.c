@@ -156,13 +156,13 @@ struct cds_array* cds_resize_array(
 struct cds_array* cds_copy_array(
 #if _MSC_VER
     struct cds_array **restrict const dest_holder, 
-    const struct cds_array* const src
+    const struct cds_array* const src, const bool is_realloc_enabled
 ){
     struct cds_array* const dest = *dest_holder;
     if (!dest || !src) return (struct cds_array*)0;
 #else
     struct cds_array (* const dest)[static 1], 
-    const struct cds_array const src[static 1]
+    const struct cds_array const src[static 1], const bool is_realloc_enabled
 ){
     struct cds_array* const dest = *dest_holder;
 #endif
@@ -179,6 +179,7 @@ struct cds_array* cds_copy_array(
     const bool is_realloc_needed 
         = dest_full_bytes_count < src_active_bytes_count;
     if (is_realloc_needed){
+        if (!is_realloc_enabled) return cds_destroy_buffer(dest_holder);
         dest_full_bytes_count
             = cds_compute_array_bytes_count(
                 src->reserved_length, src->bytes_per_element, src->data_offset
