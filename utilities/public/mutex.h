@@ -9,10 +9,6 @@
         .tv_sec = 900, .tv_nsec = 0
     };
 
-    static inline void cds_mutex_init(mtx_t* const mutex, const int mutex_type){
-        while(mtx_init(mutex, mutex_type) == thrd_error);
-    }
-
     /// @brief Locks a mutex.
     /// @param[in,out] mutex The mutex to lock
     /// @param[in] mutex_timeout The timeout for the mutex. This only applies if

@@ -31,10 +31,11 @@ void* cds_create_linked_list_node(
 void* cds_create_linked_list_with_mutex_type(
     const size_t bytes_per_list_type, const int mutex_type
 ){
-    struct cds_singly_linked_list* const list = malloc(bytes_per_list_type);
+    struct cds_singly_linked_list* list = malloc(bytes_per_list_type);
     if (!list) return list;
     list->mutex_type = mutex_type;
-    cds_mutex_init(&list->mutex, mutex_type);
+    if (mtx_init(&list->mutex, mutex_type) == thrd_error) 
+        return cds_destroy_buffer(&list);
     list->front = (struct cds_singly_linked_list_node*)0;
     return list;
 }
@@ -118,7 +119,8 @@ void* cds_copy_and_create_linked_list_with_timeout(
     if (!dest_list) return dest_list;
     dest_list->mutex_type 
         = ((struct cds_singly_linked_list*)src_list)->mutex_type;
-    cds_mutex_init(&dest_list->mutex, dest_list->mutex_type);
+    if(mtx_init(&dest_list->mutex, dest_list->mutex_type) == thrd_error)
+        return cds_destroy_buffer((void**)&dest_list);
     if(
         cds_mutex_lock(
             &((struct cds_singly_linked_list*)src_list)->mutex, mutex_timeout, 
@@ -326,7 +328,8 @@ void* cds_copy_and_create_reverse_linked_list_with_timeout(
     if (!dest_list) return dest_list;
     dest_list->mutex_type 
         = ((struct cds_singly_linked_list*)src_list)->mutex_type;
-    cds_mutex_init(&dest_list->mutex, dest_list->mutex_type);
+    if(mtx_init(&dest_list->mutex, dest_list->mutex_type) == thrd_error)
+        return cds_destroy_buffer((void**)&dest_list);
     dest_list->front = (struct cds_singly_linked_list_node*)0;
     if (
         cds_mutex_lock(
