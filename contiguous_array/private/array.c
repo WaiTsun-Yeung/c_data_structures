@@ -109,7 +109,7 @@ struct cds_array* cds_copy_and_create_array(
         cds_print_error_message(
             memcpy_error, __FILE__, __LINE__, __func__, "memcpy_s"
         );
-        cds_destroy_buffer((void**)&array);
+        (void)cds_destroy_buffer((void**)&array);
     }
     return array;
 }
@@ -128,7 +128,7 @@ struct cds_array* cds_resize_array(
     struct cds_array** const array_holder, const size_t new_length
 ){
     struct cds_array* const array = *array_holder;
-    if (!array) return (struct cds_array*)0;
+    if (!array) return array;
     if (new_length > array->reserved_length){
         array->reserved_length = cds_next_power_of_two(new_length);
         struct cds_array* const realloced_array = realloc(

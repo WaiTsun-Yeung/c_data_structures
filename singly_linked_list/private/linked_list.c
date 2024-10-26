@@ -60,16 +60,17 @@ void* cds_copy_and_create_linked_list_node(
     return node;
 }
 
-static void* cds_destroy_empty_linked_list(void** const list){
-    mtx_destroy(&((struct cds_singly_linked_list*)*list)->mutex);
-    free(*list);
-    *list = (void*)0;
-    return *list;
+static void* cds_destroy_empty_linked_list(void** const list_holder){
+    struct cds_singly_linked_list* const list = *list_holder;
+    mtx_destroy(&list->mutex);
+    free(list);
+    *list_holder = (void*)0;
+    return *list_holder;
 }
 
 static void* cds_copy_and_create_linked_list_core(
     void* restrict const src_list,
-    struct cds_singly_linked_list *restrict *restrict const dest_list,
+    struct cds_singly_linked_list *restrict *restrict const dest_list_holder,
     void (*doubly_linked_list_copy_node_callback)(void* const dest_node),
     void (*doubly_linked_list_closing_callback)
         (void* const dest_list, void* const dest_node),
@@ -79,26 +80,27 @@ static void* cds_copy_and_create_linked_list_core(
         = ((struct cds_singly_linked_list*)src_list)->front;
     struct cds_singly_linked_list_node* dest_node 
         = cds_copy_and_create_linked_list_node(src_node);
-    if (!dest_node) return cds_destroy_empty_linked_list(dest_list);
-    (*dest_list)->front = dest_node;
+    if (!dest_node) return cds_destroy_empty_linked_list(dest_list_holder);
+    struct cds_singly_linked_list* const dest_list = *dest_list_holder;
+    dest_list->front = dest_node;
     for (
         src_node = src_node->next;
         src_node; 
         src_node = src_node->next, dest_node = dest_node->next
     ){
-        dest_node->list = *dest_list; 
+        dest_node->list = dest_list; 
         dest_node->next = cds_copy_and_create_linked_list_node(src_node);
         if (!dest_node->next)
             return cds_destroy_linked_list_with_timeout(
-                dest_list, false, mutex_timeout
+                dest_list_holder, false, mutex_timeout
             );
         if (doubly_linked_list_copy_node_callback)
             doubly_linked_list_copy_node_callback(dest_node);
     }
-    dest_node->list = *dest_list;
+    dest_node->list = dest_list;
     if (doubly_linked_list_closing_callback)
-        doubly_linked_list_closing_callback(*dest_list, dest_node);
-    return *dest_list;
+        doubly_linked_list_closing_callback(dest_list, dest_node);
+    return dest_list;
 }
 
 void* cds_copy_and_create_linked_list_with_timeout(
@@ -149,57 +151,59 @@ static void* cds_set_linked_list_node_after_realloc(
 }
 
 void* cds_change_linked_list_node_data_type(
-    const size_t bytes_per_node_type, void** const node, 
+    const size_t bytes_per_node_type, void** const node_holder, 
     const size_t bytes_per_element, const size_t data_align
 ){
     const ptrdiff_t data_offset 
         = cds_compute_data_offset(bytes_per_node_type, data_align);
+    struct cds_singly_linked_list_node* const node = *node_holder;
     if (
-        !*node || (
-            ((struct cds_singly_linked_list_node*)*node)->bytes_per_element 
-                    == bytes_per_element
-                && ((struct cds_singly_linked_list_node*)*node)->data_offset
-                    == data_offset
+        !node || (
+            node->bytes_per_element == bytes_per_element
+                && node->data_offset == data_offset
         )
     ) return (void*)0;
-    void* realloced_node = realloc(*node, data_offset + bytes_per_element);
-    if (!realloced_node) return realloced_node; else *node = realloced_node;
+    void* realloced_node = realloc(node, data_offset + bytes_per_element);
+    if (!realloced_node) return realloced_node; 
+    else *node_holder = realloced_node;
     return cds_set_linked_list_node_after_realloc(
-        *node, data_offset, bytes_per_element
+        *node_holder, data_offset, bytes_per_element
     );
 }
 
 void* cds_copy_linked_list_node(
-    void **restrict const dest, const void* const src
+    void **restrict const dest_holder, const void* const src
 ){
-    if (!*dest || !src) (void*)0;
-    if (*dest == src) return *dest;
+    if (!*dest_holder || !src) (void*)0;
+    if (*dest_holder == src) return *dest_holder;
+    struct cds_singly_linked_list_node* const dest = *dest_holder;
     if (
-        ((struct cds_singly_linked_list_node*)*dest)->bytes_per_element 
+        dest->bytes_per_element 
                 != ((const struct cds_singly_linked_list_node* const)src)
                     ->bytes_per_element
-            || ((struct cds_singly_linked_list_node*)*dest)->data_offset
+            || dest->data_offset
                 != ((const struct cds_singly_linked_list_node* const)src)
                     ->data_offset
     ){ 
-        struct cds_singly_linked_list_node* const new_dest = realloc(
-            *dest, 
+        struct cds_singly_linked_list_node* const realloced_dest = realloc(
+            dest, 
             ((const struct cds_singly_linked_list_node* const)src)->data_offset 
                 + ((const struct cds_singly_linked_list_node* const)src)
                     ->bytes_per_element
         );
-        if (!new_dest) return new_dest; 
-        *dest = cds_set_linked_list_node_after_realloc(
-            new_dest, 
+        if (!realloced_dest) return realloced_dest; 
+        *dest_holder = cds_set_linked_list_node_after_realloc(
+            realloced_dest, 
             ((const struct cds_singly_linked_list_node* const)src)->data_offset, 
             ((const struct cds_singly_linked_list_node* const)src)
                 ->bytes_per_element
         );
     }
+    struct cds_singly_linked_list_node* const new_dest 
+        = (struct cds_singly_linked_list_node*)*dest_holder;
     const errno_t memcpy_error = memcpy_s(
-        cds_data(*dest), 
-        ((const struct cds_singly_linked_list_node* const)*dest)
-            ->bytes_per_element,
+        cds_data(new_dest), 
+        new_dest->bytes_per_element,
         cds_data(src), 
         ((const struct cds_singly_linked_list_node* const)src)
             ->bytes_per_element
@@ -208,9 +212,9 @@ void* cds_copy_linked_list_node(
         cds_print_error_message(
             memcpy_error, __FILE__, __LINE__, __func__, "memcpy_s"
         );
-        return cds_destroy_buffer(dest);
+        return cds_destroy_buffer(dest_holder);
     }
-    return *dest;
+    return new_dest;
 }
 
 void* cds_empty_linked_list_with_timeout(
@@ -254,24 +258,23 @@ void* cds_empty_linked_list_with_timeout(
 }
 
 void* cds_destroy_linked_list_with_timeout(
-    void *restrict *restrict const list, 
+    void *restrict *restrict const list_holder, 
     const bool uses_mutex_lock,
     const struct timespec *restrict const mutex_timeout
 ){
+    struct cds_singly_linked_list* const list = *list_holder;
     if (!list) return list;
     if (
         uses_mutex_lock
-            && cds_mutex_lock(
-                &((struct cds_singly_linked_list*)*list)->mutex, 
-                mutex_timeout, 
-                ((struct cds_singly_linked_list*)*list)->mutex_type
-            ) != thrd_success
+            && cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type) 
+                != thrd_success
     ) return (void*)0;
-    if (((struct cds_singly_linked_list*)*list)->front) 
-        cds_empty_linked_list(*list, (void*)0, false);
-    if (uses_mutex_lock)
-        cds_mutex_unlock(&((struct cds_singly_linked_list*)*list)->mutex);
-    return cds_destroy_empty_linked_list(list);
+    if (list->front) 
+        cds_empty_linked_list_with_timeout(
+            list, (void*)0, false, mutex_timeout
+        );
+    if (uses_mutex_lock) cds_mutex_unlock(&list->mutex);
+    return cds_destroy_empty_linked_list(list_holder);
 }
 
 void* cds_push_next_linked_list_node_core(
@@ -429,7 +432,8 @@ void cds_erase_following_linked_list_nodes_core(void* const node){
     }
 }
 
-void* cds_linked_list_node_next(void** const node){
-    *node = ((struct cds_singly_linked_list_node*)*node)->next;
-    return *node;
+void* cds_linked_list_node_next(void** const node_holder){
+    struct cds_singly_linked_list_node* const node = *node_holder;
+    *node_holder = node->next;
+    return *node_holder;
 }

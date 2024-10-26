@@ -75,7 +75,7 @@ cds_pop_next_singly_linked_list_node_with_timeout(
     struct cds_singly_linked_list_node *restrict const prev,
     const struct timespec *restrict const mutex_timeout
 ){
-    if (!prev) return (struct cds_singly_linked_list_node*)0;
+    if (!prev) return prev;
     struct cds_singly_linked_list* const list = prev->list;
     if (
         !list 
