@@ -28,8 +28,4 @@
         else return mtx_lock(mutex);
     }
 
-    static inline void cds_mutex_unlock(mtx_t* const mutex){
-        while(mtx_unlock(mutex) == thrd_error);
-    }
-
 #endif // CDS_MUTEX_H
