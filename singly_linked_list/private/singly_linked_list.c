@@ -47,7 +47,7 @@ struct cds_singly_linked_list* cds_singly_linked_list_push_front_with_timeout(
     if (
         !list || !node 
             || cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
-                == CDS_MUTEX_TIMEOUT
+                != thrd_success
     ) return (struct cds_singly_linked_list*)0;
     cds_singly_linked_list_push_front_core(list, node);
     cds_mutex_unlock(&list->mutex);
@@ -80,7 +80,7 @@ cds_pop_next_singly_linked_list_node_with_timeout(
     if (
         !list 
             || cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type) 
-                == CDS_MUTEX_TIMEOUT
+                != thrd_success
     ) return (struct cds_singly_linked_list_node*)0;
     if (!prev->next){
         cds_mutex_unlock(&list->mutex);
@@ -103,10 +103,11 @@ enum cds_status cds_destroy_next_singly_linked_list_node_with_timeout(
     if (!prev) return CDS_NULL_ARG;
     struct cds_singly_linked_list* const list = prev->list;
     if (!list) return CDS_NULL_ARG;
-    if (
-        cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type) 
-            == CDS_MUTEX_TIMEOUT
-    ) return CDS_MUTEX_TIMEOUT;
+    switch(cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)){
+        case thrd_timedout: return CDS_MUTEX_TIMEOUT;
+        case thrd_error: return CDS_MUTEX_ERROR;
+        default: break;
+    }
     if (!prev->next){
         cds_mutex_unlock(&list->mutex);
         return CDS_SUCCESS;
@@ -128,7 +129,7 @@ struct cds_singly_linked_list* cds_invert_singly_linked_list_with_timeout(
     if (!list) return list;
     if (
         cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
-            == CDS_MUTEX_TIMEOUT
+            != thrd_success
     ) return (struct cds_singly_linked_list*)0;
     if (!list->front){
         cds_mutex_unlock(&list->mutex);
@@ -155,10 +156,11 @@ enum cds_status cds_erase_following_singly_linked_list_nodes_with_timeout(
     if (!prev) return CDS_NULL_ARG;
     struct cds_singly_linked_list* const list = prev->list;
     if (!list) return CDS_NULL_ARG;
-    if (
-        cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
-            == CDS_MUTEX_TIMEOUT
-    ) return CDS_MUTEX_TIMEOUT;
+    switch(cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)){
+        case thrd_timedout: return CDS_MUTEX_TIMEOUT;
+        case thrd_error: return CDS_MUTEX_ERROR;
+        default: break;
+    }
     if (!prev->next){
         cds_mutex_unlock(&list->mutex);
         return CDS_SUCCESS;
@@ -181,7 +183,7 @@ cds_erase_preceding_singly_linked_list_nodes_with_timeout(
     if (
         !node->list || node->list != list
             || cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
-                == CDS_MUTEX_TIMEOUT
+                != thrd_success
     ) return (struct cds_singly_linked_list*)0;
     if (!list->front || list->front == node){ 
         cds_mutex_unlock(&list->mutex);
@@ -208,7 +210,7 @@ struct cds_singly_linked_list* cds_singly_linked_list_remove_if_with_timeout(
     if (!list || !predicate) return list;
     if (
         cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
-            == CDS_MUTEX_TIMEOUT
+            != thrd_success
     ) return (struct cds_singly_linked_list*)0;
     struct cds_singly_linked_list_node* prev 
         = (struct cds_singly_linked_list_node*)0;
@@ -251,18 +253,21 @@ enum cds_status cds_swap_next_singly_linked_list_nodes_with_timeout(
         );
         return CDS_SUCCESS;
     }
-    if (
-        cds_mutex_lock(&list_0->mutex, mutex_timeout, list_0->mutex_type)
-            == CDS_MUTEX_TIMEOUT
-    ) return CDS_MUTEX_TIMEOUT;
+    switch(cds_mutex_lock(&list_0->mutex, mutex_timeout, list_0->mutex_type)){
+        case thrd_timedout: return CDS_MUTEX_TIMEOUT;
+        case thrd_error: return CDS_MUTEX_ERROR;
+        default: break;
+    }
     const bool needs_lock_node_1 = list_1 != list_0;
-    if (
-        needs_lock_node_1
-            && cds_mutex_lock(&list_1->mutex, mutex_timeout, list_1->mutex_type)
-                == CDS_MUTEX_TIMEOUT
-    ){
-        cds_mutex_unlock(&list_0->mutex);
-        return CDS_MUTEX_TIMEOUT;
+    if (needs_lock_node_1){
+        const int lock_result = cds_mutex_lock(
+            &list_1->mutex, mutex_timeout, list_1->mutex_type
+        );
+        if (lock_result != thrd_success){
+            cds_mutex_unlock(&list_0->mutex);
+            return lock_result == thrd_timedout 
+                ? CDS_MUTEX_TIMEOUT : CDS_MUTEX_ERROR;
+        }
     }
     struct cds_singly_linked_list_node* const temp_node = prev_node_0->next;
     prev_node_0->next = prev_node_1->next;
@@ -289,10 +294,11 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
     struct cds_singly_linked_list* const list = prev_node->list;
     if (!list) return CDS_NULL_ARG;
     if ((free_node && free_node->list)) return CDS_INVALID_ARG;
-    if (
-        cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
-            == CDS_MUTEX_TIMEOUT
-    ) return CDS_MUTEX_TIMEOUT;
+    switch(cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)){
+        case thrd_timedout: return CDS_MUTEX_TIMEOUT;
+        case thrd_error: return CDS_MUTEX_ERROR;
+        default: break;
+    }
     if (!prev_node->next){
         cds_push_next_linked_list_node_core(prev_node, free_node, (void*)0);
         *free_node_holder = (struct cds_singly_linked_list_node*)0;

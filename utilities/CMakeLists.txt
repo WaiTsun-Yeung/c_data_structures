@@ -1,7 +1,6 @@
 add_library(utilities STATIC
     private/status.c
     private/alloc.c
-    private/mutex.c
 )
 target_include_directories(utilities PUBLIC public)
 set(DEBUG_BUILDS Debug RelWithDebInfo)

@@ -77,7 +77,7 @@ void* cds_copy_and_create_linked_list_with_timeout(
         cds_mutex_lock(
             &((struct cds_singly_linked_list*)src_list)->mutex, mutex_timeout, 
             ((struct cds_singly_linked_list*)src_list)->mutex_type
-        ) == CDS_MUTEX_TIMEOUT
+        ) != thrd_success
     ) return cds_destroy_buffer((void**)&dest_list);
     if (!((struct cds_singly_linked_list*)src_list)->front){
         cds_mutex_unlock(&((struct cds_singly_linked_list*)src_list)->mutex);
@@ -202,7 +202,7 @@ void* cds_empty_linked_list_with_timeout(
                 &((struct cds_singly_linked_list*)list)->mutex, 
                 mutex_timeout, 
                 ((struct cds_singly_linked_list*)list)->mutex_type
-            ) == CDS_MUTEX_TIMEOUT
+            ) != thrd_success
         ) return (void*)0;
         if (!((struct cds_singly_linked_list*)list)->front){
             cds_mutex_unlock(&((struct cds_singly_linked_list*)list)->mutex);
@@ -239,7 +239,7 @@ void* cds_destroy_linked_list_with_timeout(
             &((struct cds_singly_linked_list*)*list)->mutex, 
             mutex_timeout, 
             ((struct cds_singly_linked_list*)*list)->mutex_type
-        ) == CDS_MUTEX_TIMEOUT
+        ) != thrd_success
     ) return (void*)0;
     if (!((struct cds_singly_linked_list*)*list)->front) {
         cds_mutex_unlock(&((struct cds_singly_linked_list*)*list)->mutex);
@@ -273,7 +273,7 @@ void* cds_push_next_linked_list_node_with_timeout(
     struct cds_singly_linked_list* const list 
         = ((struct cds_singly_linked_list_node*)node)->list;
     if (!list || cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
-        == CDS_MUTEX_TIMEOUT
+        != thrd_success
     ) return (void*)0;
     cds_push_next_linked_list_node_core(
         node, new_node, doubly_linked_list_callback
@@ -303,7 +303,7 @@ void* cds_copy_and_create_reverse_linked_list_with_timeout(
         cds_mutex_lock(
             &((struct cds_singly_linked_list*)src_list)->mutex, mutex_timeout, 
             ((struct cds_singly_linked_list*)src_list)->mutex_type
-        ) == CDS_MUTEX_TIMEOUT
+        ) != thrd_success
     ) return cds_destroy_buffer((void**)&dest_list);
     if (!((struct cds_singly_linked_list*)src_list)->front){
         cds_mutex_unlock(&((struct cds_singly_linked_list*)src_list)->mutex);
@@ -335,7 +335,7 @@ void* cds_linked_list_pop_front_with_timeout(
                 &((struct cds_singly_linked_list*)list)->mutex, 
                 mutex_timeout, 
                 ((struct cds_singly_linked_list*)list)->mutex_type
-            ) == CDS_MUTEX_TIMEOUT
+            ) != thrd_success
     ) return (void*)0;
     if (!((struct cds_singly_linked_list*)list)->front){
         cds_mutex_unlock(&((struct cds_singly_linked_list*)list)->mutex);
@@ -359,13 +359,17 @@ enum cds_status cds_linked_list_destroy_front_with_timeout(
     const struct timespec *restrict const mutex_timeout
 ){
     if (!list) return CDS_NULL_ARG;
-    if (
+    switch(
         cds_mutex_lock(
             &((struct cds_singly_linked_list*)list)->mutex, 
             mutex_timeout, 
             ((struct cds_singly_linked_list*)list)->mutex_type
-        ) == CDS_MUTEX_TIMEOUT
-    ) return CDS_MUTEX_TIMEOUT;
+        )
+    ){
+        case thrd_timedout: return CDS_MUTEX_TIMEOUT;
+        case thrd_error: return CDS_MUTEX_ERROR;
+        default: break;
+    }
     if (!((struct cds_singly_linked_list*)list)->front){
         cds_mutex_unlock(&((struct cds_singly_linked_list*)list)->mutex);
         return CDS_SUCCESS;
