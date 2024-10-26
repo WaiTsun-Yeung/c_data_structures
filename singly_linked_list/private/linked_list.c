@@ -16,7 +16,7 @@ void* cds_create_linked_list_node(
     const size_t bytes_per_node_type, const size_t bytes_per_element,
     const size_t data_align
 ){
-    const ptrdiff_t data_offset 
+    const size_t data_offset 
         = cds_compute_data_offset(bytes_per_node_type, data_align);
     struct cds_singly_linked_list_node* const node 
         = malloc(data_offset + bytes_per_element);
@@ -143,7 +143,7 @@ void* cds_copy_and_create_linked_list_with_timeout(
 }
 
 static void* cds_set_linked_list_node_after_realloc(
-    void* const node, const ptrdiff_t data_offset,
+    void* const node, const size_t data_offset,
     const size_t bytes_per_element
 ){
     ((struct cds_singly_linked_list_node*)node)->bytes_per_element 
@@ -156,7 +156,7 @@ void* cds_change_linked_list_node_data_type(
     const size_t bytes_per_node_type, void** const node_holder, 
     const size_t bytes_per_element, const size_t data_align
 ){
-    const ptrdiff_t data_offset 
+    const size_t data_offset 
         = cds_compute_data_offset(bytes_per_node_type, data_align);
     struct cds_singly_linked_list_node* const node = *node_holder;
     if (

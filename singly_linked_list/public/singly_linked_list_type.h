@@ -11,7 +11,7 @@
     };
 
     struct cds_singly_linked_list_node{
-        ptrdiff_t data_offset;
+        size_t data_offset;
         size_t bytes_per_element;
         struct cds_singly_linked_list* list;
         struct cds_singly_linked_list_node* next;

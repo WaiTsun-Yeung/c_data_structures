@@ -36,7 +36,7 @@ static size_t cds_next_power_of_two(const size_t n){
 ///     allocated buffer.
 static inline size_t cds_compute_array_bytes_count(
     const size_t element_count, const size_t bytes_per_element, 
-    const ptrdiff_t data_offset
+    const size_t data_offset
 ){return data_offset + element_count * bytes_per_element;}
 
 /// @brief This function heap-allocates an empty cds_array struct without
@@ -51,7 +51,7 @@ static inline size_t cds_compute_array_bytes_count(
 /// @return The allocated buffer.
 static inline struct cds_array* cds_malloc_array(
     const size_t reserved_length, const size_t bytes_per_element, 
-    const ptrdiff_t data_offset
+    const size_t data_offset
 ){
     return malloc(
         cds_compute_array_bytes_count(
@@ -75,7 +75,7 @@ struct cds_array* cds_create_array(
     const size_t length, const size_t bytes_per_element, const size_t data_align
 ){
     const size_t reserved_length = cds_next_power_of_two(length);
-    const ptrdiff_t data_offset 
+    const size_t data_offset 
         = cds_compute_data_offset(sizeof(struct cds_array), data_align);
     struct cds_array* const array 
         = cds_malloc_array(reserved_length, bytes_per_element, data_offset);
