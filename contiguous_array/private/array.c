@@ -19,7 +19,10 @@
 /// @return The smallest power of two that is greater than n.
 static size_t cds_next_power_of_two(const size_t n){
     size_t power = 1;
-    while(power < n) power <<= 1;
+    for (int i = 0; i < sizeof(size_t) * 8; ++i){
+        if (power > n) return power;
+        power <<= 1;
+    }
     return power;
 }
 
