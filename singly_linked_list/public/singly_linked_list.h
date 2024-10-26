@@ -136,9 +136,22 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
         return cds_copy_linked_list_node((void**)dest, src);
     }
 
-    static inline struct cds_singly_linked_list* cds_destroy_singly_linked_list(
-        struct cds_singly_linked_list** const list
-    ){return cds_destroy_linked_list((void** const)list);}
+    static inline struct cds_singly_linked_list* 
+    cds_destroy_singly_linked_list_with_timeout(
+        struct cds_singly_linked_list** const list,
+        const struct timespec *restrict const mutex_timeout
+    ){
+        return cds_destroy_linked_list_with_timeout(
+            (void** const)list, true, mutex_timeout
+        );
+    }
+
+    static inline struct cds_singly_linked_list*
+    cds_destroy_singly_linked_list(struct cds_singly_linked_list** const list){
+        return cds_destroy_singly_linked_list_with_timeout(
+            list, &cds_default_mutex_timeout
+        );
+    }
 
     static inline struct cds_singly_linked_list* 
     cds_singly_linked_list_push_front(

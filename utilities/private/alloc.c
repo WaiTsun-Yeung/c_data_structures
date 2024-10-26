@@ -1,16 +1,6 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-/// @brief Heap-allocate a buffer of the specified number of bytes.
-/// @param[in] bytes The number of bytes to be allocated.
-/// @return The heap-allocated buffer.
-void* cds_malloc_buffer(const size_t bytes){
-    void* buffer;
-    do buffer = malloc(bytes);
-    while (!buffer);
-    return buffer;
-}
-
 void* cds_realloc_buffer(
     void** const buffer, const size_t new_bytes_count
 ){

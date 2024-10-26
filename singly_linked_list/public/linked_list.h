@@ -31,11 +31,12 @@ void* cds_change_linked_list_node_data_type(
 );
 
 void* cds_copy_linked_list_node(
-    void **restrict const dest, const void *restrict const src
+    void **restrict const dest, const void *const src
 );
 
 void* cds_destroy_linked_list_with_timeout(
     void *restrict *restrict const list, 
+    const bool uses_mutex_lock,
     const struct timespec *restrict const mutex_timeout
 );
 
@@ -120,9 +121,11 @@ void* cds_linked_list_node_next(void** const node);
         );
     }
 
-    static inline void* cds_destroy_linked_list(void** const list){
+    static inline void* cds_destroy_linked_list(
+        void** const list, const bool uses_mutex_lock
+    ){
         return cds_destroy_linked_list_with_timeout(
-            list, &cds_default_mutex_timeout
+            list, uses_mutex_lock, &cds_default_mutex_timeout
         );
     }
 

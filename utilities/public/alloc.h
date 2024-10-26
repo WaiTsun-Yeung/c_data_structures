@@ -1,7 +1,5 @@
 #include <stddef.h>
 
-void* cds_malloc_buffer(const size_t bytes);
-
 void* cds_realloc_buffer(
     void** const buffer, const size_t new_bytes_count
 );

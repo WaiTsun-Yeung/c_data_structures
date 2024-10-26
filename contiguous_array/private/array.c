@@ -50,7 +50,7 @@ static inline struct cds_array* cds_malloc_array(
     const size_t reserved_length, const size_t bytes_per_element, 
     const ptrdiff_t data_offset
 ){
-    return cds_malloc_buffer(
+    return malloc(
         cds_compute_array_bytes_count(
             reserved_length, 
             bytes_per_element, 
@@ -76,6 +76,7 @@ struct cds_array* cds_create_array(
         = cds_compute_data_offset(sizeof(struct cds_array), data_align);
     struct cds_array* const array 
         = cds_malloc_array(reserved_length, bytes_per_element, data_offset);
+    if (!array) return array;
     array->data_length = length;
     array->reserved_length = reserved_length;
     array->bytes_per_element = bytes_per_element;
@@ -96,7 +97,8 @@ struct cds_array* cds_copy_and_create_array(
         = cds_compute_array_bytes_count(
                 src->reserved_length, src->bytes_per_element, src->data_offset
         );
-    struct cds_array* const array = cds_malloc_buffer(array_bytes_count);
+    struct cds_array* const array = malloc(array_bytes_count);
+    if (!array) return array;
     const errno_t memcpy_error = memcpy_s(
         array, array_bytes_count, src, 
         cds_compute_array_bytes_count(
