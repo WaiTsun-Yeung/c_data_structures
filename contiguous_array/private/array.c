@@ -127,18 +127,20 @@ struct cds_array* cds_copy_and_create_array(
 struct cds_array* cds_resize_array(
     struct cds_array** const array_holder, const size_t new_length
 ){
-    struct cds_array* array = *array_holder;
+    struct cds_array* const array = *array_holder;
     if (!array) return (struct cds_array*)0;
     if (new_length > array->reserved_length){
         array->reserved_length = cds_next_power_of_two(new_length);
-        cds_realloc_buffer(
-            array_holder, 
+        struct cds_array* const realloced_array = realloc(
+            *array_holder, 
             cds_compute_array_bytes_count(
                 array->reserved_length, 
                 array->bytes_per_element, 
                 array->data_offset
             )
         );
+        if (!realloced_array) return realloced_array; 
+        else *array_holder = realloced_array;
     }
     struct cds_array* const new_array = *array_holder;
     new_array->data_length = new_length;
@@ -186,11 +188,13 @@ struct cds_array* cds_copy_array(
             = cds_compute_array_bytes_count(
                 src->reserved_length, src->bytes_per_element, src->data_offset
         );
-        cds_realloc_buffer(dest_holder, dest_full_bytes_count);
-    }
+        struct cds_array* realloced_dest 
+            = realloc(*dest_holder, dest_full_bytes_count);
+        if (!realloced_dest) return realloced_dest; 
+        else *dest_holder = realloced_dest;
+    } 
     struct cds_array* const new_dest = *dest_holder;
-    const errno_t memcpy_error 
-        = memcpy_s(
+    const errno_t memcpy_error = memcpy_s(
             new_dest, dest_full_bytes_count, src, src_active_bytes_count
         );
     if (memcpy_error){
