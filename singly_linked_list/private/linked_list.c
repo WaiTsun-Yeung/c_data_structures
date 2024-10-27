@@ -272,7 +272,7 @@ void* cds_destroy_linked_list_with_timeout(
                 != thrd_success
     ) return (void*)0;
     if (list->front) 
-        cds_empty_linked_list_with_timeout(
+        (void)cds_empty_linked_list_with_timeout(
             list, (void*)0, false, mutex_timeout
         );
     if (uses_mutex_lock) (void)mtx_unlock(&list->mutex);
@@ -302,10 +302,12 @@ void* cds_push_next_linked_list_node_with_timeout(
     if (!node || !new_node) return (void*)0;
     struct cds_singly_linked_list* const list 
         = ((struct cds_singly_linked_list_node*)node)->list;
-    if (!list || cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
-        != thrd_success
+    if (
+        !list 
+            || cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
+                != thrd_success
     ) return (void*)0;
-    cds_push_next_linked_list_node_core(
+    (void)cds_push_next_linked_list_node_core(
         node, new_node, doubly_linked_list_callback
     );
     (void)mtx_unlock(&list->mutex);

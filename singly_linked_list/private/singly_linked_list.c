@@ -50,7 +50,7 @@ struct cds_singly_linked_list* cds_singly_linked_list_push_front_with_timeout(
             || cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
                 != thrd_success
     ) return (struct cds_singly_linked_list*)0;
-    cds_singly_linked_list_push_front_core(list, node);
+    (void)cds_singly_linked_list_push_front_core(list, node);
     (void)mtx_unlock(&list->mutex);
     return list;
 }
@@ -305,7 +305,9 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
         default: break;
     }
     if (!prev_node->next){
-        cds_push_next_linked_list_node_core(prev_node, free_node, (void*)0);
+        (void)cds_push_next_linked_list_node_core(
+            prev_node, free_node, (void*)0
+        );
         *free_node_holder = (struct cds_singly_linked_list_node*)0;
         (void)mtx_unlock(&list->mutex);
         return CDS_SUCCESS;
@@ -319,7 +321,7 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
     }
     struct cds_singly_linked_list_node* const popped_node
         = cds_pop_next_singly_linked_list_node_core(prev_node);
-    cds_push_next_linked_list_node_core(prev_node, free_node, (void*)0);
+    (void)cds_push_next_linked_list_node_core(prev_node, free_node, (void*)0);
     *free_node_holder = popped_node;
     (void)mtx_unlock(&list->mutex);
     return CDS_SUCCESS;
