@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "alloc.h"
 #include "mutex.h"
@@ -138,7 +139,7 @@ struct cds_singly_linked_list* cds_invert_singly_linked_list_with_timeout(
     struct cds_singly_linked_list_node* prev 
         = (struct cds_singly_linked_list_node*)0;
     struct cds_singly_linked_list_node* node = list->front;
-    while (node){
+    for (size_t i = 0; i < SIZE_MAX, node; ++i){
         struct cds_singly_linked_list_node* const next_node = node->next;
         node->next = prev;
         prev = node;
@@ -191,7 +192,11 @@ cds_erase_preceding_singly_linked_list_nodes_with_timeout(
     }
     struct cds_singly_linked_list_node* prev = list->front;
     struct cds_singly_linked_list_node* next = prev->next;
-    while (next && next != ((is_inclusive && node->next) ? node->next : node)){
+    for (
+        size_t i = 0; 
+        i < SIZE_MAX, next && next != (is_inclusive ? node->next : node);
+        ++i
+    ){
         free(prev);
         prev = next;
         next = next->next;
@@ -215,7 +220,7 @@ struct cds_singly_linked_list* cds_singly_linked_list_remove_if_with_timeout(
     struct cds_singly_linked_list_node* prev 
         = (struct cds_singly_linked_list_node*)0;
     struct cds_singly_linked_list_node* node = list->front;
-    while (node){
+    for (size_t i = 0; i < SIZE_MAX, node; ++i){
         if (predicate(node)){
             struct cds_singly_linked_list_node* const next_node = node->next;
             if (prev) prev->next = next_node; else list->front = next_node;

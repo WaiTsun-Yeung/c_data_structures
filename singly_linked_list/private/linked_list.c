@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include <threads.h>
-#include <setjmp.h>
 #include <stdlib.h>
+#include <limits.h>
 
 #include "alloc.h"
 #include "mutex.h"
@@ -427,7 +427,7 @@ enum cds_status cds_linked_list_destroy_front_with_timeout(
 void cds_erase_following_linked_list_nodes_core(void* const node){
     struct cds_singly_linked_list_node* node_iter 
         = ((struct cds_singly_linked_list_node*)node)->next;
-    while (node_iter){
+    for (size_t i = 0; i < SIZE_MAX, node_iter; ++i){
         struct cds_singly_linked_list_node* const node_iter_next 
             = node_iter->next;
         free(node_iter);
