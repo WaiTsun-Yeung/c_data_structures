@@ -12,20 +12,10 @@ struct cds_doubly_linked_list* cds_create_doubly_linked_list_with_mutex_type(
     const int mutex_type
 );
 
-struct cds_doubly_linked_list* 
-cds_set_doubly_linked_list_back_null_with_return(
-    struct cds_doubly_linked_list* const list
-);
-
 struct cds_doubly_linked_list_node* 
 cds_destroy_doubly_linked_list_node_with_timeout(
     struct cds_doubly_linked_list_node *restrict *restrict const node,
     const struct timespec *restrict const mutex_timeout
-);
-
-void cds_doubly_linked_list_destroy_front_callback(
-    struct cds_doubly_linked_list *restrict const list,
-    const struct cds_doubly_linked_list_node *restrict const node
 );
 
 struct cds_doubly_linked_list* 
@@ -47,16 +37,6 @@ cds_push_doubly_linked_list_node_with_timeout(
     struct cds_doubly_linked_list_node* const node,
     struct cds_doubly_linked_list_node* const new_node,
     const struct timespec *restrict const mutex_timeout
-);
-
-void cds_push_next_doubly_linked_list_node_callback(
-    struct cds_doubly_linked_list_node* const node,
-    struct cds_doubly_linked_list_node* const new_node
-);
-
-void cds_doubly_linked_list_pop_front_callback(
-    struct cds_doubly_linked_list *restrict const list,
-    struct cds_doubly_linked_list_node *restrict const node
 );
 
 struct cds_doubly_linked_list_node* 
@@ -128,20 +108,6 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
         return cds_copy_and_create_linked_list_node(src);
     }
 
-    static inline void cds_set_doubly_linked_list_back_null(
-        struct cds_doubly_linked_list* const list
-    ){list->back = (struct cds_doubly_linked_list_node*)0;}
-
-    static inline void 
-    cds_copy_and_create_doubly_linked_list_copy_node_callback(
-        struct cds_doubly_linked_list_node* const dest_node
-    ){dest_node->next->prev = dest_node;}
-
-    static inline void cds_copy_and_create_doubly_linked_list_closing_callback(
-        struct cds_doubly_linked_list *restrict const dest_list,
-        struct cds_doubly_linked_list_node *restrict const dest_node
-    ){dest_list->back = dest_node;}
-
     static inline struct cds_doubly_linked_list*
     cds_copy_and_create_doubly_linked_list_with_timeout(
         struct cds_doubly_linked_list* const src_list,
@@ -150,9 +116,7 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
         return cds_copy_and_create_linked_list_with_timeout(
             sizeof(struct cds_doubly_linked_list), 
             src_list, 
-            cds_set_doubly_linked_list_back_null_with_return,
-            cds_copy_and_create_doubly_linked_list_copy_node_callback,
-            cds_copy_and_create_doubly_linked_list_closing_callback,
+            CDS_DOUBLY_LINKED_LIST,
             mutex_timeout
         );
     }
@@ -193,7 +157,7 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
     ){
         return cds_empty_linked_list_with_timeout(
             list, 
-            cds_set_doubly_linked_list_back_null, 
+            CDS_DOUBLY_LINKED_LIST,
             toggle_guards_and_cleanups,
             mutex_timeout
         );
@@ -270,20 +234,13 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
         );
     }
 
-    static inline void cds_push_back_doubly_linked_list_node_callback(
-        struct cds_doubly_linked_list_node* const node,
-        struct cds_doubly_linked_list_node* const new_node
-    ){
-        new_node->prev = node;
-    }
-
     static inline struct cds_doubly_linked_list_node*
     cds_push_back_doubly_linked_list_node_core(
         struct cds_doubly_linked_list_node* const node,
         struct cds_doubly_linked_list_node* const new_node
     ){
         return cds_push_next_linked_list_node_core(
-            node, new_node, cds_push_back_doubly_linked_list_node_callback
+            node, new_node, CDS_DOUBLY_LINKED_LIST 
         );
     }
 
@@ -308,8 +265,7 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
         const struct timespec *restrict const mutex_timeout
     ){
         return cds_push_next_linked_list_node_with_timeout(
-            node, new_node, cds_push_next_doubly_linked_list_node_callback,
-            mutex_timeout
+            node, new_node, CDS_DOUBLY_LINKED_LIST, mutex_timeout
         );
     }
 
@@ -331,8 +287,7 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
         return cds_copy_and_create_reverse_linked_list_with_timeout(
             sizeof(struct cds_doubly_linked_list), 
             src_list, 
-            cds_set_doubly_linked_list_back_null_with_return,
-            cds_doubly_linked_list_push_front_with_toggle,
+            CDS_DOUBLY_LINKED_LIST,
             mutex_timeout
         );
     }
@@ -352,7 +307,7 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
         const struct timespec *restrict const mutex_timeout
     ){
         return cds_linked_list_pop_front_with_timeout(
-            list, cds_doubly_linked_list_pop_front_callback, mutex_timeout
+            list, CDS_DOUBLY_LINKED_LIST, mutex_timeout
         );
     }
 
@@ -370,7 +325,7 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
         const struct timespec *restrict const mutex_timeout
     ){
         cds_linked_list_destroy_front_with_timeout(
-            list, cds_doubly_linked_list_destroy_front_callback, mutex_timeout
+            list, CDS_DOUBLY_LINKED_LIST, mutex_timeout
         );
     }
 

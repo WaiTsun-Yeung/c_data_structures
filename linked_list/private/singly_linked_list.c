@@ -306,7 +306,7 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
     }
     if (!prev_node->next){
         (void)cds_push_next_linked_list_node_core(
-            prev_node, free_node, (void*)0
+            prev_node, free_node, CDS_SINGLY_LINKED_LIST
         );
         *free_node_holder = (struct cds_singly_linked_list_node*)0;
         (void)mtx_unlock(&list->mutex);
@@ -321,7 +321,9 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
     }
     struct cds_singly_linked_list_node* const popped_node
         = cds_pop_next_singly_linked_list_node_core(prev_node);
-    (void)cds_push_next_linked_list_node_core(prev_node, free_node, (void*)0);
+    (void)cds_push_next_linked_list_node_core(
+        prev_node, free_node, CDS_SINGLY_LINKED_LIST
+    );
     *free_node_holder = popped_node;
     (void)mtx_unlock(&list->mutex);
     return CDS_SUCCESS;

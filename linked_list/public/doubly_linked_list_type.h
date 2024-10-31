@@ -4,8 +4,6 @@
     #include <stddef.h>
     #include <threads.h>
 
-    #include "singly_linked_list_type.h"
-
     struct cds_doubly_linked_list{
         mtx_t mutex;
         int mutex_type;

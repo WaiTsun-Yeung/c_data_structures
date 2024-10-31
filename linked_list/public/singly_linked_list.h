@@ -96,10 +96,7 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
 
     /// @brief Copy src node to create 
     ///     a new heap-allocated cds_singly_linked_list_node.
-    ///     The address of the src node's next node 
-    ///     and the address of the src list's mutex lock are also copied.
-    ///     cds_mutex_lock() and cds_mutex_unlock() must be called before and 
-    ///     after calling this function in a multithreaded environment.
+    ///     The address of the src node's next node is also copied.
     /// @param[in] src The source cds_singly_linked_list_node to copy from.
     /// @return The copied node if successful; otherwise, nullptr.
     static inline struct cds_singly_linked_list_node* 
@@ -114,7 +111,7 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
     ){
         return cds_copy_and_create_linked_list_with_timeout(
             sizeof(struct cds_singly_linked_list), 
-            src_list, (void*)0, (void*)0, (void*)0, mutex_timeout
+            src_list, CDS_SINGLY_LINKED_LIST, mutex_timeout
         );
     }
 
@@ -180,7 +177,7 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
         const struct timespec *restrict const mutex_timeout
     ){
         return cds_push_next_linked_list_node_with_timeout(
-            (void*)prev, (void*)node, (void*)0, mutex_timeout
+            (void*)prev, (void*)node, CDS_SINGLY_LINKED_LIST, mutex_timeout
         );
     }
 
@@ -211,7 +208,7 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
         const struct timespec *restrict const mutex_timeout
     ){
         return cds_linked_list_pop_front_with_timeout(
-            list, (void*)0, mutex_timeout
+            list, CDS_SINGLY_LINKED_LIST, mutex_timeout
         );
     }
 
@@ -238,7 +235,7 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
         const struct timespec *restrict const mutex_timeout
     ){
         cds_linked_list_destroy_front_with_timeout(
-            list, (void*)0, mutex_timeout
+            list, CDS_SINGLY_LINKED_LIST, mutex_timeout
         );
     }
 
@@ -277,8 +274,7 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
         return cds_copy_and_create_reverse_linked_list_with_timeout(
             sizeof(struct cds_singly_linked_list), 
             src_list, 
-            (void*)0,
-            cds_singly_linked_list_push_front_with_toggle,
+            CDS_SINGLY_LINKED_LIST,
             mutex_timeout
         );
     }
@@ -307,7 +303,7 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
         const struct timespec *restrict const mutex_timeout
     ){
         return cds_empty_linked_list_with_timeout(
-            list, (void*)0, true, mutex_timeout
+            list, CDS_SINGLY_LINKED_LIST, true, mutex_timeout
         );
     }
 

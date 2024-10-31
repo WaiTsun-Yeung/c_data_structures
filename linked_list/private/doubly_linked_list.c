@@ -34,14 +34,6 @@ struct cds_doubly_linked_list* cds_create_doubly_linked_list_with_mutex_type(
     return list;
 }
 
-struct cds_doubly_linked_list* 
-cds_set_doubly_linked_list_back_null_with_return(
-    struct cds_doubly_linked_list* const list
-){
-    cds_set_doubly_linked_list_back_null(list);
-    return list;
-}
-
 static void cds_destroy_doubly_linked_list_node_core(
     struct cds_doubly_linked_list_node* const node,
     struct cds_doubly_linked_list_node* const next_node
@@ -77,16 +69,6 @@ cds_destroy_doubly_linked_list_node_with_timeout(
     } else free(node);
     *node_holder = (struct cds_doubly_linked_list_node*)0;
     return *node_holder;
-}
-
-void cds_doubly_linked_list_destroy_front_callback(
-    struct cds_doubly_linked_list *restrict const list,
-    const struct cds_doubly_linked_list_node *restrict const node
-){
-    if (list->back == node)
-        list->back = (struct cds_doubly_linked_list_node*)0;
-    struct cds_doubly_linked_list_node* const front_node = list->front;
-    if (front_node) front_node->prev = (struct cds_doubly_linked_list_node*)0;
 }
 
 static void cds_push_doubly_linked_list_node_core(
@@ -176,28 +158,6 @@ cds_push_doubly_linked_list_node_with_timeout(
     if (prev_node) prev_node->next = new_node; else list->front = new_node;
     (void)mtx_unlock(&list->mutex);
     return new_node;
-}
-
-void cds_push_next_doubly_linked_list_node_callback(
-    struct cds_doubly_linked_list_node* const node,
-    struct cds_doubly_linked_list_node* const new_node
-){
-    struct cds_doubly_linked_list_node* const this_next = node->next;
-    if (this_next) this_next->prev = new_node;
-    else{ 
-        struct cds_doubly_linked_list* const this_list = node->list;
-        this_list->back = new_node;
-    }
-    new_node->prev = node;
-}
-
-void cds_doubly_linked_list_pop_front_callback(
-    struct cds_doubly_linked_list *restrict const list,
-    struct cds_doubly_linked_list_node *restrict const node
-){
-    struct cds_doubly_linked_list_node* const next_node = node->next;
-    if (!next_node) return;
-    next_node->prev = list->back = (struct cds_doubly_linked_list_node*)0;
 }
 
 struct cds_doubly_linked_list_node* cds_doubly_linked_list_pop_back_core(
