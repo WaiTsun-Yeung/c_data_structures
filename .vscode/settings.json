@@ -8,6 +8,8 @@
         "xutility": "c",
         "list": "c",
         "singly_linked_list_type.h": "c",
+        "doubly_linked_list_type.h": "c",
+        "doubly_linked_list.h": "c",
         "singly_linked_list.h": "c",
         "stddef.h": "c",
         "stdalign.h": "c",

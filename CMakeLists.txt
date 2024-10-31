@@ -23,4 +23,5 @@ enable_testing()
 
 add_subdirectory(utilities)
 add_subdirectory(singly_linked_list)
+add_subdirectory(doubly_linked_list)
 add_subdirectory(contiguous_array)
