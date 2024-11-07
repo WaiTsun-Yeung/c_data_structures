@@ -6,7 +6,7 @@ int main(){
     for (int i = 0; i < 1000000; ++i){
         struct cds_array* array 
             = cds_create_array(
-                0, sizeof(int), alignof(int)
+                0, sizeof(int), alignof(int), (enum cds_status*)0
             );
         if (!cds_is_array_empty(array))
             return 1;

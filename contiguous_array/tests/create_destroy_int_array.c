@@ -11,7 +11,7 @@ int main(){
         struct cds_array* array 
             = cds_create_array(
                 cds_rand_range(1, max_array_bytes / sizeof(int)), 
-                sizeof(int), alignof(int)
+                sizeof(int), alignof(int), (enum cds_status*)0
             );
         if (cds_is_array_empty(array))
             return 1;

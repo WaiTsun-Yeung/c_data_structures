@@ -12,10 +12,14 @@ int main(){
         const int array_length 
             = cds_rand_range(1, max_array_bytes / sizeof(int));
         struct cds_array* array_0 
-            = cds_create_array(array_length, sizeof(int), alignof(int));
+            = cds_create_array(
+                array_length, sizeof(int), alignof(int), (enum cds_status*)0
+            );
         struct cds_array* array_1 
-            = cds_create_array(array_length, sizeof(int), alignof(int));
-        cds_copy_array(&array_1, array_0, true);
+            = cds_create_array(
+                array_length, sizeof(int), alignof(int), (enum cds_status*)0
+            );
+        cds_copy_array(&array_1, array_0, true, (enum cds_status*)0);
         for (
             const int *data_0 = cds_data(array_0), 
                 *data_1 = cds_data(array_1); 

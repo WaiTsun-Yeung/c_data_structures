@@ -10,10 +10,11 @@ int main(){
         struct cds_array* array 
             = cds_create_array(
                 cds_rand_range(1, max_array_bytes / sizeof(int)), 
-                sizeof(int), alignof(int)
+                sizeof(int), alignof(int), (enum cds_status*)0
             );
         cds_resize_array(
-            &array, cds_rand_range(1, max_array_bytes / sizeof(int))
+            &array, cds_rand_range(1, max_array_bytes / sizeof(int)),
+            (enum cds_status*)0
         );
         cds_destroy_array(&array);
     }

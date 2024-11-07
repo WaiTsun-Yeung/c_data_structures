@@ -72,18 +72,23 @@ static inline struct cds_array* cds_malloc_array(
 ///     The user should free the array with cds_destroy_array()
 ///     at the end of its lifetime to prevent memory leaks.
 struct cds_array* cds_create_array(
-    const size_t length, const size_t bytes_per_element, const size_t data_align
+    const size_t length, const size_t bytes_per_element, 
+    const size_t data_align, enum cds_status* const return_state
 ){
     const size_t reserved_length = cds_next_power_of_two(length);
     const size_t data_offset 
         = cds_compute_data_offset(sizeof(struct cds_array), data_align);
     struct cds_array* const array 
         = cds_malloc_array(reserved_length, bytes_per_element, data_offset);
-    if (!array) return array;
+    if (!array){
+        if (return_state) *return_state = CDS_ALLOC_ERROR;
+        return array;
+    }
     array->data_length = length;
     array->reserved_length = reserved_length;
     array->bytes_per_element = bytes_per_element;
     array->data_offset = data_offset;
+    if (return_state) *return_state = CDS_SUCCESS;
     return array;
 }
 
@@ -93,15 +98,21 @@ struct cds_array* cds_create_array(
 ///     The user should free the array with cds_destroy_array()
 ///     at the end of its lifetime to prevent memory leaks.
 struct cds_array* cds_copy_and_create_array(
-    const struct cds_array* const src
+    const struct cds_array* const src, enum cds_status* const return_state
 ){
-    if (!src) return (struct cds_array*)0;
+    if (!src){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return (struct cds_array*)0;
+    }
     const size_t array_bytes_count
         = cds_compute_array_bytes_count(
                 src->reserved_length, src->bytes_per_element, src->data_offset
         );
     struct cds_array* const array = malloc(array_bytes_count);
-    if (!array) return array;
+    if (!array){
+        if (return_state) *return_state = CDS_ALLOC_ERROR;
+        return array;
+    }
     const errno_t memcpy_error = memcpy_s(
         array, array_bytes_count, src, 
         cds_compute_array_bytes_count(
@@ -113,7 +124,8 @@ struct cds_array* cds_copy_and_create_array(
             memcpy_error, __FILE__, __LINE__, __func__, "memcpy_s"
         );
         (void)cds_destroy_buffer((void**)&array);
-    }
+        if (return_state) *return_state = CDS_COPY_ERROR;
+    } else if (return_state) *return_state = CDS_SUCCESS;
     return array;
 }
 
@@ -128,10 +140,14 @@ struct cds_array* cds_copy_and_create_array(
 ///     The user should free the array with cds_destroy_array()
 ///     at the end of its lifetime to prevent memory leaks.
 struct cds_array* cds_resize_array(
-    struct cds_array** const array_holder, const size_t new_length
+    struct cds_array** const array_holder, const size_t new_length,
+    enum cds_status* const return_state
 ){
     struct cds_array* const array = *array_holder;
-    if (!array) return array;
+    if (!array){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return array;
+    }
     if (new_length > array->reserved_length){
         array->reserved_length = cds_next_power_of_two(new_length);
         struct cds_array* const realloced_array = realloc(
@@ -142,11 +158,15 @@ struct cds_array* cds_resize_array(
                 array->data_offset
             )
         );
-        if (!realloced_array) return realloced_array; 
+        if (!realloced_array){
+            if (return_state) *return_state = CDS_ALLOC_ERROR;
+            return realloced_array;
+        } 
         else *array_holder = realloced_array;
     }
     struct cds_array* const new_array = *array_holder;
     new_array->data_length = new_length;
+    if (return_state) *return_state = CDS_SUCCESS;
     return new_array;
 }
 
@@ -163,17 +183,22 @@ struct cds_array* cds_resize_array(
 struct cds_array* cds_copy_array(
 #if _MSC_VER
     struct cds_array **restrict const dest_holder, 
-    const struct cds_array* const src, const bool is_realloc_enabled
+    const struct cds_array* const src, const bool is_realloc_enabled,
+    enum cds_status* const return_state
 ){
     struct cds_array* const dest = *dest_holder;
     if (!dest || !src) return (struct cds_array*)0;
 #else
     struct cds_array (* const dest)[static 1], 
-    const struct cds_array const src[static 1], const bool is_realloc_enabled
+    const struct cds_array const src[static 1], const bool is_realloc_enabled,
+    enum cds_status* const return_state
 ){
     struct cds_array* const dest = *dest_holder;
 #endif
-    if (dest == src) return dest;
+    if (dest == src){ 
+        if (return_state) *return_state = CDS_INVALID_ARG;
+        return dest;
+    }
     const size_t src_active_bytes_count 
         = cds_compute_array_bytes_count(
             src->data_length, src->bytes_per_element, src->data_offset
@@ -186,14 +211,20 @@ struct cds_array* cds_copy_array(
     const bool is_realloc_needed 
         = dest_full_bytes_count < src_active_bytes_count;
     if (is_realloc_needed){
-        if (!is_realloc_enabled) return cds_destroy_buffer(dest_holder);
+        if (!is_realloc_enabled){
+            if (return_state) *return_state = CDS_BUFFER_OVERFLOW;
+            return cds_destroy_buffer(dest_holder);
+        }
         dest_full_bytes_count
             = cds_compute_array_bytes_count(
                 src->reserved_length, src->bytes_per_element, src->data_offset
         );
         struct cds_array* realloced_dest 
             = realloc(*dest_holder, dest_full_bytes_count);
-        if (!realloced_dest) return realloced_dest; 
+        if (!realloced_dest){
+            if (return_state) *return_state = CDS_ALLOC_ERROR;
+            return realloced_dest;
+        } 
         else *dest_holder = realloced_dest;
     } 
     struct cds_array* const new_dest = *dest_holder;
@@ -204,11 +235,13 @@ struct cds_array* cds_copy_array(
         cds_print_error_message(
             memcpy_error, __FILE__, __LINE__, __func__, "memcpy_s"
         );
+        if (return_state) *return_state = CDS_COPY_ERROR;
         return cds_destroy_buffer(dest_holder);
     }
     if (!is_realloc_needed)
         new_dest->reserved_length = (dest_full_bytes_count - src->data_offset) 
             / new_dest->bytes_per_element;
+    if (return_state) *return_state = CDS_SUCCESS;
     return new_dest;
 }
 
@@ -225,9 +258,18 @@ struct cds_array* cds_copy_array(
 /// @param[in] index The index of the data element to get.
 /// @return The data element at the specified index.
 void* cds_get_array_element(
-    const struct cds_array* const array, const size_t index
+    const struct cds_array* const array, const size_t index,
+    enum cds_status* const return_state
 ){
-    if (!array || index >= array->data_length) return (void*)0;
+    if (!array){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return array;
+    }
+    if (index >= array->data_length){
+        if (return_state) *return_state = CDS_INVALID_ARG;
+        return (void*)0;
+    }
+    if (return_state) *return_state = CDS_SUCCESS;
     return (char*)array + array->data_offset 
         + index * array->bytes_per_element;
 }

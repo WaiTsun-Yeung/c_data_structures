@@ -12,12 +12,13 @@ int main(){
         struct cds_array* array_0 
             = cds_create_array(
                 cds_rand_range(1, max_array_bytes / sizeof(int)), 
-                sizeof(int), alignof(int)
+                sizeof(int), alignof(int), (enum cds_status*)0
             );
-        struct cds_array* array_1 = cds_copy_and_create_array(array_0);
+        struct cds_array* array_1 
+            = cds_copy_and_create_array(array_0, (enum cds_status*)0);
         for (size_t j = 0; j < array_0->data_length; ++j)
             if (
-                *(int*)cds_get_array_element(array_0, j) 
+                *(int*)cds_get_array_element(array_0, j, (enum cds_status*)0) 
                     != ((int*)cds_data(array_1))[j]
             ) return 1;
         cds_destroy_array(&array_1);
