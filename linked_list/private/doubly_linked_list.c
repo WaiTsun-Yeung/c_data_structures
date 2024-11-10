@@ -133,13 +133,19 @@ cds_doubly_linked_list_push_front_with_toggle_with_timeout(
 struct cds_doubly_linked_list* cds_doubly_linked_list_push_back_with_timeout(
     struct cds_doubly_linked_list *restrict const list,
     struct cds_doubly_linked_list_node *restrict const node,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 ){
-    if (!list || !node) return list;
+    if (!list || !node){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return (struct cds_doubly_linked_list*)0;
+    }
     if (
-        cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
-            != thrd_success 
+        cds_mutex_lock(
+            &list->mutex, mutex_timeout, list->mutex_type, return_state
+        )
     ) return (struct cds_doubly_linked_list*)0;
+    if (return_state) *return_state = CDS_SUCCESS;
     if (!list->back){
         cds_insert_node_to_empty_doubly_linked_list_core(list, node);
         (void)mtx_unlock(&list->mutex);
