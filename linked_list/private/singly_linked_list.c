@@ -222,16 +222,28 @@ cds_erase_preceding_singly_linked_list_nodes_with_timeout(
     struct cds_singly_linked_list *restrict const list,
     struct cds_singly_linked_list_node *restrict const node,
     const bool is_inclusive,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 ){
-    if (!list) return list;
-    if (!node) return cds_empty_singly_linked_list(list);
+    if (!list){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return list;
+    }
+    if (!node) return cds_empty_singly_linked_list(list, return_state);
+    if (!node->list || node->list != list || !list->front){
+        if (return_state) *return_state = CDS_INVALID_ARG;
+        return (struct cds_singly_linked_list*)0;
+    }
     if (
-        !node->list || node->list != list
-            || cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
-                != thrd_success
+        cds_mutex_lock(
+            &list->mutex, mutex_timeout, list->mutex_type, return_state
+        )
     ) return (struct cds_singly_linked_list*)0;
-    if (!list->front || list->front == node){ 
+    if (return_state) *return_state = CDS_SUCCESS;
+    if (list->front == node){ 
+        if (is_inclusive) (void)cds_linked_list_destroy_front_core(
+            list, CDS_SINGLY_LINKED_LIST
+        );
         (void)mtx_unlock(&list->mutex);
         return list;
     }

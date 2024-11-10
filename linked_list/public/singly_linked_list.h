@@ -59,13 +59,8 @@ cds_erase_preceding_singly_linked_list_nodes_with_timeout(
     struct cds_singly_linked_list *restrict const list,
     struct cds_singly_linked_list_node *restrict const node,
     const bool is_inclusive,
-    const struct timespec *restrict const mutex_timeout
-);
-
-struct cds_singly_linked_list* cds_singly_linked_list_remove_if_with_timeout(
-    struct cds_singly_linked_list *restrict const list,
-    bool (*predicate)(const struct cds_singly_linked_list_node* const node),
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 );
 
 enum cds_status cds_swap_next_singly_linked_list_nodes_with_timeout(
@@ -345,20 +340,11 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
     cds_erase_preceding_singly_linked_list_nodes(
         struct cds_singly_linked_list *restrict const list,
         struct cds_singly_linked_list_node *restrict const node,
-        const bool is_inclusive
+        const bool is_inclusive,
+        enum cds_status *restrict const return_state
     ){
         return cds_erase_preceding_singly_linked_list_nodes_with_timeout(
-            list, node, is_inclusive, &cds_default_mutex_timeout
-        );
-    }
-
-    static inline struct cds_singly_linked_list*
-    cds_singly_linked_list_remove_if(
-        struct cds_singly_linked_list* const list,
-        bool (*predicate)(const struct cds_singly_linked_list_node* const node)
-    ){
-        return cds_singly_linked_list_remove_if_with_timeout(
-            list, predicate, &cds_default_mutex_timeout
+            list, node, is_inclusive, &cds_default_mutex_timeout, return_state
         );
     }
 
