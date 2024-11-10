@@ -116,25 +116,45 @@ cds_pop_next_singly_linked_list_node_with_timeout(
 /// @param[in] prev The node whose next node is to be destroyed.
 enum cds_status cds_destroy_next_singly_linked_list_node_with_timeout(
     struct cds_singly_linked_list_node *restrict const prev,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 ){
-    if (!prev) return CDS_NULL_ARG;
-    struct cds_singly_linked_list* const list = prev->list;
-    if (!list) return CDS_NULL_ARG;
-    switch(cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)){
-        case thrd_timedout: return CDS_MUTEX_TIMEOUT;
-        case thrd_error: return CDS_MUTEX_ERROR;
-        default: break;
+    if (!prev){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return CDS_NULL_ARG;
     }
+    struct cds_singly_linked_list* const list = prev->list;
+    if (!list){
+        if (return_state) *return_state = CDS_INVALID_ARG;
+        return CDS_INVALID_ARG;
+    }
+    const enum cds_status mutex_lock_error = cds_mutex_lock(
+        &list->mutex, mutex_timeout, list->mutex_type, return_state
+    );
+    if (mutex_lock_error) return mutex_lock_error;
     if (!prev->next){
         (void)mtx_unlock(&list->mutex);
+        if (return_state) *return_state = CDS_SUCCESS;
         return CDS_SUCCESS;
     }
     struct cds_singly_linked_list_node* const next_node = prev->next;
     prev->next = next_node->next;
     (void)mtx_unlock(&list->mutex);
     free(next_node);
+    if (return_state) *return_state = CDS_SUCCESS;
     return CDS_SUCCESS;
+}
+
+struct cds_singly_linked_list* cds_singly_linked_list_push_front_with_toggle(
+    struct cds_singly_linked_list *restrict const list,
+    struct cds_singly_linked_list_node *restrict const node,
+    const bool toggle_safety_guards,
+    enum cds_status *restrict const return_state
+){
+    if (toggle_safety_guards) 
+        return cds_singly_linked_list_push_front(list, node, return_state); 
+    if (return_state) *return_state = CDS_SUCCESS;
+    return cds_singly_linked_list_push_front_core(list, node);
 }
 
 /// @brief Invert the input list in place.

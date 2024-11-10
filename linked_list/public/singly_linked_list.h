@@ -32,7 +32,15 @@ cds_pop_next_singly_linked_list_node_with_timeout(
 
 enum cds_status cds_destroy_next_singly_linked_list_node_with_timeout(
     struct cds_singly_linked_list_node *restrict const prev,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
+);
+
+struct cds_singly_linked_list* cds_singly_linked_list_push_front_with_toggle(
+    struct cds_singly_linked_list *restrict const list,
+    struct cds_singly_linked_list_node *restrict const node,
+    const bool toggle_safety_guards,
+    enum cds_status *restrict const return_state
 );
 
 struct cds_singly_linked_list* cds_invert_singly_linked_list_with_timeout(
@@ -156,17 +164,21 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
     static inline struct cds_singly_linked_list* 
     cds_destroy_singly_linked_list_with_timeout(
         struct cds_singly_linked_list** const list,
-        const struct timespec *restrict const mutex_timeout
+        const struct timespec *restrict const mutex_timeout,
+        enum cds_status *restrict const return_state
     ){
         return cds_destroy_linked_list_with_timeout(
-            (void** const)list, true, mutex_timeout
+            (void** const)list, true, mutex_timeout, return_state
         );
     }
 
     static inline struct cds_singly_linked_list*
-    cds_destroy_singly_linked_list(struct cds_singly_linked_list** const list){
+    cds_destroy_singly_linked_list(
+        struct cds_singly_linked_list** const list,
+        enum cds_status *restrict const return_state
+    ){
         return cds_destroy_singly_linked_list_with_timeout(
-            list, &cds_default_mutex_timeout
+            list, &cds_default_mutex_timeout, return_state
         );
     }
 
@@ -243,38 +255,30 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
 
     static inline void cds_singly_linked_list_destroy_front_with_timeout(
         struct cds_singly_linked_list *restrict const list,
-        const struct timespec *restrict const mutex_timeout
+        const struct timespec *restrict const mutex_timeout,
+        enum cds_status *restrict const return_state
     ){
         cds_linked_list_destroy_front_with_timeout(
-            list, CDS_SINGLY_LINKED_LIST, mutex_timeout
+            list, CDS_SINGLY_LINKED_LIST, mutex_timeout, return_state
         );
     }
 
     static inline void cds_singly_linked_list_destroy_front(
-        struct cds_singly_linked_list* const list
+        struct cds_singly_linked_list* const list,
+        enum cds_status *restrict const return_state
     ){
         cds_singly_linked_list_destroy_front_with_timeout(
-            list, &cds_default_mutex_timeout
+            list, &cds_default_mutex_timeout, return_state
         );
     }
 
     static inline enum cds_status cds_destroy_next_singly_linked_list_node(
-        struct cds_singly_linked_list_node* const prev
+        struct cds_singly_linked_list_node* const prev,
+        enum cds_status *restrict const return_state
     ){
         return cds_destroy_next_singly_linked_list_node_with_timeout(
-            prev, &cds_default_mutex_timeout
+            prev, &cds_default_mutex_timeout, return_state
         );
-    }
-
-    static inline struct cds_singly_linked_list*
-    cds_singly_linked_list_push_front_with_toggle(
-        struct cds_singly_linked_list *restrict const list,
-        struct cds_singly_linked_list_node *restrict const node,
-        const bool toggle_safety_guards
-    ){
-        return toggle_safety_guards 
-            ? cds_singly_linked_list_push_front(list, node) 
-            : cds_singly_linked_list_push_front_core(list, node);
     }
 
     static inline struct cds_singly_linked_list* 

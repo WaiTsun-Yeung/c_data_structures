@@ -51,12 +51,16 @@ void* cds_copy_linked_list_node(
     void **restrict const dest, const void *const src,
     enum cds_status *restrict const return_state
 );
+
+void* cds_linked_list_destroy_front_core(
+    void* const list, const enum cds_linked_list_type linked_list_type
 );
 
 void* cds_destroy_linked_list_with_timeout(
     void *restrict *restrict const list, 
     const bool uses_mutex_lock,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 );
 
 void* cds_push_next_linked_list_node_core(
@@ -87,7 +91,8 @@ void* cds_linked_list_pop_front_with_timeout(
 enum cds_status cds_linked_list_destroy_front_with_timeout(
     void *restrict const list, 
     const enum cds_linked_list_type linked_list_type,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 );
 
 void* cds_empty_linked_list_with_timeout(

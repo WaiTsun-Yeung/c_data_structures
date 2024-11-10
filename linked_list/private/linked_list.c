@@ -304,20 +304,33 @@ void* cds_empty_linked_list_with_timeout(
 void* cds_destroy_linked_list_with_timeout(
     void *restrict *restrict const list_holder, 
     const bool uses_mutex_lock,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 ){
     struct cds_doubly_linked_list* const list = *list_holder;
-    if (!list) return list;
+    if (!list){
+        if (return_state) *return_state = CDS_SUCCESS;
+        return list;
+    }
     if (
-        uses_mutex_lock
-            && cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type) 
-                != thrd_success
-    ) return (void*)0;
-    if (list->front) 
+        uses_mutex_lock && cds_mutex_lock(
+            &list->mutex, mutex_timeout, list->mutex_type, return_state
+        )
+    ) return list;
+    enum cds_status local_return_state;
+    if (list->front){ 
         (void)cds_empty_linked_list_with_timeout(
-            list, CDS_SINGLY_LINKED_LIST, false, mutex_timeout
+            list, CDS_SINGLY_LINKED_LIST, false, mutex_timeout, 
+            &local_return_state
         );
+        if (local_return_state){
+            if (uses_mutex_lock) (void)mtx_unlock(&list->mutex);
+            if (return_state) *return_state = local_return_state;
+            return list;
+        }
+    }
     if (uses_mutex_lock) (void)mtx_unlock(&list->mutex);
+    if (return_state) *return_state = CDS_SUCCESS;
     return cds_destroy_empty_linked_list(list_holder);
 }
 
@@ -450,27 +463,9 @@ void* cds_linked_list_pop_front_with_timeout(
     return node;
 }
 
-enum cds_status cds_linked_list_destroy_front_with_timeout(
-    void *restrict const list, 
-    const enum cds_linked_list_type linked_list_type,
-    const struct timespec *restrict const mutex_timeout
+void* cds_linked_list_destroy_front_core(
+    void* const list, const enum cds_linked_list_type linked_list_type
 ){
-    if (!list) return CDS_NULL_ARG;
-    switch(
-        cds_mutex_lock(
-            &((struct cds_doubly_linked_list*)list)->mutex, 
-            mutex_timeout, 
-            ((struct cds_doubly_linked_list*)list)->mutex_type
-        )
-    ){
-        case thrd_timedout: return CDS_MUTEX_TIMEOUT;
-        case thrd_error: return CDS_MUTEX_ERROR;
-        default: break;
-    }
-    if (!((struct cds_doubly_linked_list*)list)->front){
-        (void)mtx_unlock(&((struct cds_doubly_linked_list*)list)->mutex);
-        return CDS_SUCCESS;
-    }
     struct cds_doubly_linked_list_node* const node 
         = ((struct cds_doubly_linked_list*)list)->front;
     ((struct cds_doubly_linked_list*)list)->front = node->next;
@@ -483,8 +478,33 @@ enum cds_status cds_linked_list_destroy_front_with_timeout(
         if (front_node) front_node->prev 
             = (struct cds_doubly_linked_list_node*)0;
     }
-    (void)mtx_unlock(&((struct cds_doubly_linked_list*)list)->mutex);
     free(node);
+    return list;
+}
+
+enum cds_status cds_linked_list_destroy_front_with_timeout(
+    void *restrict const list, 
+    const enum cds_linked_list_type linked_list_type,
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
+){
+    if (!list){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return CDS_NULL_ARG;
+    }
+    const enum cds_status mutex_lock_error = cds_mutex_lock(
+        &((struct cds_doubly_linked_list*)list)->mutex, mutex_timeout, 
+        ((struct cds_doubly_linked_list*)list)->mutex_type, return_state
+    );
+    if (mutex_lock_error) return mutex_lock_error;
+    if (!((struct cds_doubly_linked_list*)list)->front){
+        (void)mtx_unlock(&((struct cds_doubly_linked_list*)list)->mutex);
+        if (return_state) *return_state = CDS_SUCCESS;
+        return CDS_SUCCESS;
+    }
+    (void)cds_linked_list_destroy_front_core(list, linked_list_type);
+    (void)mtx_unlock(&((struct cds_doubly_linked_list*)list)->mutex);
+    if (return_state) *return_state = CDS_SUCCESS;
     return CDS_SUCCESS;
 }
 
