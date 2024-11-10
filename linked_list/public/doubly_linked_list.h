@@ -107,9 +107,10 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
 
     static inline struct cds_doubly_linked_list_node* 
     cds_copy_and_create_doubly_linked_list_node(
-        const struct cds_doubly_linked_list_node* const src
+        const struct cds_doubly_linked_list_node* const src,
+        enum cds_status *restrict const return_state
     ){
-        return cds_copy_and_create_linked_list_node(src);
+        return cds_copy_and_create_linked_list_node(src, return_state);
     }
 
     static inline struct cds_doubly_linked_list*
