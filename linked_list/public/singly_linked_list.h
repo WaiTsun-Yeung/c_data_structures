@@ -95,8 +95,10 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
     }
 
     static inline struct cds_singly_linked_list* 
-    cds_create_singly_linked_list(){
-        return cds_create_singly_linked_list_with_mutex_type(mtx_timed);
+    cds_create_singly_linked_list(enum cds_status* const return_state){
+        return cds_create_singly_linked_list_with_mutex_type(
+            mtx_timed, return_state
+        );
     }
 
     /// @brief Copy src node to create 
