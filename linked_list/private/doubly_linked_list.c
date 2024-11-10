@@ -256,14 +256,19 @@ cds_pop_doubly_linked_list_node_with_timeout(
 
 enum cds_status cds_doubly_linked_list_destroy_back_with_timeout(
     struct cds_doubly_linked_list *restrict const list,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 ){
-    if (!list) return CDS_NULL_ARG;
-    switch(cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)){
-        case thrd_timedout: return CDS_MUTEX_TIMEOUT;
-        case thrd_error: return CDS_MUTEX_ERROR;
-        default: break;
+    if (!list){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return CDS_NULL_ARG;
     }
+    if (
+        cds_mutex_lock(
+            &list->mutex, mutex_timeout, list->mutex_type, return_state
+        )
+    ) return CDS_MUTEX_ERROR;
+    if (return_state) *return_state = CDS_SUCCESS;
     if (!list->front){
         (void)mtx_unlock(&list->mutex);
         return CDS_SUCCESS;

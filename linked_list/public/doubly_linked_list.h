@@ -61,7 +61,8 @@ cds_pop_doubly_linked_list_node_with_timeout(
 
 enum cds_status cds_doubly_linked_list_destroy_back_with_timeout(
     struct cds_doubly_linked_list *restrict const list,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 );
 
 struct cds_doubly_linked_list* cds_invert_doubly_linked_list_with_timeout(
@@ -382,10 +383,11 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
     }
     
     static inline enum cds_status cds_doubly_linked_list_destroy_back(
-        struct cds_doubly_linked_list* const list
+        struct cds_doubly_linked_list* const list,
+        enum cds_status *restrict const return_state
     ){
         return cds_doubly_linked_list_destroy_back_with_timeout(
-            list, &cds_default_mutex_timeout
+            list, &cds_default_mutex_timeout, return_state
         );
     }
     
