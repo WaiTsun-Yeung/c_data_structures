@@ -202,10 +202,17 @@ void* cds_change_linked_list_node_data_type(
 }
 
 void* cds_copy_linked_list_node(
-    void **restrict const dest_holder, const void* const src
+    void **restrict const dest_holder, const void* const src,
+    enum cds_status *restrict const return_state
 ){
-    if (!*dest_holder || !src) (void*)0;
-    if (*dest_holder == src) return *dest_holder;
+    if (!*dest_holder || !src){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return (void*)0;
+    }
+    if (*dest_holder == src){
+        if (return_state) *return_state = CDS_INVALID_ARG;
+        return *dest_holder;
+    }
     struct cds_doubly_linked_list_node* const dest = *dest_holder;
     if (
         dest->bytes_per_element 
@@ -221,7 +228,10 @@ void* cds_copy_linked_list_node(
                 + ((const struct cds_doubly_linked_list_node* const)src)
                     ->bytes_per_element
         );
-        if (!realloced_dest) return realloced_dest; 
+        if (!realloced_dest){
+            if (return_state) *return_state = CDS_ALLOC_ERROR;
+            return realloced_dest;
+        } 
         *dest_holder = cds_set_linked_list_node_after_realloc(
             realloced_dest, 
             ((const struct cds_doubly_linked_list_node* const)src)->data_offset, 
@@ -242,8 +252,10 @@ void* cds_copy_linked_list_node(
         cds_print_error_message(
             memcpy_error, __FILE__, __LINE__, __func__, "memcpy_s"
         );
+        if (return_state) *return_state = CDS_COPY_ERROR;
         return cds_destroy_buffer(dest_holder);
     }
+    if (return_state) *return_state = CDS_SUCCESS;
     return new_dest;
 }
 

@@ -48,7 +48,9 @@ void* cds_change_linked_list_node_data_type(
 );
 
 void* cds_copy_linked_list_node(
-    void **restrict const dest, const void *const src
+    void **restrict const dest, const void *const src,
+    enum cds_status *restrict const return_state
+);
 );
 
 void* cds_destroy_linked_list_with_timeout(
