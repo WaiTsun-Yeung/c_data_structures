@@ -10,12 +10,14 @@
 #include "doubly_linked_list.h"
 
 struct cds_doubly_linked_list_node* cds_create_doubly_linked_list_node(
-    const size_t bytes_per_element, const size_t data_align
+    const size_t bytes_per_element, const size_t data_align,
+    enum cds_status* const return_state
 ){
     struct cds_doubly_linked_list_node* const node 
         = cds_create_linked_list_node(
             sizeof(struct cds_doubly_linked_list_node), bytes_per_element,
-            data_align
+            data_align,
+            return_state
         );
     if (!node) return node;
     node->prev = (struct cds_doubly_linked_list_node*)0;
@@ -54,20 +56,27 @@ static void cds_destroy_doubly_linked_list_node_core(
 struct cds_doubly_linked_list_node* 
 cds_destroy_doubly_linked_list_node_with_timeout(
     struct cds_doubly_linked_list_node *restrict *restrict const node_holder,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 ){
     struct cds_doubly_linked_list_node* const node = *node_holder;
-    if (!node) return node;
+    if (!node){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return node;
+    }
     struct cds_doubly_linked_list* const list = node->list;
     if (list){
         if (
-            cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type) 
-                != thrd_success
+            cds_mutex_lock(
+                &list->mutex, mutex_timeout, list->mutex_type, return_state
+            )
         ) return node;
         cds_destroy_doubly_linked_list_node_core(node, node->next);
         (void)mtx_unlock(&list->mutex);
-    } else free(node);
+    } 
+    free(node);
     *node_holder = (struct cds_doubly_linked_list_node*)0;
+    if (return_state) *return_state = CDS_SUCCESS;
     return *node_holder;
 }
 

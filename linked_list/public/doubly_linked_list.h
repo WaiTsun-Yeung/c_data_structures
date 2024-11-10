@@ -1,11 +1,14 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#include "status.h"
+
 #include "linked_list.h"
 #include "doubly_linked_list_type.h"
 
 struct cds_doubly_linked_list_node* cds_create_doubly_linked_list_node(
-    const size_t bytes_per_element, const size_t data_align
+    const size_t bytes_per_element, const size_t data_align,
+    enum cds_status* const return_state
 );
 
 struct cds_doubly_linked_list* cds_create_doubly_linked_list_with_mutex_type(
@@ -15,7 +18,8 @@ struct cds_doubly_linked_list* cds_create_doubly_linked_list_with_mutex_type(
 struct cds_doubly_linked_list_node* 
 cds_destroy_doubly_linked_list_node_with_timeout(
     struct cds_doubly_linked_list_node *restrict *restrict const node,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 );
 
 struct cds_doubly_linked_list* 
@@ -339,10 +343,11 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
 
     static inline struct cds_doubly_linked_list_node*
     cds_destroy_doubly_linked_list_node(
-        struct cds_doubly_linked_list_node** const node
+        struct cds_doubly_linked_list_node** const node,
+        enum cds_status *restrict const return_state
     ){
         return cds_destroy_doubly_linked_list_node_with_timeout(
-            node, &cds_default_mutex_timeout
+            node, &cds_default_mutex_timeout, return_state
         );
     }
 
