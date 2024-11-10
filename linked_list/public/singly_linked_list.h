@@ -135,11 +135,12 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
     static inline struct cds_singly_linked_list_node*
     cds_change_singly_linked_list_node_data_type(
         struct cds_singly_linked_list_node** const node,
-        const size_t bytes_per_element, const size_t data_align
+        const size_t bytes_per_element, const size_t data_align,
+        enum cds_status *restrict const return_state
     ){
         return cds_change_linked_list_node_data_type(
             sizeof(struct cds_singly_linked_list_node), 
-            (void**)node, bytes_per_element, data_align
+            (void**)node, bytes_per_element, data_align, return_state
         );
     }
 

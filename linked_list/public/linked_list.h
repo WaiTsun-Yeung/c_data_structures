@@ -41,8 +41,10 @@ void* cds_copy_and_create_linked_list_with_timeout(
 );
 
 void* cds_change_linked_list_node_data_type(
-    const size_t bytes_per_node_type, void** const node, 
-    const size_t bytes_per_element, const size_t data_align
+    const size_t bytes_per_node_type, 
+    void *restrict * restrict const node_holder, 
+    const size_t bytes_per_element, const size_t data_align,
+    enum cds_status *restrict const return_state
 );
 
 void* cds_copy_linked_list_node(

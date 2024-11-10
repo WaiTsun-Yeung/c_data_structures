@@ -5,12 +5,19 @@
 
 int main() {
     for (size_t i = 0; i < 1000000; ++i){
+        enum cds_status return_state;
         struct cds_singly_linked_list_node* node 
-            = cds_create_singly_linked_list_node(sizeof(int), alignof(int));
+            = cds_create_singly_linked_list_node(
+                sizeof(int), alignof(int), &return_state
+            );
+        if (return_state) return return_state;
         cds_change_singly_linked_list_node_data_type(
-            &node, sizeof(unsigned long long), alignof(unsigned long long)
+            &node, sizeof(unsigned long long), alignof(unsigned long long),
+            &return_state
         );
-        cds_destroy_free_singly_linked_list_node(&node);
+        if (return_state) return return_state;
+        cds_destroy_free_singly_linked_list_node(&node, &return_state);
+        if (return_state) return return_state;
     }
     return 0;
 }

@@ -170,21 +170,32 @@ static void* cds_set_linked_list_node_after_realloc(
 }
 
 void* cds_change_linked_list_node_data_type(
-    const size_t bytes_per_node_type, void** const node_holder, 
-    const size_t bytes_per_element, const size_t data_align
+    const size_t bytes_per_node_type, 
+    void *restrict * restrict const node_holder, 
+    const size_t bytes_per_element, const size_t data_align,
+    enum cds_status *restrict const return_state
 ){
     const size_t data_offset 
         = cds_compute_data_offset(bytes_per_node_type, data_align);
     struct cds_doubly_linked_list_node* const node = *node_holder;
+    if (!node){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return node;
+    }
     if (
-        !node || (
             node->bytes_per_element == bytes_per_element
                 && node->data_offset == data_offset
-        )
-    ) return (void*)0;
+    ){
+        if (return_state) *return_state = CDS_SUCCESS;
+        return (void*)0;
+    }
     void* realloced_node = realloc(node, data_offset + bytes_per_element);
-    if (!realloced_node) return realloced_node; 
+    if (!realloced_node){
+        if (return_state) *return_state = CDS_ALLOC_ERROR;
+        return realloced_node;
+    } 
     else *node_holder = realloced_node;
+    if (return_state) *return_state = CDS_SUCCESS;
     return cds_set_linked_list_node_after_realloc(
         *node_holder, data_offset, bytes_per_element
     );
