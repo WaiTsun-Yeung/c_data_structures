@@ -235,15 +235,23 @@ cds_doubly_linked_list_pop_back_with_timeout(
 struct cds_doubly_linked_list_node* 
 cds_pop_doubly_linked_list_node_with_timeout(
     struct cds_doubly_linked_list_node *restrict const node,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 ){
-    if (!node) return node;
+    if (!node){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return node;
+    }
     struct cds_doubly_linked_list* const list = node->list;
+    if (!list){
+        if (return_state) *return_state = CDS_INVALID_ARG;
+        return node;
+    }
     if (
-        !list 
-            || cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
-                != thrd_success
-    ) return (struct cds_doubly_linked_list_node*)0;
+        cds_mutex_lock(
+            &list->mutex, mutex_timeout, list->mutex_type, return_state
+        )
+    ) return node;
     struct cds_doubly_linked_list_node* prev_node = node->prev;
     struct cds_doubly_linked_list_node* next_node = node->next;
     if (prev_node) prev_node->next = next_node; else list->front = next_node;
@@ -251,6 +259,7 @@ cds_pop_doubly_linked_list_node_with_timeout(
     (void)mtx_unlock(&list->mutex);
     node->list = (struct cds_doubly_linked_list*)0;
     node->prev = node->next = (struct cds_doubly_linked_list_node*)0;
+    if (return_state) *return_state = CDS_SUCCESS;
     return node;
 }
 
