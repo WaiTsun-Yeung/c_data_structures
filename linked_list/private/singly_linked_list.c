@@ -2,7 +2,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <threads.h>
 
+#include "status.h"
 #include "alloc.h"
 #include "mutex.h"
 #include "singly_linked_list_type.h"
@@ -14,12 +16,21 @@
 /// @return If the input node is part of a list, the function will return the
 ///     input node. Otherwise, the function will return nullptr.
 struct cds_singly_linked_list_node* cds_destroy_free_singly_linked_list_node(
-    struct cds_singly_linked_list_node** const node_holder
+    struct cds_singly_linked_list_node *restrict *restrict const node_holder,
+    enum cds_status *restrict const return_state
 ){
     struct cds_singly_linked_list_node* const node = *node_holder;
-    if (!node || node->list) return (struct cds_singly_linked_list_node*)0;
+    if (!node){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return node;
+    }
+    if (node->list){
+        if (return_state) *return_state = CDS_INVALID_ARG;
+        return node;
+    }
     free(node);
     *node_holder = (struct cds_singly_linked_list_node*)0;
+    if (return_state) *return_state = CDS_SUCCESS;
     return *node_holder;
 }
 

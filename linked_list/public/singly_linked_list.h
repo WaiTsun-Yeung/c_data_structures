@@ -7,7 +7,8 @@
 #include "singly_linked_list_type.h"
 
 struct cds_singly_linked_list_node* cds_destroy_free_singly_linked_list_node(
-    struct cds_singly_linked_list_node** const node
+    struct cds_singly_linked_list_node *restrict *restrict const node,
+    enum cds_status *restrict const return_state
 );
 
 struct cds_singly_linked_list* 
@@ -74,11 +75,12 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
 
     static inline struct cds_singly_linked_list_node* 
     cds_create_singly_linked_list_node(
-        const size_t bytes_per_element, const size_t data_align
+        const size_t bytes_per_element, const size_t data_align,
+        enum cds_status *const return_state
     ){
         return cds_create_linked_list_node(
             sizeof(struct cds_singly_linked_list_node), bytes_per_element, 
-            data_align
+            data_align, return_state
         );
     }
 

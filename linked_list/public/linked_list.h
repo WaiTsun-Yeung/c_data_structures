@@ -21,7 +21,7 @@
 
 void* cds_create_linked_list_node(
     const size_t bytes_per_node_type, const size_t bytes_per_element,
-    const size_t data_align
+    const size_t data_align, enum cds_status* const return_state
 );
 
 void* cds_create_linked_list_with_mutex_type(

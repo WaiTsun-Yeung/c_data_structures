@@ -16,17 +16,21 @@
 
 void* cds_create_linked_list_node(
     const size_t bytes_per_node_type, const size_t bytes_per_element,
-    const size_t data_align
+    const size_t data_align, enum cds_status* const return_state
 ){
     const size_t data_offset 
         = cds_compute_data_offset(bytes_per_node_type, data_align);
     struct cds_doubly_linked_list_node* const node 
         = malloc(data_offset + bytes_per_element);
-    if (!node) return node;
+    if (!node){
+        if (return_state) *return_state = CDS_ALLOC_ERROR;
+        return node;
+    }
     node->bytes_per_element = bytes_per_element;
     node->data_offset = data_offset;
     node->list = (struct cds_doubly_linked_list*)0;
     node->next = (struct cds_doubly_linked_list_node*)0;
+    if (return_state) *return_state = CDS_SUCCESS;
     return node;
 }
 
