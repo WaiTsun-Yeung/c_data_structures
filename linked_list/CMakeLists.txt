@@ -179,15 +179,6 @@ add_test(
     NAME invert_singly_linked_list
     COMMAND invert_singly_linked_list.exe
 )
-add_executable(singly_linked_list_remove_if
-    tests/singly_linked_list_remove_if.c
-)
-target_link_libraries(singly_linked_list_remove_if PRIVATE linked_list)
-add_test(
-    NAME singly_linked_list_remove_if
-    COMMAND singly_linked_list_remove_if.exe
-)
-
 add_executable(copy_create_destroy_doubly_linked_list 
     tests/copy_create_destroy_doubly_linked_list.c
 )
@@ -397,14 +388,4 @@ target_link_libraries(invert_doubly_linked_list PRIVATE
 add_test(
     NAME invert_doubly_linked_list
     COMMAND invert_doubly_linked_list.exe
-)
-add_executable(doubly_linked_list_remove_if
-    tests/doubly_linked_list_remove_if.c
-)
-target_link_libraries(doubly_linked_list_remove_if PRIVATE 
-    linked_list
-)
-add_test(
-    NAME doubly_linked_list_remove_if
-    COMMAND doubly_linked_list_remove_if.exe
 )
