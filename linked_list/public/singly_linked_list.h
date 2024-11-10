@@ -50,7 +50,8 @@ struct cds_singly_linked_list* cds_invert_singly_linked_list_with_timeout(
 
 enum cds_status cds_erase_following_singly_linked_list_nodes_with_timeout(
     struct cds_singly_linked_list_node *restrict const prev,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 );
 
 struct cds_singly_linked_list* 
@@ -332,10 +333,11 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
     }
 
     static inline enum cds_status cds_erase_following_singly_linked_list_nodes(
-        struct cds_singly_linked_list_node* const prev
+        struct cds_singly_linked_list_node* const prev,
+        enum cds_status *restrict const return_state
     ){
         return cds_erase_following_singly_linked_list_nodes_with_timeout(
-            prev, &cds_default_mutex_timeout
+            prev, &cds_default_mutex_timeout, return_state
         );
     }
 
