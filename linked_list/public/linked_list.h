@@ -72,7 +72,8 @@ void* cds_push_next_linked_list_node_with_timeout(
     void *restrict const node,
     void *restrict const new_node,
     const enum cds_linked_list_type linked_list_type,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 );
 
 void* cds_copy_and_create_reverse_linked_list_with_timeout(

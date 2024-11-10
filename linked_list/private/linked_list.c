@@ -358,20 +358,29 @@ void* cds_push_next_linked_list_node_with_timeout(
     void *restrict const node,
     void *restrict const new_node,
     const enum cds_linked_list_type linked_list_type,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 ){
-    if (!node || !new_node) return (void*)0;
+    if (!node || !new_node){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return (void*)0;
+    }
     struct cds_doubly_linked_list* const list 
         = ((struct cds_doubly_linked_list_node*)node)->list;
+    if (!list){
+        if (return_state) *return_state = CDS_INVALID_ARG;
+        return (void*)0;
+    }
     if (
-        !list 
-            || cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
-                != thrd_success
+        cds_mutex_lock(
+            &list->mutex, mutex_timeout, list->mutex_type, return_state
+        )
     ) return (void*)0;
     (void)cds_push_next_linked_list_node_core(
         node, new_node, linked_list_type
     );
     (void)mtx_unlock(&list->mutex);
+    if (return_state) *return_state = CDS_SUCCESS;
     return new_node;
 }
 
