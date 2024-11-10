@@ -1,5 +1,6 @@
 #include <stdalign.h>
 
+#include "status.h"
 #include "alloc.h"
 #include "array.h"
 #include "rand.h"
@@ -11,22 +12,24 @@ int main(){
         const int max_array_bytes = 0x3FFF / 2; 
         const int array_length 
             = cds_rand_range(1, max_array_bytes / sizeof(int));
+        enum cds_status return_state;
         struct cds_array* array_0 
             = cds_create_array(
-                array_length, sizeof(int), alignof(int), (enum cds_status*)0
+                array_length, sizeof(int), alignof(int), &return_state
             );
+        if (return_state) return return_state;
         struct cds_array* array_1 
             = cds_create_array(
-                array_length, sizeof(int), alignof(int), (enum cds_status*)0
+                array_length, sizeof(int), alignof(int), &return_state
             );
-        cds_copy_array(&array_1, array_0, true, (enum cds_status*)0);
+        cds_copy_array(&array_1, array_0, true, &return_state);
         for (
             const int *data_0 = cds_data(array_0), 
                 *data_1 = cds_data(array_1); 
             data_0 < (int*)cds_data(array_0) + array_length; 
             ++data_0, ++data_1
         ) if (*data_0 != *data_1)
-            return 1;
+            return 256;
         cds_destroy_array(&array_1);
         cds_destroy_array(&array_0);
     }

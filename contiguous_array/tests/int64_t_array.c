@@ -1,6 +1,8 @@
 #include <stdlib.h>
 
 #include "alloc.h"
+#include "status.h"
+
 #include "array_variadic.h"
 #include "array.h"
 
@@ -18,9 +20,10 @@ int main(){
     *values_initialise_ptr++ = 27079LL;
     *values_initialise_ptr++ = 22208LL;
     *values_initialise_ptr++ = -26632LL;
+    enum cds_status return_state;
     struct cds_array* array
         = cds_create_int64_t_array(
-            values_count, 
+            &return_state, values_count, 
             24065LL, 22311LL, 24949LL, 8873LL, -21217LL, -26215LL, 27941LL, 
             27079LL, 22208LL, -26632LL
         );
@@ -29,7 +32,7 @@ int main(){
         array_ptr < (int64_t*)cds_data(array) + array->data_length;
         ++array_ptr, ++values_ptr
     ) if (*array_ptr != *values_ptr)
-        return 1;
+        return 256;
     cds_destroy_array(&array);
     free(values);
     return 0;

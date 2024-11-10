@@ -1,5 +1,7 @@
 #include <stdlib.h>
 
+#include "status.h"
+
 #include "array_variadic.h"
 #include "array.h"
 
@@ -17,16 +19,17 @@ int main(){
     *values_ptr++ = 32;
     *values_ptr++ = 49;
     *values_ptr++ = 99;
+    enum cds_status return_state;
     struct cds_array* array
         = cds_create_char_array(
-            values_count, 11, 124, 69, 8, 7, 106, 127, 32, 49, 99
+            &return_state, values_count, 11, 124, 69, 8, 7, 106, 127, 32, 49, 99
         );
     for (
         const char* array_ptr = cds_data(array), *values_ptr = values;
         array_ptr < (char*)cds_data(array) + array->data_length;
         ++array_ptr, ++values_ptr
     ) if (*array_ptr != *values_ptr)
-        return 1;
+        return 256;
     cds_destroy_array(&array);
     free(values);
     return 0;

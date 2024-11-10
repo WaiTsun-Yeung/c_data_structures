@@ -98,7 +98,8 @@ struct cds_array* cds_create_array(
 ///     The user should free the array with cds_destroy_array()
 ///     at the end of its lifetime to prevent memory leaks.
 struct cds_array* cds_copy_and_create_array(
-    const struct cds_array* const src, enum cds_status* const return_state
+    const struct cds_array *restrict const src, 
+    enum cds_status *restrict const return_state
 ){
     if (!src){
         if (return_state) *return_state = CDS_NULL_ARG;
@@ -140,8 +141,9 @@ struct cds_array* cds_copy_and_create_array(
 ///     The user should free the array with cds_destroy_array()
 ///     at the end of its lifetime to prevent memory leaks.
 struct cds_array* cds_resize_array(
-    struct cds_array** const array_holder, const size_t new_length,
-    enum cds_status* const return_state
+    struct cds_array *restrict *restrict const array_holder, 
+    const size_t new_length,
+    enum cds_status *restrict const return_state
 ){
     struct cds_array* const array = *array_holder;
     if (!array){
@@ -184,14 +186,14 @@ struct cds_array* cds_copy_array(
 #if _MSC_VER
     struct cds_array **restrict const dest_holder, 
     const struct cds_array* const src, const bool is_realloc_enabled,
-    enum cds_status* const return_state
+    enum cds_status *restrict const return_state
 ){
     struct cds_array* const dest = *dest_holder;
     if (!dest || !src) return (struct cds_array*)0;
 #else
-    struct cds_array (* const dest)[static 1], 
+    struct cds_array (* restrict const dest)[static 1], 
     const struct cds_array const src[static 1], const bool is_realloc_enabled,
-    enum cds_status* const return_state
+    enum cds_status *restrict const return_state
 ){
     struct cds_array* const dest = *dest_holder;
 #endif
@@ -258,12 +260,12 @@ struct cds_array* cds_copy_array(
 /// @param[in] index The index of the data element to get.
 /// @return The data element at the specified index.
 void* cds_get_array_element(
-    const struct cds_array* const array, const size_t index,
-    enum cds_status* const return_state
+    const struct cds_array *restrict const array, const size_t index,
+    enum cds_status *restrict const return_state
 ){
     if (!array){
         if (return_state) *return_state = CDS_NULL_ARG;
-        return array;
+        return (void*)0;
     }
     if (index >= array->data_length){
         if (return_state) *return_state = CDS_INVALID_ARG;

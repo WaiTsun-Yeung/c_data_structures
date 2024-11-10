@@ -1,5 +1,6 @@
 add_library(utilities STATIC
     private/status.c
+    private/mutex.c
     private/alloc.c
 )
 target_include_directories(utilities PUBLIC public)

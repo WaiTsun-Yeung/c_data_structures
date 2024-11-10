@@ -1,6 +1,8 @@
 #include <stdlib.h>
 
 #include "alloc.h"
+#include "status.h"
+
 #include "array_variadic.h"
 #include "array.h"
 
@@ -18,9 +20,10 @@ int main(){
     *values_initialise_ptr++ = 209;
     *values_initialise_ptr++ = 22;
     *values_initialise_ptr++ = 113;
+    enum cds_status return_state;
     struct cds_array* array
         = cds_create_unsigned_char_array(
-            values_count, 
+            &return_state, values_count, 
             171, 107, 170, 234, 98, 16, 219, 209, 22, 113
         );
     for (
@@ -28,7 +31,7 @@ int main(){
             *values_ptr = values;
         array_ptr < (unsigned char*)cds_data(array) + array->data_length;
         ++array_ptr, ++values_ptr
-    ) if (*array_ptr != *values_ptr) return 1;
+    ) if (*array_ptr != *values_ptr) return 256;
     cds_destroy_array(&array);
     free(values);
     return 0;

@@ -4,6 +4,9 @@
     enum cds_status{
         ///< The function completes successfully.
         CDS_SUCCESS = 0,
+        ///< This status is impossible to reach, and must be a result of a bug
+        ///<     from within the c_data_structures library.
+        CDS_IMPOSSIBLE,
         ///< The function fails to complete because of null arguments.
         CDS_NULL_ARG,
         ///< The function fails to complete because of invalid arguments.
