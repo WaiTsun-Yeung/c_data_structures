@@ -169,23 +169,27 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
     cds_empty_doubly_linked_list_with_timeout(
         struct cds_doubly_linked_list *restrict const list, 
         const bool toggle_guards_and_cleanups,
-        const struct timespec *restrict const mutex_timeout
+        const struct timespec *restrict const mutex_timeout,
+        enum cds_status *restrict const return_state
     ){
         return cds_empty_linked_list_with_timeout(
             list, 
             CDS_DOUBLY_LINKED_LIST,
             toggle_guards_and_cleanups,
-            mutex_timeout
+            mutex_timeout,
+            return_state
         );
     }
 
     static inline struct cds_doubly_linked_list*
     cds_empty_doubly_linked_list(
         struct cds_doubly_linked_list* const list,
-        const bool toggle_guards_and_cleanups
+        const bool toggle_guards_and_cleanups,
+        enum cds_status *restrict const return_state
     ){
         return cds_empty_doubly_linked_list_with_timeout(
-            list, toggle_guards_and_cleanups, &cds_default_mutex_timeout
+            list, toggle_guards_and_cleanups, &cds_default_mutex_timeout,
+            return_state
         );
     }
 
