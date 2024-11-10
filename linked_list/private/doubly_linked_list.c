@@ -204,13 +204,19 @@ struct cds_doubly_linked_list_node* cds_doubly_linked_list_pop_back_core(
 struct cds_doubly_linked_list_node* 
 cds_doubly_linked_list_pop_back_with_timeout(
     struct cds_doubly_linked_list *restrict const list,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 ){
+    if (!list){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return (struct cds_doubly_linked_list_node*)0;
+    }
     if (
-        !list
-            || cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
-                != thrd_success
+        cds_mutex_lock(
+            &list->mutex, mutex_timeout, list->mutex_type, return_state
+        )
     ) return (struct cds_doubly_linked_list_node*)0;
+    if (return_state) *return_state = CDS_SUCCESS;
     if (!list->back){
         (void)mtx_unlock(&list->mutex);
         return list->back;
