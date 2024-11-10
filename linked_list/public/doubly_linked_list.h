@@ -102,8 +102,10 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
 #define CDS_DOUBLY_LINKED_LIST_H
 
     static inline struct cds_doubly_linked_list* 
-    cds_create_doubly_linked_list(){
-        return cds_create_doubly_linked_list_with_mutex_type(mtx_timed);
+    cds_create_doubly_linked_list(enum cds_status* const return_state){
+        return cds_create_doubly_linked_list_with_mutex_type(
+            mtx_timed, return_state
+        );
     }
 
     static inline struct cds_doubly_linked_list_node* 
