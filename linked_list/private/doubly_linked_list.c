@@ -295,16 +295,30 @@ cds_erase_following_doubly_linked_list_nodes_with_timeout(
     struct cds_doubly_linked_list *restrict const list,
     struct cds_doubly_linked_list_node *restrict const node,
     const bool is_inclusive,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 ){
-    if (!list || !list->front) return list;
-    if (!node) return cds_empty_doubly_linked_list(list, true);
+    if (!list){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return list;
+    }
+    if (!node) return cds_empty_doubly_linked_list_with_timeout(
+        list, true, mutex_timeout, return_state
+    );
+    if (!list->front){
+        if (return_state) *return_state = CDS_INVALID_ARG;
+        return (struct cds_doubly_linked_list*)0;
+    }
     struct cds_doubly_linked_list* const node_list = node->list;
-    if (!node_list || node_list != list || !node->next) return list;
+    if (!node_list || node_list != list || !node->next){
+        if (return_state) *return_state = CDS_INVALID_ARG;
+        return list;
+    }
     if (
         cds_mutex_lock(
-            &node_list->mutex, mutex_timeout, node_list->mutex_type
-        ) != thrd_success
+            &node_list->mutex, mutex_timeout, node_list->mutex_type, 
+            return_state
+        )
     ) return (struct cds_doubly_linked_list*)0;
     cds_erase_following_linked_list_nodes_core(node);
     if (is_inclusive){
@@ -318,6 +332,7 @@ cds_erase_following_doubly_linked_list_nodes_with_timeout(
         list->back = node;
     }
     (void)mtx_unlock(&node_list->mutex);
+    if (return_state) *return_state = CDS_SUCCESS;
     return list;
 }
 

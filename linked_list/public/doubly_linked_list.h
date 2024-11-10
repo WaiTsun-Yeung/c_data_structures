@@ -72,7 +72,8 @@ cds_erase_following_doubly_linked_list_nodes_with_timeout(
     struct cds_doubly_linked_list *restrict const list,
     struct cds_doubly_linked_list_node *restrict const node,
     const bool is_inclusive,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 );
 
 struct cds_doubly_linked_list* 
@@ -404,10 +405,11 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
     cds_erase_following_doubly_linked_list_nodes(
         struct cds_doubly_linked_list *restrict const list,
         struct cds_doubly_linked_list_node *restrict const node,
-        const bool is_inclusive
+        const bool is_inclusive,
+        enum cds_status *restrict const return_state
     ){
         return cds_erase_following_doubly_linked_list_nodes_with_timeout(
-            list, node, is_inclusive, &cds_default_mutex_timeout
+            list, node, is_inclusive, &cds_default_mutex_timeout, return_state
         );
     }
     
