@@ -100,7 +100,8 @@ void* cds_empty_linked_list_with_timeout(
     void* restrict const list, 
     const enum cds_linked_list_type linked_list_type,
     const bool toggle_guards_and_cleanups, 
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 );
 
 void cds_erase_following_linked_list_nodes_core(void* const node);
