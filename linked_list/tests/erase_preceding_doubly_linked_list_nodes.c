@@ -1,26 +1,41 @@
 #include <stdalign.h>
 #include <stdbool.h>
 
+#include "status.h"
+
 #include "doubly_linked_list_type.h"
 #include "doubly_linked_list.h"
 
 int main() {
     for (size_t i = 0; i < 1000000; ++i){
+        enum cds_status return_state;
         struct cds_doubly_linked_list* list 
-            = cds_create_doubly_linked_list();
+            = cds_create_doubly_linked_list(&return_state);
+        if (return_state) return return_state;
         struct cds_doubly_linked_list_node* last_node 
-            = cds_create_doubly_linked_list_node(sizeof(int), alignof(int));
-        cds_doubly_linked_list_push_front(list, last_node);
-        for (size_t j = 0; j < 10; ++j) 
-            cds_doubly_linked_list_push_front(
-                list, 
-                cds_create_doubly_linked_list_node(sizeof(int), alignof(int))
+            = cds_create_doubly_linked_list_node(
+                sizeof(int), alignof(int), &return_state
             );
-        cds_erase_preceding_doubly_linked_list_nodes(list, last_node, false);
-        cds_doubly_linked_list_destroy_front(list);
-        if (!cds_is_doubly_linked_list_empty(list))
-            return 1;
-        cds_destroy_doubly_linked_list(&list);
+        if (return_state) return return_state;
+        cds_doubly_linked_list_push_front(list, last_node, &return_state);
+        for (size_t j = 0; j < 10; ++j){ 
+            struct cds_doubly_linked_list_node* new_node 
+                = cds_create_doubly_linked_list_node(
+                    sizeof(int), alignof(int), &return_state
+                );
+            if (return_state) return return_state;
+            cds_doubly_linked_list_push_front(list, new_node, &return_state);
+            if (return_state) return return_state;
+        }
+        cds_erase_preceding_doubly_linked_list_nodes(
+            list, last_node, false, &return_state
+        );
+        if (return_state) return return_state;
+        cds_doubly_linked_list_destroy_front(list, &return_state);
+        if (return_state) return return_state;
+        if (!cds_is_doubly_linked_list_empty(list)) return 256;
+        cds_destroy_doubly_linked_list(&list, &return_state);
+        if (return_state) return return_state;
     }
     return 0;
 }
