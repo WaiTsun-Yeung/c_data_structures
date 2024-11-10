@@ -42,7 +42,8 @@ struct cds_doubly_linked_list_node*
 cds_push_doubly_linked_list_node_with_timeout(
     struct cds_doubly_linked_list_node* const node,
     struct cds_doubly_linked_list_node* const new_node,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 );
 
 struct cds_doubly_linked_list_node* 
@@ -234,10 +235,11 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
     static inline struct cds_doubly_linked_list_node*
     cds_push_doubly_linked_list_node(
         struct cds_doubly_linked_list_node* const node,
-        struct cds_doubly_linked_list_node* const new_node
+        struct cds_doubly_linked_list_node* const new_node,
+        enum cds_status *restrict const return_state
     ){
         return cds_push_doubly_linked_list_node_with_timeout(
-            node, new_node, &cds_default_mutex_timeout
+            node, new_node, &cds_default_mutex_timeout, return_state
         );
     }
 
