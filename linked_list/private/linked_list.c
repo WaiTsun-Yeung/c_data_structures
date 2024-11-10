@@ -47,23 +47,31 @@ void* cds_create_linked_list_with_mutex_type(
 }
 
 void* cds_copy_and_create_linked_list_node(
-    const void* const src
+    const void* restrict const src, enum cds_status* restrict const return_state
 ){
-    if (!src) return (void*)0;
+    if (!src){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return (void*)0;
+    }
     const size_t node_bytes_count 
         = ((const struct cds_doubly_linked_list_node* const)src)->data_offset
             + ((const struct cds_doubly_linked_list_node* const)src)
                 ->bytes_per_element;
     void* node = malloc(node_bytes_count);
-    if (!node) return node;
+    if (!node){
+        if (return_state) *return_state = CDS_ALLOC_ERROR;
+        return node;
+    }
     const errno_t memcpy_error 
         = memcpy_s(node, node_bytes_count, src, node_bytes_count);
     if (memcpy_error){
         cds_print_error_message(
             memcpy_error, __FILE__, __LINE__, __func__, "memcpy_s"
         );
+        if (return_state) *return_state = CDS_COPY_ERROR;
         return cds_destroy_buffer(&node);
     }
+    if (return_state) *return_state = CDS_SUCCESS;
     return node;
 }
 

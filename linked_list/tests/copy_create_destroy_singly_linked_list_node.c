@@ -6,20 +6,31 @@
 
 int main() {
     for (size_t i = 0; i < 1000000; ++i){
+        enum cds_status return_state;
         struct cds_singly_linked_list_node* node_0 
-            = cds_create_singly_linked_list_node(sizeof(int), alignof(int));
+            = cds_create_singly_linked_list_node(
+                sizeof(int), alignof(int), &return_state
+            );
+        if (return_state) return return_state;
         struct cds_singly_linked_list_node* node_1
-            = cds_copy_and_create_singly_linked_list_node(node_0);
+            = cds_copy_and_create_singly_linked_list_node(
+                node_0, &return_state
+            );
+        if (return_state) return return_state;
         if (
             *(int*)cds_data(node_0) 
                 != *(int*)cds_data(node_1)
         ){
-            cds_destroy_free_singly_linked_list_node(&node_1);
-            cds_destroy_free_singly_linked_list_node(&node_0);
-            return 1;
+            cds_destroy_free_singly_linked_list_node(&node_1, &return_state);
+            if (return_state) return return_state;
+            cds_destroy_free_singly_linked_list_node(&node_0, &return_state);
+            if (return_state) return return_state;
+            return 256;
         }
-        cds_destroy_free_singly_linked_list_node(&node_1);
-        cds_destroy_free_singly_linked_list_node(&node_0);
+        cds_destroy_free_singly_linked_list_node(&node_1, &return_state);
+        if (return_state) return return_state;
+        cds_destroy_free_singly_linked_list_node(&node_0, &return_state);
+        if (return_state) return return_state;
     }
     return 0;
 }

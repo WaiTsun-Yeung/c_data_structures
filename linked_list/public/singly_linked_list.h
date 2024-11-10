@@ -103,8 +103,9 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
     /// @return The copied node if successful; otherwise, nullptr.
     static inline struct cds_singly_linked_list_node* 
     cds_copy_and_create_singly_linked_list_node(
-        const struct cds_singly_linked_list_node* const src
-    ){return cds_copy_and_create_linked_list_node(src);}
+        const struct cds_singly_linked_list_node *restrict const src,
+        enum cds_status *restrict const return_state
+    ){return cds_copy_and_create_linked_list_node(src, return_state);}
 
     static inline struct cds_singly_linked_list*
     cds_copy_and_create_singly_linked_list_with_timeout(

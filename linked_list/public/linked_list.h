@@ -28,7 +28,9 @@ void* cds_create_linked_list_with_mutex_type(
     const size_t bytes_per_list_type, const int mutex_type
 );
 
-void* cds_copy_and_create_linked_list_node(const void* const src);
+void* cds_copy_and_create_linked_list_node(
+    const void *restrict const src, enum cds_status *restrict const return_state
+);
 
 void* cds_copy_and_create_linked_list_with_timeout(
     const size_t bytes_per_list_type, 
