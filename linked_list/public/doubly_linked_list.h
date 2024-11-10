@@ -12,7 +12,7 @@ struct cds_doubly_linked_list_node* cds_create_doubly_linked_list_node(
 );
 
 struct cds_doubly_linked_list* cds_create_doubly_linked_list_with_mutex_type(
-    const int mutex_type
+    const int mutex_type, enum cds_status* const return_state
 );
 
 struct cds_doubly_linked_list_node* 
@@ -27,7 +27,8 @@ cds_doubly_linked_list_push_front_with_toggle_with_timeout(
     struct cds_doubly_linked_list *restrict const list,
     struct cds_doubly_linked_list_node *restrict const node,
     const bool toggle_safety_guards, 
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 );
 
 struct cds_doubly_linked_list* cds_doubly_linked_list_push_back_with_timeout(
@@ -181,19 +182,21 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
     static inline struct cds_doubly_linked_list* 
     cds_destroy_doubly_linked_list_with_timeout(
         struct cds_doubly_linked_list** const list,
-        const struct timespec *restrict const mutex_timeout
+        const struct timespec *restrict const mutex_timeout,
+        enum cds_status *restrict const return_state
     ){
         return cds_destroy_linked_list_with_timeout(
-            (void**)list, true, mutex_timeout
+            (void**)list, true, mutex_timeout, return_state
         );
     }
 
     static inline struct cds_doubly_linked_list*
     cds_destroy_doubly_linked_list(
-        struct cds_doubly_linked_list** const list
+        struct cds_doubly_linked_list** const list,
+        enum cds_status *restrict const return_state
     ){
         return cds_destroy_doubly_linked_list_with_timeout(
-            list, &cds_default_mutex_timeout
+            list, &cds_default_mutex_timeout, return_state
         );
     }
 
@@ -201,10 +204,12 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
     cds_doubly_linked_list_push_front_with_toggle(
         struct cds_doubly_linked_list* const list,
         struct cds_doubly_linked_list_node* const node,
-        const bool toggle_safety_guards
+        const bool toggle_safety_guards,
+        enum cds_status *restrict const return_state
     ){
         return cds_doubly_linked_list_push_front_with_toggle_with_timeout(
-            list, node, toggle_safety_guards, &cds_default_mutex_timeout
+            list, node, toggle_safety_guards, &cds_default_mutex_timeout,
+            return_state
         );
     }
 
@@ -232,10 +237,11 @@ struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
     static inline struct cds_doubly_linked_list* 
     cds_doubly_linked_list_push_front(
         struct cds_doubly_linked_list *restrict const list,
-        struct cds_doubly_linked_list_node *restrict const node
+        struct cds_doubly_linked_list_node *restrict const node,
+        enum cds_status *restrict const return_state
     ){
         return cds_doubly_linked_list_push_front_with_toggle(
-            list, node, true
+            list, node, true, return_state
         );
     }
 
