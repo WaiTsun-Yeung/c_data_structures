@@ -120,20 +120,22 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
     static inline struct cds_singly_linked_list*
     cds_copy_and_create_singly_linked_list_with_timeout(
         struct cds_singly_linked_list* const src_list,
-        const struct timespec *restrict const mutex_timeout
+        const struct timespec *restrict const mutex_timeout,
+        enum cds_status *restrict const return_state
     ){
         return cds_copy_and_create_linked_list_with_timeout(
             sizeof(struct cds_singly_linked_list), 
-            src_list, CDS_SINGLY_LINKED_LIST, mutex_timeout
+            src_list, CDS_SINGLY_LINKED_LIST, mutex_timeout, return_state
         );
     }
 
     static inline struct cds_singly_linked_list*
     cds_copy_and_create_singly_linked_list(
-        struct cds_singly_linked_list* const src_list
+        struct cds_singly_linked_list* const src_list,
+        enum cds_status *restrict const return_state
     ){
         return cds_copy_and_create_singly_linked_list_with_timeout(
-            src_list, &cds_default_mutex_timeout
+            src_list, &cds_default_mutex_timeout, return_state
         );
     }
 

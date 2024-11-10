@@ -94,34 +94,35 @@ static void* cds_copy_and_create_linked_list_core(
     void* restrict const src_list,
     struct cds_doubly_linked_list *restrict *restrict const dest_list_holder,
     const enum cds_linked_list_type linked_list_type,
-    const struct timespec *restrict const mutex_timeout
+    enum cds_status* restrict const return_state
 ){
     const struct cds_doubly_linked_list_node* src_node 
         = ((struct cds_doubly_linked_list*)src_list)->front;
     struct cds_doubly_linked_list_node* dest_node 
-        = cds_copy_and_create_linked_list_node(src_node);
-    if (!dest_node) return cds_destroy_empty_linked_list(dest_list_holder);
+        = cds_copy_and_create_linked_list_node(src_node, return_state);
+    if (!dest_node)
+        return cds_destroy_empty_linked_list(dest_list_holder);
     struct cds_doubly_linked_list* const dest_list = *dest_list_holder;
     dest_list->front = dest_node;
     for (
-        src_node = src_node->next;
-        src_node; 
+        size_t i = 0; 
+        i < SIZE_MAX, src_node; ++i, 
         src_node = src_node->next, dest_node = dest_node->next
     ){
         dest_node->list = dest_list; 
+        dest_node->next 
+            = cds_copy_and_create_linked_list_node(src_node, return_state);
+        if (!dest_node->next)
+            return cds_destroy_empty_linked_list(dest_list_holder);
         struct cds_doubly_linked_list_node* const dest_node_next 
             = dest_node->next;
-        dest_node->next = cds_copy_and_create_linked_list_node(src_node);
-        if (!dest_node->next)
-            return cds_destroy_linked_list_with_timeout(
-                dest_list_holder, false, mutex_timeout
-            );
         if (linked_list_type == CDS_DOUBLY_LINKED_LIST)
             dest_node_next->prev = dest_node;
     }
     dest_node->list = dest_list;
     if (linked_list_type == CDS_DOUBLY_LINKED_LIST)
         dest_list->back = dest_node;
+    if (return_state) *return_state = CDS_SUCCESS;
     return dest_list;
 }
 
@@ -129,31 +130,41 @@ void* cds_copy_and_create_linked_list_with_timeout(
     const size_t bytes_per_list_type, 
     void* restrict const src_list,
     const enum cds_linked_list_type linked_list_type,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status* restrict const return_state
 ){
-    if (!src_list) return src_list;
-    struct cds_doubly_linked_list* dest_list 
-        = malloc(bytes_per_list_type);
-    if (!dest_list) return dest_list;
+    if (!src_list){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return src_list;
+    }
+    struct cds_doubly_linked_list* dest_list = malloc(bytes_per_list_type);
+    if (!dest_list){
+        if (return_state) *return_state = CDS_ALLOC_ERROR;
+        return dest_list;
+    }
     dest_list->mutex_type 
         = ((struct cds_doubly_linked_list*)src_list)->mutex_type;
-    if(mtx_init(&dest_list->mutex, dest_list->mutex_type) == thrd_error)
+    if(mtx_init(&dest_list->mutex, dest_list->mutex_type) == thrd_error){
+        if (return_state) *return_state = CDS_MUTEX_ERROR;
         return cds_destroy_buffer((void**)&dest_list);
-    if(
+    }
+    if (
         cds_mutex_lock(
-            &((struct cds_doubly_linked_list*)src_list)->mutex, mutex_timeout, 
-            ((struct cds_doubly_linked_list*)src_list)->mutex_type
-        ) != thrd_success
+            &((struct cds_doubly_linked_list*)src_list)->mutex, 
+            mutex_timeout, 
+            ((struct cds_doubly_linked_list*)src_list)->mutex_type, return_state
+        )
     ) return cds_destroy_buffer((void**)&dest_list);
     if (!((struct cds_doubly_linked_list*)src_list)->front){
         (void)mtx_unlock(&((struct cds_doubly_linked_list*)src_list)->mutex);
         dest_list->front = ((struct cds_doubly_linked_list*)src_list)->front;
         if (linked_list_type == CDS_DOUBLY_LINKED_LIST)
             dest_list->back = ((struct cds_doubly_linked_list*)src_list)->back;
+        if (return_state) *return_state = CDS_SUCCESS;
         return dest_list;
     }
     (void)cds_copy_and_create_linked_list_core(
-        src_list, &dest_list, linked_list_type, mutex_timeout
+        src_list, &dest_list, linked_list_type, return_state
     );
     (void)mtx_unlock(&((struct cds_doubly_linked_list*)src_list)->mutex);
     return dest_list;

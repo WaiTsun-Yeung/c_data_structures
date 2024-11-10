@@ -37,7 +37,8 @@ void* cds_copy_and_create_linked_list_with_timeout(
     const size_t bytes_per_list_type, 
     void* restrict const src_list,
     const enum cds_linked_list_type linked_list_type,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status* restrict const return_state
 );
 
 void* cds_change_linked_list_node_data_type(
