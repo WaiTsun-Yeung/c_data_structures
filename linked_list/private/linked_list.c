@@ -35,14 +35,21 @@ void* cds_create_linked_list_node(
 }
 
 void* cds_create_linked_list_with_mutex_type(
-    const size_t bytes_per_list_type, const int mutex_type
+    const size_t bytes_per_list_type, const int mutex_type,
+    enum cds_status* const return_state
 ){
     struct cds_doubly_linked_list* list = malloc(bytes_per_list_type);
-    if (!list) return list;
+    if (!list){
+        if (return_state) *return_state = CDS_ALLOC_ERROR;
+        return list;
+    }
     list->mutex_type = mutex_type;
-    if (mtx_init(&list->mutex, mutex_type) == thrd_error) 
+    if (mtx_init(&list->mutex, mutex_type) == thrd_error){
+        if (return_state) *return_state = CDS_MUTEX_ERROR;
         return cds_destroy_buffer(&list);
+    }
     list->front = (struct cds_doubly_linked_list_node*)0;
+    if (return_state) *return_state = CDS_SUCCESS;
     return list;
 }
 

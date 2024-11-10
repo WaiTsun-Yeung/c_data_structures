@@ -54,15 +54,21 @@ cds_singly_linked_list_push_front_core(
 struct cds_singly_linked_list* cds_singly_linked_list_push_front_with_timeout(
     struct cds_singly_linked_list *restrict const list,
     struct cds_singly_linked_list_node *restrict const node,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 ){
+    if (!list || !node){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return (struct cds_singly_linked_list*)0;
+    }
     if (
-        !list || !node 
-            || cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
-                != thrd_success
+        cds_mutex_lock(
+            &list->mutex, mutex_timeout, list->mutex_type, return_state
+        )
     ) return (struct cds_singly_linked_list*)0;
     (void)cds_singly_linked_list_push_front_core(list, node);
     (void)mtx_unlock(&list->mutex);
+    if (return_state) *return_state = CDS_SUCCESS;
     return list;
 }
 
