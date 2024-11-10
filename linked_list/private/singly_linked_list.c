@@ -91,22 +91,32 @@ cds_pop_next_singly_linked_list_node_core(
 struct cds_singly_linked_list_node* 
 cds_pop_next_singly_linked_list_node_with_timeout(
     struct cds_singly_linked_list_node *restrict const prev,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 ){
-    if (!prev) return prev;
+    if (!prev){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return prev;
+    }
     struct cds_singly_linked_list* const list = prev->list;
+    if (!list){
+        if (return_state) *return_state = CDS_INVALID_ARG;
+        return (struct cds_singly_linked_list_node*)0;
+    }
     if (
-        !list 
-            || cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type) 
-                != thrd_success
+        cds_mutex_lock(
+            &list->mutex, mutex_timeout, list->mutex_type, return_state
+        )
     ) return (struct cds_singly_linked_list_node*)0;
     if (!prev->next){
         (void)mtx_unlock(&list->mutex);
+        if (return_state) *return_state = CDS_SUCCESS;
         return prev->next;
     }
     struct cds_singly_linked_list_node* node 
         = cds_pop_next_singly_linked_list_node_core(prev);
     (void)mtx_unlock(&list->mutex);
+    if (return_state) *return_state = CDS_SUCCESS;
     return node;
 }
 

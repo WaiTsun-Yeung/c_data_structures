@@ -27,7 +27,8 @@ struct cds_singly_linked_list* cds_singly_linked_list_push_front_with_timeout(
 struct cds_singly_linked_list_node* 
 cds_pop_next_singly_linked_list_node_with_timeout(
     struct cds_singly_linked_list_node *restrict const prev,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 );
 
 enum cds_status cds_destroy_next_singly_linked_list_node_with_timeout(
@@ -245,10 +246,11 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
 
     static inline struct cds_singly_linked_list_node*
     cds_pop_next_singly_linked_list_node(
-        struct cds_singly_linked_list_node* const prev
+        struct cds_singly_linked_list_node* const prev,
+        enum cds_status *restrict const return_state
     ){
         return cds_pop_next_singly_linked_list_node_with_timeout(
-            prev, &cds_default_mutex_timeout
+            prev, &cds_default_mutex_timeout, return_state
         );
     }
 
