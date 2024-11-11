@@ -294,13 +294,19 @@ enum cds_status cds_doubly_linked_list_destroy_back_with_timeout(
 /// @return The input list.
 struct cds_doubly_linked_list* cds_invert_doubly_linked_list_with_timeout(
     struct cds_doubly_linked_list *restrict const list,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 ){
-    if (!list) return list;
+    if (!list){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return list;
+    }
     if (
-        cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
-            != thrd_success
+        cds_mutex_lock(
+            &list->mutex, mutex_timeout, list->mutex_type, return_state
+        )
     ) return (struct cds_doubly_linked_list*)0;
+    if (return_state) *return_state = CDS_SUCCESS;
     if (!list->front){
         (void)mtx_unlock(&list->mutex);
         return list;
@@ -425,55 +431,17 @@ struct cds_doubly_linked_list_node* cds_doubly_linked_list_node_prev(
     return *node_holder;
 }
 
-enum cds_status cds_swap_doubly_linked_list_nodes_with_timeout(
+static void cds_swap_doubly_linked_list_nodes_core(
     struct cds_doubly_linked_list_node** const node_0_holder,
-    struct cds_doubly_linked_list_node** const node_1_holder,
-    const struct timespec *restrict const mutex_timeout
+    struct cds_doubly_linked_list_node** const node_1_holder
 ){
     struct cds_doubly_linked_list_node* const node_0 = *node_0_holder;
     struct cds_doubly_linked_list_node* const node_1 = *node_1_holder;
-    if (!node_0){
-        *node_0_holder = cds_pop_doubly_linked_list_node_with_timeout(
-            node_1, mutex_timeout
-        );
-        *node_1_holder = (struct cds_doubly_linked_list_node*)0;
-        return CDS_SUCCESS;
-    }
-    if (!node_1){
-        *node_1_holder = cds_pop_doubly_linked_list_node_with_timeout(
-            node_0, mutex_timeout
-        );
-        *node_0_holder = (struct cds_doubly_linked_list_node*)0;
-        return CDS_SUCCESS;
-    }
-    struct cds_doubly_linked_list* const list_0 = node_0->list;
-    if (list_0)
-        switch(
-            cds_mutex_lock(
-                &list_0->mutex, mutex_timeout, list_0->mutex_type
-            )
-        ){
-            case thrd_timedout: return CDS_MUTEX_TIMEOUT;
-            case thrd_error: return CDS_MUTEX_ERROR;
-            default: break;
-        }
-    struct cds_doubly_linked_list* const list_1 = node_1->list;
-    const bool needs_lock_node_1 = list_1 && list_1 != list_0;
-    if (needs_lock_node_1){
-        const int lock_result = cds_mutex_lock(
-            &list_1->mutex, mutex_timeout, list_1->mutex_type
-        );
-        if (lock_result != thrd_success){
-            if (list_0) (void)mtx_unlock(&list_0->mutex);
-            return lock_result == thrd_timedout 
-                ? CDS_MUTEX_TIMEOUT : CDS_MUTEX_ERROR;
-        }
-    }
     struct cds_doubly_linked_list_node* const temp_node = *node_0_holder;
     *node_0_holder = *node_1_holder;
     *node_1_holder = temp_node;
-    struct cds_doubly_linked_list* const temp_list = list_0;
-    node_1->list = list_1;
+    struct cds_doubly_linked_list* const temp_list = node_0->list;
+    node_1->list = node_0->list;
     node_0->list = temp_list;
     struct cds_doubly_linked_list_node* const temp_prev = node_1->prev;
     node_1->prev = node_0->prev;
@@ -481,28 +449,57 @@ enum cds_status cds_swap_doubly_linked_list_nodes_with_timeout(
     struct cds_doubly_linked_list_node* const temp_next = node_1->next;
     node_1->next = node_0->next;
     node_0->next = temp_next;
-    if (needs_lock_node_1) (void)mtx_unlock(&list_1->mutex);
-    if (list_0) (void)mtx_unlock(&list_0->mutex);
-    return CDS_SUCCESS;
 }
 
-struct cds_doubly_linked_list* cds_doubly_linked_list_remove_if_with_timeout(
-    struct cds_doubly_linked_list *restrict const list,
-    bool (*predicate)(const struct cds_doubly_linked_list_node* const node),
-    const struct timespec *restrict const mutex_timeout
+enum cds_status cds_swap_doubly_linked_list_nodes_with_timeout(
+    struct cds_doubly_linked_list_node** const node_0_holder,
+    struct cds_doubly_linked_list_node** const node_1_holder,
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 ){
-    if (!list || !list->front) return list;
-    if (
-        cds_mutex_lock(&list->mutex, mutex_timeout, list->mutex_type)
-            != thrd_success
-    ) return (struct cds_doubly_linked_list*)0;
-    struct cds_doubly_linked_list_node* node = list->front;
-    for (size_t i = 0; i < SIZE_MAX, node; ++i){
-        struct cds_doubly_linked_list_node* const next_node = node->next;
-        if (predicate(node))
-            cds_destroy_doubly_linked_list_node_core(node, next_node);
-        node = next_node;
+    struct cds_doubly_linked_list_node* const node_0 = *node_0_holder;
+    struct cds_doubly_linked_list_node* const node_1 = *node_1_holder;
+    enum cds_status local_return_state = CDS_SUCCESS;
+    if (!node_0 && !node_1){
+        if (return_state) *return_state = CDS_SUCCESS; return CDS_SUCCESS;
     }
-    (void)mtx_unlock(&list->mutex);
-    return list;
+    if (!node_0){
+        *node_0_holder = cds_pop_doubly_linked_list_node_with_timeout(
+            node_1, mutex_timeout, &local_return_state
+        );
+        *node_1_holder = (struct cds_doubly_linked_list_node*)0;
+        if (return_state) *return_state = local_return_state;
+        return local_return_state;
+    }
+    if (!node_1){
+        *node_1_holder = cds_pop_doubly_linked_list_node_with_timeout(
+            node_0, mutex_timeout, &local_return_state
+        );
+        *node_0_holder = (struct cds_doubly_linked_list_node*)0;
+        if (return_state) *return_state = local_return_state;
+        return local_return_state;
+    }
+    struct cds_doubly_linked_list* const list_0 = node_0->list;
+    if (list_0){
+        local_return_state = cds_mutex_lock(
+            &list_0->mutex, mutex_timeout, list_0->mutex_type, return_state
+        );
+        if (local_return_state) return local_return_state;
+    }
+    struct cds_doubly_linked_list* const list_1 = node_1->list;
+    const bool needs_lock_node_1 = list_1 && list_1 != list_0;
+    if (needs_lock_node_1){
+        local_return_state = cds_mutex_lock(
+            &list_1->mutex, mutex_timeout, list_1->mutex_type, return_state
+        );
+        if (local_return_state){
+            if (list_0) (void)mtx_unlock(&list_0->mutex);
+            return local_return_state;
+        }
+    }
+    cds_swap_doubly_linked_list_nodes_core(node_0_holder, node_1_holder);
+    if (needs_lock_node_1) (void)mtx_unlock(&list_1->mutex);
+    if (list_0) (void)mtx_unlock(&list_0->mutex);
+    if (return_state) *return_state = CDS_SUCCESS;
+    return CDS_SUCCESS;
 }

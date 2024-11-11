@@ -81,13 +81,15 @@ void* cds_copy_and_create_reverse_linked_list_with_timeout(
     const size_t bytes_per_list_type,
     void *restrict const src_list,
     const enum cds_linked_list_type linked_list_type,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 );
 
 void* cds_linked_list_pop_front_with_timeout(
     void *restrict const list, 
     const enum cds_linked_list_type linked_list_type,
-    const struct timespec *restrict const mutex_timeout
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
 );
 
 enum cds_status cds_linked_list_destroy_front_with_timeout(
