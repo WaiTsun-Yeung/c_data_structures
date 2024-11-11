@@ -1,30 +1,46 @@
 #include <stdalign.h>
 
 #include "alloc.h"
+#include "status.h"
+
 #include "singly_linked_list_type.h"
 #include "singly_linked_list.h"
 
 int main() {
     for (size_t i = 0; i < 1000000; ++i) {
-        struct cds_singly_linked_list* list = cds_create_singly_linked_list();
+        enum cds_status return_state;
+        struct cds_singly_linked_list* list 
+            = cds_create_singly_linked_list(&return_state);
         for (size_t j = 0; j < 10; ++j) {
-            cds_singly_linked_list_push_front(
-                list, 
-                cds_create_singly_linked_list_node(sizeof(int), alignof(int))
-            );
+            struct cds_singly_linked_list_node* const node
+                = cds_create_singly_linked_list_node(
+                    sizeof(int), alignof(int), &return_state
+                );
+            if (return_state) return return_state;
+            cds_singly_linked_list_push_front(list, node, &return_state);
+            if (return_state) return return_state;
         }
         struct cds_singly_linked_list* list_copy 
-            = cds_copy_and_create_singly_linked_list(list);
+            = cds_copy_and_create_singly_linked_list(list, &return_state);
+        if (return_state) return return_state;
         struct cds_singly_linked_list_node *free_node
-            = cds_create_singly_linked_list_node(sizeof(int), alignof(int));
+            = cds_create_singly_linked_list_node(
+                sizeof(int), alignof(int), &return_state
+            );
+        if (return_state) return return_state;
         struct cds_singly_linked_list_node *free_node_copy
-            = cds_create_singly_linked_list_node(sizeof(int), alignof(int));
+            = cds_create_singly_linked_list_node(
+                sizeof(int), alignof(int), &return_state
+            );
+        if (return_state) return return_state;
         cds_swap_free_and_next_singly_linked_list_nodes(
-            list->front, &free_node
+            list->front, &free_node, &return_state
         );
+        if (return_state) return return_state;
         cds_swap_free_and_next_singly_linked_list_nodes(
-            list_copy->front, &free_node_copy
+            list_copy->front, &free_node_copy, &return_state
         );
+        if (return_state) return return_state;
         for (
             struct cds_singly_linked_list_node *node 
                     = cds_singly_linked_list_begin(list),
@@ -33,14 +49,22 @@ int main() {
             cds_singly_linked_list_node_next(&node), 
                 cds_singly_linked_list_node_next(&node_copy)
         ) if (*(int*)cds_data(node) != *(int*)cds_data(node_copy)) {
-            cds_destroy_singly_linked_list(&list_copy);
-            cds_destroy_singly_linked_list(&list);
-            return 1;
+            cds_destroy_singly_linked_list(&list_copy, &return_state);
+            if (return_state) return return_state;
+            cds_destroy_singly_linked_list(&list, &return_state);
+            if (return_state) return return_state;
+            return 256;
         }
-        cds_destroy_free_singly_linked_list_node(&free_node_copy);
-        cds_destroy_free_singly_linked_list_node(&free_node);
-        cds_destroy_singly_linked_list(&list_copy);
-        cds_destroy_singly_linked_list(&list);
+        cds_destroy_free_singly_linked_list_node(
+            &free_node_copy, &return_state
+        );
+        if (return_state) return return_state;
+        cds_destroy_free_singly_linked_list_node(&free_node, &return_state);
+        if (return_state) return return_state;
+        cds_destroy_singly_linked_list(&list_copy, &return_state);
+        if (return_state) return return_state;
+        cds_destroy_singly_linked_list(&list, &return_state);
+        if (return_state) return return_state;
     }
     return 0;
 }
