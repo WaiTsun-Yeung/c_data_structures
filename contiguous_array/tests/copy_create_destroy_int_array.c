@@ -24,7 +24,7 @@ int main(){
         for (
             const int *data_0 = cds_data(array_0), 
                 *data_1 = cds_data(array_1); 
-            data_0 < (int*)cds_data(array_0) + array_0->data_length; 
+            data_0 < (int*)cds_data(array_0) + array_0->elements_count; 
             ++data_0, ++data_1
         ) if (*data_0 != *data_1)
             return 256;

@@ -29,7 +29,7 @@ int main(){
     for (
         const unsigned char* array_ptr = cds_data(array), 
             *values_ptr = values;
-        array_ptr < (unsigned char*)cds_data(array) + array->data_length;
+        array_ptr < (unsigned char*)cds_data(array) + array->elements_count;
         ++array_ptr, ++values_ptr
     ) if (*array_ptr != *values_ptr) return 256;
     cds_destroy_array(&array);

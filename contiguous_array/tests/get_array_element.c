@@ -20,7 +20,7 @@ int main(){
         struct cds_array* array_1 
             = cds_copy_and_create_array(array_0, &return_state);
         if (return_state) return return_state;
-        for (size_t j = 0; j < array_0->data_length; ++j)
+        for (size_t j = 0; j < array_0->elements_count; ++j)
             if (
                 *(int*)cds_get_array_element(array_0, j, &return_state) 
                     != ((int*)cds_data(array_1))[j]

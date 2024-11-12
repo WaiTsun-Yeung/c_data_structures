@@ -6,7 +6,7 @@
 #include "array_type.h"
 
 struct cds_array* cds_create_array(
-    const size_t length, const size_t bytes_per_element, 
+    const size_t elements_count, const size_t bytes_per_element, 
     const size_t data_align, enum cds_status* const return_state
 );
 
@@ -16,7 +16,8 @@ struct cds_array* cds_copy_and_create_array(
 );
 
 struct cds_array* cds_resize_array(
-    struct cds_array *restrict *restrict const array, const size_t new_length,
+    struct cds_array *restrict *restrict const array, 
+    const size_t new_elements_count,
     enum cds_status *restrict const return_state
 );
 
@@ -40,7 +41,7 @@ void* cds_get_array_element(
 #define CDS_ARRAY_H
 
     static inline bool cds_is_array_empty(const struct cds_array* const array){
-        return !array->data_length;
+        return !array->elements_count;
     }
 
     static inline struct cds_array* cds_destroy_array(

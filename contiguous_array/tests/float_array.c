@@ -30,7 +30,7 @@ int main(){
         );
     for (
         const float* array_ptr = cds_data(array), *values_ptr = values;
-        array_ptr < (float*)cds_data(array) + array->data_length;
+        array_ptr < (float*)cds_data(array) + array->elements_count;
         ++array_ptr, ++values_ptr
     ) if (*array_ptr != *values_ptr)
         return 256;

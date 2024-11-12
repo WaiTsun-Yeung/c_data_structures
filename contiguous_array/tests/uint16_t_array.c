@@ -28,7 +28,7 @@ int main(){
         );
     for (
         const uint16_t* array_ptr = cds_data(array), *values_ptr = values;
-        array_ptr < (uint16_t*)cds_data(array) + array->data_length;
+        array_ptr < (uint16_t*)cds_data(array) + array->elements_count;
         ++array_ptr, ++values_ptr
     ) if (*array_ptr != *values_ptr)
         return 256;
