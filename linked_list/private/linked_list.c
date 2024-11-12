@@ -270,7 +270,7 @@ void* cds_copy_linked_list_node(
     return new_dest;
 }
 
-void* cds_empty_linked_list_with_timeout(
+void* cds_clear_linked_list_with_timeout(
     void* restrict const list, 
     const enum cds_linked_list_type linked_list_type,
     const bool toggle_guards_and_cleanups, 
@@ -333,7 +333,7 @@ void* cds_destroy_linked_list_with_timeout(
     ) return list;
     enum cds_status local_return_state;
     if (list->front){ 
-        (void)cds_empty_linked_list_with_timeout(
+        (void)cds_clear_linked_list_with_timeout(
             list, CDS_SINGLY_LINKED_LIST, false, mutex_timeout, 
             &local_return_state
         );

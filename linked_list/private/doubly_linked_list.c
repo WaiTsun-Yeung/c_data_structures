@@ -9,6 +9,8 @@
 #include "doubly_linked_list_type.h"
 #include "doubly_linked_list.h"
 
+//TODO: Implement the splice function.
+
 struct cds_doubly_linked_list_node* cds_create_doubly_linked_list_node(
     const size_t bytes_per_element, const size_t data_align,
     enum cds_status* const return_state
@@ -337,7 +339,7 @@ cds_erase_following_doubly_linked_list_nodes_with_timeout(
         if (return_state) *return_state = CDS_NULL_ARG;
         return list;
     }
-    if (!node) return cds_empty_doubly_linked_list_with_timeout(
+    if (!node) return cds_clear_doubly_linked_list_with_timeout(
         list, true, mutex_timeout, return_state
     );
     if (!list->front){
@@ -383,7 +385,7 @@ cds_erase_preceding_doubly_linked_list_nodes_with_timeout(
         if (return_state) *return_state = CDS_NULL_ARG;
         return list;
     }
-    if (!node) return cds_empty_doubly_linked_list_with_timeout(
+    if (!node) return cds_clear_doubly_linked_list_with_timeout(
         list, true, mutex_timeout, return_state
     );
     if (!list->front){

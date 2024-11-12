@@ -99,7 +99,7 @@ enum cds_status cds_linked_list_destroy_front_with_timeout(
     enum cds_status *restrict const return_state
 );
 
-void* cds_empty_linked_list_with_timeout(
+void* cds_clear_linked_list_with_timeout(
     void* restrict const list, 
     const enum cds_linked_list_type linked_list_type,
     const bool toggle_guards_and_cleanups, 

@@ -20,7 +20,7 @@ int main() {
             cds_singly_linked_list_push_front(list, node, &return_state);
             if (return_state) return return_state;
         }
-        cds_empty_singly_linked_list(list, &return_state);
+        cds_clear_singly_linked_list(list, &return_state);
         if (return_state) return return_state;
         if (!cds_is_singly_linked_list_empty(list)) return 256;
         cds_destroy_singly_linked_list(&list, &return_state);

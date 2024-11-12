@@ -10,6 +10,8 @@
 #include "singly_linked_list_type.h"
 #include "singly_linked_list.h"
 
+//TODO: Implement the splice function.
+
 /// @brief Destroy the input list node.
 ///     If the input node is part of a list, the node will not be destroyed.
 /// @param[in,out] node The node to destroy.
@@ -246,7 +248,7 @@ cds_erase_preceding_singly_linked_list_nodes_with_timeout(
         if (return_state) *return_state = CDS_NULL_ARG;
         return list;
     }
-    if (!node) return cds_empty_singly_linked_list(list, return_state);
+    if (!node) return cds_clear_singly_linked_list(list, return_state);
     if (!node->list || node->list != list || !list->front){
         if (return_state) *return_state = CDS_INVALID_ARG;
         return (struct cds_singly_linked_list*)0;

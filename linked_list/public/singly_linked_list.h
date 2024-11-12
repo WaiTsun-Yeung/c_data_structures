@@ -322,22 +322,22 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
     }
 
     static inline struct cds_singly_linked_list* 
-    cds_empty_singly_linked_list_with_timeout(
+    cds_clear_singly_linked_list_with_timeout(
         struct cds_singly_linked_list *restrict const list,
         const struct timespec *restrict const mutex_timeout,
         enum cds_status *restrict const return_state
     ){
-        return cds_empty_linked_list_with_timeout(
+        return cds_clear_linked_list_with_timeout(
             list, CDS_SINGLY_LINKED_LIST, true, mutex_timeout, return_state
         );
     }
 
     static inline struct cds_singly_linked_list*
-    cds_empty_singly_linked_list(
+    cds_clear_singly_linked_list(
         struct cds_singly_linked_list* const list,
         enum cds_status *restrict const return_state
     ){
-        return cds_empty_singly_linked_list_with_timeout(
+        return cds_clear_singly_linked_list_with_timeout(
             list, &cds_default_mutex_timeout, return_state
         );
     }
