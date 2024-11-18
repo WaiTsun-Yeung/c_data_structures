@@ -283,3 +283,10 @@ void* cds_array_next(
     *element = (char*)*element + bytes_per_element;
     return *element;
 }
+
+void* cds_array_prev(
+    const void** const element, const size_t bytes_per_element
+){
+    *element = (char*)*element - bytes_per_element;
+    return *element;
+}

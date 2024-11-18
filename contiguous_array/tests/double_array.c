@@ -29,9 +29,11 @@ int main(){
             2.1075263e31, 3.0695549e28
         );
     for (
-        const double* array_ptr = cds_data(array), *values_ptr = values;
-        array_ptr < (double*)cds_data(array) + array->elements_count;
-        ++array_ptr, ++values_ptr
+        const double* array_ptr = cds_array_rbegin(array), 
+        *values_ptr = values + values_count - 1;
+        array_ptr < (const double*)cds_array_rend(array);
+        cds_array_prev(&array_ptr, sizeof(double)),
+        cds_array_prev(&values_ptr, sizeof(double))
     ) if (*array_ptr != *values_ptr)
         return 256;
     cds_destroy_array(&array);
