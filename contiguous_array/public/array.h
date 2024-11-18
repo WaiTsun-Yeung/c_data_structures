@@ -36,6 +36,10 @@ void* cds_get_array_element(
     const struct cds_array *restrict const array, const size_t index,
     enum cds_status *restrict const return_state
 );
+void* cds_array_next(
+    const void** const element, const size_t bytes_per_element
+);
+
 
 #ifndef CDS_ARRAY_H
 #define CDS_ARRAY_H
@@ -48,4 +52,12 @@ void* cds_get_array_element(
         struct cds_array** const array
     ){ return cds_destroy_buffer(array); }
 
+    static inline void* cds_array_begin(const struct cds_array* const array){
+        return cds_data(array);
+    }
+
+    static inline void* cds_array_end(const struct cds_array* const array){
+        return (char*)cds_data(array) 
+            + array->elements_count * array->bytes_per_element;
+    }
 #endif // CDS_ARRAY_H

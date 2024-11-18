@@ -276,3 +276,10 @@ void* cds_get_array_element(
     return (char*)array + array->data_offset 
         + index * array->bytes_per_element;
 }
+
+void* cds_array_next(
+    const void** const element, const size_t bytes_per_element
+){
+    *element = (char*)*element + bytes_per_element;
+    return *element;
+}
