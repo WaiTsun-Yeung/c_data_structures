@@ -40,7 +40,7 @@ const void* cds_array_next(
     const void** const element, const size_t bytes_per_element
 );
 
-void* cds_array_prev(
+const void* cds_array_prev(
     const void** const element, const size_t bytes_per_element
 );
 
