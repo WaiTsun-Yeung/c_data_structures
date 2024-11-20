@@ -45,6 +45,12 @@ void* cds_array_prev(
 );
 
 
+struct cds_array* cds_reserve_array(
+    struct cds_array *restrict *restrict const array, 
+    const size_t new_reserved_count,
+    enum cds_status *restrict const return_state
+);
+
 #ifndef CDS_ARRAY_H
 #define CDS_ARRAY_H
 

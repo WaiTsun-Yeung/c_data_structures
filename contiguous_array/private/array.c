@@ -290,3 +290,28 @@ void* cds_array_prev(
     *element = (char*)*element - bytes_per_element;
     return *element;
 }
+
+
+/// @brief Reserve at least new_reserved_count elements for the input array.
+///     The new array's exact reserved_count will be indeterminate in order to 
+///     fit the behaviours of other functions in this module, as only 
+///     elements_count should be determinate.
+/// @param[in,out] array The array to reserve elements for.
+/// @param[in] new_reserved_count The minimum number of elements to reserve.
+/// @param[out] return_state The status of the operation.
+/// @return The reserved array.
+struct cds_array* cds_reserve_array(
+    struct cds_array *restrict *restrict const array, 
+    const size_t new_reserved_count,
+    enum cds_status *restrict const return_state
+){
+    if (!*array){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return *array;
+    }
+    const size_t elements_count = (*array)->elements_count;
+    (void)cds_resize_array(array, new_reserved_count, return_state);
+    if (return_state && *return_state != CDS_SUCCESS) return *array;
+    (*array)->elements_count = elements_count;
+    return *array;
+}
