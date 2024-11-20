@@ -36,7 +36,7 @@ void* cds_get_array_element(
     const struct cds_array *restrict const array, const size_t index,
     enum cds_status *restrict const return_state
 );
-void* cds_array_next(
+const void* cds_array_next(
     const void** const element, const size_t bytes_per_element
 );
 
