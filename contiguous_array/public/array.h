@@ -73,4 +73,12 @@ void* cds_array_prev(
     static inline void* cds_array_rend(const struct cds_array* const array){
         return (char*)cds_data(array) - array->bytes_per_element;
     }
+
+    static inline struct cds_array* cds_clear_array(
+        struct cds_array *restrict *restrict const array, 
+        enum cds_status *restrict const return_state
+    ){
+        return cds_resize_array(array, 0, return_state);
+    }
+
 #endif // CDS_ARRAY_H
