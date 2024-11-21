@@ -44,6 +44,10 @@ const void* cds_array_prev(
     const void** const element, const size_t bytes_per_element
 );
 
+void* cds_array_at(
+    const struct cds_array *restrict const array, const size_t index,
+    enum cds_status *restrict const return_state
+);
 
 struct cds_array* cds_reserve_array(
     struct cds_array *restrict *restrict const array, 

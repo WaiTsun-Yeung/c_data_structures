@@ -291,6 +291,21 @@ const void* cds_array_prev(
     return *element;
 }
 
+void* cds_array_at(
+    const struct cds_array *restrict const array, const size_t index,
+    enum cds_status *restrict const return_state
+){
+    if (!array){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return (void*)0;
+    }
+    if (index >= array->elements_count){
+        if (return_state) *return_state = CDS_INVALID_ARG;
+        return (void*)0;
+    }
+    if (return_state) *return_state = CDS_SUCCESS;
+    return (char*)cds_data(array) + index * array->bytes_per_element;
+}
 
 /// @brief Reserve at least new_reserved_count elements for the input array.
 ///     The new array's exact reserved_count will be indeterminate in order to 
