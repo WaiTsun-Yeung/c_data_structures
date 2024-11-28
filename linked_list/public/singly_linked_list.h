@@ -392,7 +392,7 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
     }
 
     static inline struct cds_singly_linked_list_node* 
-    cds_singly_linked_list_end(){
+    cds_singly_linked_list_end(void){
         return (struct cds_singly_linked_list_node*)0;
     }
 

@@ -26,7 +26,7 @@ int main(){
             struct cds_doubly_linked_list_node *node 
                 = cds_doubly_linked_list_begin(list),
                 *node_copy = cds_doubly_linked_list_begin(list_copy);
-            node != cds_doubly_linked_list_end(list);
+            node != cds_doubly_linked_list_end();
             cds_doubly_linked_list_node_next(&node), 
             cds_doubly_linked_list_node_next(&node_copy)
         ) if (*(int*)cds_data(node) != *(int*)cds_data(node_copy)){

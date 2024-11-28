@@ -23,7 +23,7 @@ int main(){
         for (
             struct cds_doubly_linked_list_node* node 
                 = cds_doubly_linked_list_rbegin(list);
-            node != cds_doubly_linked_list_rend(list);
+            node != cds_doubly_linked_list_rend();
             cds_doubly_linked_list_node_prev(&node)
         );
         for(size_t j = 0; j < 10; ++j){ 

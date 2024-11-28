@@ -464,7 +464,9 @@ enum cds_status cds_swap_doubly_linked_list_nodes_with_timeout(
     ){return list->front;}
 
     static inline struct cds_doubly_linked_list_node*
-    cds_doubly_linked_list_end(){return (struct cds_doubly_linked_list_node*)0;}
+    cds_doubly_linked_list_end(void){
+        return (struct cds_doubly_linked_list_node*)0;
+    }
 
     static inline struct cds_doubly_linked_list_node*
     cds_doubly_linked_list_rbegin(
@@ -472,7 +474,7 @@ enum cds_status cds_swap_doubly_linked_list_nodes_with_timeout(
     ){return list->back;}
 
     static inline struct cds_doubly_linked_list_node*
-    cds_doubly_linked_list_rend(){
+    cds_doubly_linked_list_rend(void){
         return (struct cds_doubly_linked_list_node*)0;
     }
 

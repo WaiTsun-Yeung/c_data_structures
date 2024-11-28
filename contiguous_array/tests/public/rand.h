@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-int cds_rand_positive();
+int cds_rand_positive(void);
 
 #ifndef CDS_RAND_H
 #define CDS_RAND_H

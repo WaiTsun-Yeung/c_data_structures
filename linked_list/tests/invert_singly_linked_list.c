@@ -32,7 +32,7 @@ int main(){
             struct cds_singly_linked_list_node *node 
                     = cds_singly_linked_list_begin(list),
                 *node_reverse = cds_singly_linked_list_begin(list_reverse);
-            node != cds_singly_linked_list_end(list);
+            node != cds_singly_linked_list_end();
             cds_singly_linked_list_node_next(&node), 
                 cds_singly_linked_list_node_next(&node_reverse)
         ) if (*(int*)cds_data(node) != *(int*)cds_data(node_reverse)){

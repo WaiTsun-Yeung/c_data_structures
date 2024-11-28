@@ -34,7 +34,7 @@ int main() {
         for (
             struct cds_doubly_linked_list_node* node 
                 = cds_doubly_linked_list_begin(list);
-            node != cds_doubly_linked_list_end(list);
+            node != cds_doubly_linked_list_end();
             cds_doubly_linked_list_node_next(&node)
         ){
             struct cds_doubly_linked_list_node* const popped_node
@@ -49,7 +49,7 @@ int main() {
             struct cds_doubly_linked_list_node *node_pop_push 
                     = cds_doubly_linked_list_begin(list_pop_push),
                 *node_reverse = cds_doubly_linked_list_begin(list_reverse);
-            node_pop_push != cds_doubly_linked_list_end(list_pop_push);
+            node_pop_push != cds_doubly_linked_list_end();
             cds_doubly_linked_list_node_next(&node_pop_push), 
                 cds_doubly_linked_list_node_next(&node_reverse)
         ) if (*(int*)cds_data(node_pop_push) != *(int*)cds_data(node_reverse)) 

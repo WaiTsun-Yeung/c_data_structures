@@ -22,7 +22,7 @@ int main() {
         }
         for (
             struct cds_singly_linked_list_node* node = list->front->next;
-            node->next != cds_singly_linked_list_end(list);
+            node->next != cds_singly_linked_list_end();
         ){
             cds_destroy_next_singly_linked_list_node(node, &return_state);
             if (return_state) return return_state;

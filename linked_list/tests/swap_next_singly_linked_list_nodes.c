@@ -41,7 +41,7 @@ int main() {
             struct cds_singly_linked_list_node *node_0 
                     = cds_singly_linked_list_begin(list_0),
                 *node_1 = cds_singly_linked_list_begin(list_1);
-            node_0->next != cds_singly_linked_list_end(list_0);
+            node_0->next != cds_singly_linked_list_end();
             cds_singly_linked_list_node_next(&node_0), 
                 cds_singly_linked_list_node_next(&node_1)
         ){
@@ -56,7 +56,7 @@ int main() {
                 *node_1 = cds_singly_linked_list_begin(list_1),
                 *node_0_copy = cds_singly_linked_list_begin(list_0_copy),
                 *node_1_copy = cds_singly_linked_list_begin(list_1_copy);
-            node_0 != cds_singly_linked_list_end(list_0);
+            node_0 != cds_singly_linked_list_end();
             cds_singly_linked_list_node_next(&node_0), 
                 cds_singly_linked_list_node_next(&node_1),
                 cds_singly_linked_list_node_next(&node_0_copy), 
