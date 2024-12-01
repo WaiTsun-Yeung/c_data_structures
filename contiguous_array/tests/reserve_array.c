@@ -14,7 +14,9 @@ int main(){
         if (return_state) return return_state;
         const size_t new_min_reserved_count 
             = cds_rand_range(1, max_array_bytes / sizeof(int));
-        array = cds_reserve_array(&array, new_min_reserved_count, &return_state);
+        array = cds_reserve_array(
+            &array, new_min_reserved_count, &return_state
+        );
         if (return_state) return return_state;
         if (array->reserved_count < new_min_reserved_count) return 256;
         cds_destroy_array(&array);
