@@ -55,6 +55,11 @@ struct cds_array* cds_reserve_array(
     enum cds_status *restrict const return_state
 );
 
+struct cds_array* cds_shrink_to_fit_array(
+    struct cds_array *restrict *restrict const array,
+    enum cds_status *restrict const return_state
+);
+
 #ifndef CDS_ARRAY_H
 #define CDS_ARRAY_H
 

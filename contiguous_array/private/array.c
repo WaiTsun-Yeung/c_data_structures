@@ -330,3 +330,30 @@ struct cds_array* cds_reserve_array(
     (*array)->elements_count = elements_count;
     return *array;
 }
+
+struct cds_array* cds_shrink_to_fit_array(
+    struct cds_array *restrict *restrict const array,
+    enum cds_status *restrict const return_state
+){
+    if (!*array){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return *array;
+    }
+    struct cds_array* const realloced_array 
+        = realloc(
+            *array, 
+            cds_compute_array_bytes_count(
+                (*array)->elements_count, 
+                (*array)->bytes_per_element, 
+                (*array)->data_offset
+            )
+        );
+    if (!realloced_array){
+        if (return_state) *return_state = CDS_ALLOC_ERROR;
+        return realloced_array;
+    }
+    realloced_array->reserved_count = realloced_array->elements_count;
+    *array = realloced_array;
+    if (return_state) *return_state = CDS_SUCCESS;
+    return *array;
+}
