@@ -19,7 +19,7 @@ void* cds_create_linked_list_node(
     const size_t data_align, enum cds_status* const return_state
 ){
     const size_t data_offset 
-        = cds_compute_data_offset(bytes_per_node_type, data_align);
+        = cds_compute_offset_with_padding(bytes_per_node_type, data_align);
     struct cds_doubly_linked_list_node* const node 
         = malloc(data_offset + bytes_per_element);
     if (!node){
@@ -187,7 +187,7 @@ void* cds_change_linked_list_node_data_type(
     enum cds_status *restrict const return_state
 ){
     const size_t data_offset 
-        = cds_compute_data_offset(bytes_per_node_type, data_align);
+        = cds_compute_offset_with_padding(bytes_per_node_type, data_align);
     struct cds_doubly_linked_list_node* const node = *node_holder;
     if (!node){
         if (return_state) *return_state = CDS_NULL_ARG;

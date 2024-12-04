@@ -64,11 +64,23 @@ static inline struct cds_array* cds_malloc_array(
 }
 
 /// @brief Create a heap-allocated cds_array.
+///     Usage:
+///         enum cds_status return_state;
+///         struct cds_array* array 
+///             = cds_create_array(
+///                 10, sizeof(int), alignof(int), &return_state
+///             );
 /// @param[in] elements_count The number of data elements.
-/// @param[in] bytes_per_element The number of bytes per element of the intended
+/// @param[in] bytes_per_element The byte count of the size of the intended
 ///     data type. This is usually the return value of the sizeof() operator.
+///     For compound types, this value will be modified internally to the 
+///     smallest multiple of data_align that is greater than or equal to the 
+///     size of that compound type.
 /// @param[in] data_align The number of bytes to align the data buffer to.
 ///     This is usually the return value of the alignof() operator.
+/// @param[out] return_state The status of the function call.
+///     CDS_SUCCESS if the function completes successfully.
+///     CDS_ALLOC_ERROR if the function fails to allocate memory.
 /// @return The created array.
 ///     The user should free the array with cds_destroy_array()
 ///     at the end of its lifetime to prevent memory leaks.
@@ -78,16 +90,21 @@ struct cds_array* cds_create_array(
 ){
     const size_t reserved_count = cds_next_power_of_two(elements_count);
     const size_t data_offset 
-        = cds_compute_data_offset(sizeof(struct cds_array), data_align);
+        = cds_compute_offset_with_padding(sizeof(struct cds_array), data_align);
+    const size_t padded_bytes_per_element = cds_compute_offset_with_padding(
+        bytes_per_element, data_align
+    );
     struct cds_array* const array 
-        = cds_malloc_array(reserved_count, bytes_per_element, data_offset);
+        = cds_malloc_array(
+            reserved_count, padded_bytes_per_element, data_offset
+        );
     if (!array){
         if (return_state) *return_state = CDS_ALLOC_ERROR;
         return array;
     }
     array->elements_count = elements_count;
     array->reserved_count = reserved_count;
-    array->bytes_per_element = bytes_per_element;
+    array->bytes_per_element = padded_bytes_per_element;
     array->data_offset = data_offset;
     if (return_state) *return_state = CDS_SUCCESS;
     return array;
