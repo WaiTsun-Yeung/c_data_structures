@@ -79,6 +79,13 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
     enum cds_status *restrict const return_state
 );
 
+enum cds_status cds_swap_singly_linked_list_with_timeout(
+    struct cds_singly_linked_list* const list_0,
+    struct cds_singly_linked_list* const list_1,
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
+);
+
 #ifndef CDS_SINGLY_LINKED_LIST_H
 #define CDS_SINGLY_LINKED_LIST_H
 
@@ -405,4 +412,13 @@ enum cds_status cds_swap_free_and_next_singly_linked_list_nodes_with_timeout(
         const struct cds_singly_linked_list* const list
     ){return cds_is_linked_list_empty(list);}
 
+    static inline enum cds_status cds_swap_singly_linked_list(
+        struct cds_singly_linked_list* const list_0,
+        struct cds_singly_linked_list* const list_1,
+        enum cds_status *restrict const return_state
+    ){
+        return cds_swap_singly_linked_list_with_timeout(
+            list_0, list_1, &cds_default_mutex_timeout, return_state
+        );
+    }
 #endif // CDS_SIGNLY_LINKED_LIST_H

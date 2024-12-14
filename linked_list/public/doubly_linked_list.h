@@ -101,6 +101,13 @@ enum cds_status cds_swap_doubly_linked_list_nodes_with_timeout(
     enum cds_status *restrict const return_state
 );
 
+enum cds_status cds_swap_doubly_linked_list_with_timeout(
+    struct cds_doubly_linked_list* const list_0,
+    struct cds_doubly_linked_list* const list_1,
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
+);
+
 #ifndef CDS_DOUBLY_LINKED_LIST_H
 #define CDS_DOUBLY_LINKED_LIST_H
 
@@ -450,6 +457,16 @@ enum cds_status cds_swap_doubly_linked_list_nodes_with_timeout(
     ){
         return cds_swap_doubly_linked_list_nodes_with_timeout(
             node_0, node_1, &cds_default_mutex_timeout, return_state
+        );
+    }
+
+    static inline enum cds_status cds_swap_doubly_linked_list(
+        struct cds_doubly_linked_list* const list_0,
+        struct cds_doubly_linked_list* const list_1,
+        enum cds_status *restrict const return_state
+    ){
+        return cds_swap_doubly_linked_list_with_timeout(
+            list_0, list_1, &cds_default_mutex_timeout, return_state
         );
     }
 

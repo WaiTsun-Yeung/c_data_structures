@@ -575,3 +575,19 @@ void* cds_linked_list_node_next(void** const node_holder){
     *node_holder = node->next;
     return *node_holder;
 }
+
+void cds_swap_linked_list_core(void* const list_0, void* const list_1){
+    struct cds_singly_linked_list_node* const temp_front 
+        = ((struct cds_singly_linked_list*)list_0)->front;
+    ((struct cds_singly_linked_list*)list_0)->front 
+        = ((struct cds_singly_linked_list*)list_1)->front;
+    ((struct cds_singly_linked_list*)list_1)->front = temp_front;
+    struct cds_singly_linked_list_node* node_0 
+        = ((struct cds_singly_linked_list*)list_0)->front;
+    for (size_t i = 0; i < SIZE_MAX, node_0; ++i, node_0 = node_0->next)
+        node_0->list = list_0;
+    struct cds_singly_linked_list_node* node_1 
+        = ((struct cds_singly_linked_list*)list_1)->front;
+    for (size_t i = 0; i < SIZE_MAX, node_1; ++i, node_1 = node_1->next)
+        node_1->list = list_1;
+}

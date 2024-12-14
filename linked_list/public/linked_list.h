@@ -110,3 +110,5 @@ void* cds_clear_linked_list_with_timeout(
 void cds_erase_following_linked_list_nodes_core(void* const node);
 
 void* cds_linked_list_node_next(void** const node);
+
+void cds_swap_linked_list_core(void* const list_0, void* const list_1);

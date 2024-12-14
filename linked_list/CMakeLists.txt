@@ -179,6 +179,14 @@ add_test(
     NAME invert_singly_linked_list
     COMMAND invert_singly_linked_list.exe
 )
+add_executable(swap_singly_linked_list
+    tests/swap_singly_linked_list.c
+)
+target_link_libraries(swap_singly_linked_list PRIVATE linked_list)
+add_test(
+    NAME swap_singly_linked_list
+    COMMAND swap_singly_linked_list.exe
+)
 add_executable(copy_create_destroy_doubly_linked_list 
     tests/copy_create_destroy_doubly_linked_list.c
 )

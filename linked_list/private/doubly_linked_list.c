@@ -505,3 +505,42 @@ enum cds_status cds_swap_doubly_linked_list_nodes_with_timeout(
     if (return_state) *return_state = CDS_SUCCESS;
     return CDS_SUCCESS;
 }
+
+enum cds_status cds_swap_doubly_linked_list_with_timeout(
+    struct cds_doubly_linked_list* const list_0,
+    struct cds_doubly_linked_list* const list_1,
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
+){
+    if (!list_0 && !list_1){
+        if (return_state) *return_state = CDS_SUCCESS;
+        return CDS_SUCCESS;
+    }
+    if (!list_0){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return CDS_NULL_ARG;
+    }
+    if (!list_1){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return CDS_NULL_ARG;
+    }
+    enum cds_status local_return_state = cds_mutex_lock(
+        &list_0->mutex, mutex_timeout, list_0->mutex_type, return_state
+    );
+    if (local_return_state) return local_return_state;
+    local_return_state = cds_mutex_lock(
+        &list_1->mutex, mutex_timeout, list_1->mutex_type, return_state
+    );
+    if (local_return_state){
+        (void)mtx_unlock(&list_0->mutex);
+        return local_return_state;
+    }
+    struct cds_doubly_linked_list_node* const temp_back = list_0->back;
+    list_0->back = list_1->back;
+    list_1->back = temp_back;
+    cds_swap_linked_list_core(list_0, list_1);
+    (void)mtx_unlock(&list_0->mutex);
+    (void)mtx_unlock(&list_1->mutex);
+    if (return_state) *return_state = CDS_SUCCESS;
+    return CDS_SUCCESS;
+}
