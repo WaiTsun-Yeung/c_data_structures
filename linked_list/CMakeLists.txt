@@ -187,6 +187,54 @@ add_test(
     NAME swap_singly_linked_list
     COMMAND swap_singly_linked_list.exe
 )
+add_executable(splice_singly_linked_list
+    tests/splice_singly_linked_list.c
+)
+target_link_libraries(splice_singly_linked_list PRIVATE linked_list)
+add_test(
+    NAME splice_singly_linked_list
+    COMMAND splice_singly_linked_list.exe
+)
+add_executable(prepend_singly_linked_list_with_list
+    tests/prepend_singly_linked_list_with_list.c
+)
+target_link_libraries(prepend_singly_linked_list_with_list PRIVATE linked_list)
+add_test(
+    NAME prepend_singly_linked_list_with_list
+    COMMAND prepend_singly_linked_list_with_list.exe
+)
+add_executable(splice_singly_linked_list_range
+    tests/splice_singly_linked_list_range.c
+)
+target_link_libraries(splice_singly_linked_list_range PRIVATE linked_list)
+add_test(
+    NAME splice_singly_linked_list_range
+    COMMAND splice_singly_linked_list_range.exe
+)
+add_executable(prepend_singly_linked_list_with_range
+    tests/prepend_singly_linked_list_with_range.c
+)
+target_link_libraries(prepend_singly_linked_list_with_range PRIVATE linked_list)
+add_test(
+    NAME prepend_singly_linked_list_with_range
+    COMMAND prepend_singly_linked_list_with_range.exe
+)
+add_executable(splice_singly_linked_list_beginning
+    tests/splice_singly_linked_list_beginning.c
+)
+target_link_libraries(splice_singly_linked_list_beginning PRIVATE linked_list)
+add_test(
+    NAME splice_singly_linked_list_beginning
+    COMMAND splice_singly_linked_list_beginning.exe
+)
+add_executable(prepend_singly_linked_list_with_beginning
+    tests/prepend_singly_linked_list_with_beginning.c
+)
+target_link_libraries(prepend_singly_linked_list_with_beginning PRIVATE linked_list)
+add_test(
+    NAME prepend_singly_linked_list_with_beginning
+    COMMAND prepend_singly_linked_list_with_beginning.exe
+)
 add_executable(copy_create_destroy_doubly_linked_list 
     tests/copy_create_destroy_doubly_linked_list.c
 )
@@ -396,4 +444,44 @@ target_link_libraries(invert_doubly_linked_list PRIVATE
 add_test(
     NAME invert_doubly_linked_list
     COMMAND invert_doubly_linked_list.exe
+)
+add_executable(swap_doubly_linked_list
+    tests/swap_doubly_linked_list.c
+)
+target_link_libraries(swap_doubly_linked_list PRIVATE 
+    linked_list
+)
+add_test(
+    NAME swap_doubly_linked_list
+    COMMAND swap_doubly_linked_list.exe
+)
+add_executable(splice_doubly_linked_list
+    tests/splice_doubly_linked_list.c
+)
+target_link_libraries(splice_doubly_linked_list PRIVATE 
+    linked_list
+)
+add_test(
+    NAME splice_doubly_linked_list
+    COMMAND splice_doubly_linked_list.exe
+)
+add_executable(splice_doubly_linked_list_range
+    tests/splice_doubly_linked_list_range.c
+)
+target_link_libraries(splice_doubly_linked_list_range PRIVATE 
+    linked_list
+)
+add_test(
+    NAME splice_doubly_linked_list_range
+    COMMAND splice_doubly_linked_list_range.exe
+)
+add_executable(append_doubly_linked_list_with_range
+    tests/append_doubly_linked_list_with_range.c
+)
+target_link_libraries(append_doubly_linked_list_with_range PRIVATE 
+    linked_list
+)
+add_test(
+    NAME append_doubly_linked_list_with_range
+    COMMAND append_doubly_linked_list_with_range.exe
 )

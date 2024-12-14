@@ -108,6 +108,29 @@ enum cds_status cds_swap_doubly_linked_list_with_timeout(
     enum cds_status *restrict const return_state
 );
 
+struct cds_doubly_linked_list* cds_splice_doubly_linked_list_with_timeout(
+    struct cds_doubly_linked_list_node* const dest_node,
+    struct cds_doubly_linked_list* const src_list,
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
+);
+
+struct cds_doubly_linked_list* cds_splice_doubly_linked_list_range_with_timeout(
+    struct cds_doubly_linked_list_node* const dest_node,
+    struct cds_doubly_linked_list_node* const src_begin_node,
+    struct cds_doubly_linked_list_node* const src_end_node,
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
+);
+
+struct cds_doubly_linked_list* cds_append_doubly_linked_list_with_range_with_timeout(
+    struct cds_doubly_linked_list *restrict const dest_list,
+    struct cds_doubly_linked_list_node* const src_begin_node,
+    struct cds_doubly_linked_list_node* const src_end_node,
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
+);
+
 #ifndef CDS_DOUBLY_LINKED_LIST_H
 #define CDS_DOUBLY_LINKED_LIST_H
 
@@ -467,6 +490,43 @@ enum cds_status cds_swap_doubly_linked_list_with_timeout(
     ){
         return cds_swap_doubly_linked_list_with_timeout(
             list_0, list_1, &cds_default_mutex_timeout, return_state
+        );
+    }
+
+    static inline struct cds_doubly_linked_list*
+    cds_splice_doubly_linked_list(
+        struct cds_doubly_linked_list_node* const dest_node,
+        struct cds_doubly_linked_list* const src_list,
+        enum cds_status *restrict const return_state
+    ){
+        return cds_splice_doubly_linked_list_with_timeout(
+            dest_node, src_list, &cds_default_mutex_timeout, return_state
+        );
+    }
+
+    static inline struct cds_doubly_linked_list*
+    cds_splice_doubly_linked_list_range(
+        struct cds_doubly_linked_list_node* const dest_node,
+        struct cds_doubly_linked_list_node* const src_begin_node,
+        struct cds_doubly_linked_list_node* const src_end_node,
+        enum cds_status *restrict const return_state
+    ){
+        return cds_splice_doubly_linked_list_range_with_timeout(
+            dest_node, src_begin_node, src_end_node, 
+            &cds_default_mutex_timeout, return_state
+        );
+    }
+
+    static inline struct cds_doubly_linked_list*
+    cds_append_doubly_linked_list_with_range(
+        struct cds_doubly_linked_list *restrict const dest_list,
+        struct cds_doubly_linked_list_node* const src_begin_node,
+        struct cds_doubly_linked_list_node* const src_end_node,
+        enum cds_status *restrict const return_state
+    ){
+        return cds_append_doubly_linked_list_with_range_with_timeout(
+            dest_list, src_begin_node, src_end_node, 
+            &cds_default_mutex_timeout, return_state
         );
     }
 
