@@ -72,10 +72,8 @@ static inline struct cds_array* cds_malloc_array(
 ///             );
 /// @param[in] elements_count The number of data elements.
 /// @param[in] bytes_per_element The byte count of the size of the intended
-///     data type. This is usually the return value of the sizeof() operator.
-///     For compound types, this value will be modified internally to the 
-///     smallest multiple of data_align that is greater than or equal to the 
-///     size of that compound type.
+///     data type in an array of that data type. This is usually the return 
+///     value of the sizeof() operator.
 /// @param[in] data_align The number of bytes to align the data buffer to.
 ///     This is usually the return value of the alignof() operator.
 /// @param[out] return_state The status of the function call.
@@ -91,12 +89,9 @@ struct cds_array* cds_create_array(
     const size_t reserved_count = cds_next_power_of_two(elements_count);
     const size_t data_offset 
         = cds_compute_offset_with_padding(sizeof(struct cds_array), data_align);
-    const size_t padded_bytes_per_element = cds_compute_offset_with_padding(
-        bytes_per_element, data_align
-    );
     struct cds_array* const array 
         = cds_malloc_array(
-            reserved_count, padded_bytes_per_element, data_offset
+            reserved_count, bytes_per_element, data_offset
         );
     if (!array){
         if (return_state) *return_state = CDS_ALLOC_ERROR;
@@ -104,7 +99,7 @@ struct cds_array* cds_create_array(
     }
     array->elements_count = elements_count;
     array->reserved_count = reserved_count;
-    array->bytes_per_element = padded_bytes_per_element;
+    array->bytes_per_element = bytes_per_element;
     array->data_offset = data_offset;
     if (return_state) *return_state = CDS_SUCCESS;
     return array;
