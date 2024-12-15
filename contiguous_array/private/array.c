@@ -148,6 +148,56 @@ struct cds_array* cds_copy_and_create_array(
     return array;
 }
 
+struct cds_array* cds_copy_and_create_array_range(
+    const struct cds_array *restrict const src, 
+    const void* const src_begin, const void* const src_end,
+    enum cds_status *restrict const return_state
+){
+    if (!src || !src_begin || !src_end){
+        if (return_state) *return_state = CDS_NULL_ARG;
+        return (struct cds_array*)0;
+    }
+    if (src_begin > src_end){
+        if (return_state) *return_state = CDS_INVALID_ARG;
+        return (struct cds_array*)0;
+    }
+    if (src_begin == src_end){
+        if (return_state) *return_state = CDS_SUCCESS;
+        return cds_create_array(
+            0, src->bytes_per_element, src->data_offset, return_state
+        );
+    }
+    const size_t elements_count 
+        = ((char*)src_end - (char*)src_begin) / src->bytes_per_element;
+    const size_t reserved_count = cds_next_power_of_two(elements_count); 
+    const size_t dest_data_bytes_count 
+        = reserved_count * src->bytes_per_element;
+    const size_t dest_bytes_count = dest_data_bytes_count + src->data_offset;
+    struct cds_array* const dest = malloc(dest_bytes_count);
+    if (!dest){
+        if (return_state) *return_state = CDS_ALLOC_ERROR;
+        return dest;
+    }
+    const errno_t memcpy_error = memcpy_s(
+        (char*)dest + src->data_offset, dest_data_bytes_count, 
+        src_begin, (char*)src_end - (char*)src_begin
+    );
+    if (memcpy_error){
+        cds_print_error_message(
+            memcpy_error, __FILE__, __LINE__, __func__, "memcpy_s"
+        );
+        (void)cds_destroy_buffer((void**)&dest);
+        if (return_state) *return_state = CDS_COPY_ERROR;
+        return dest;
+    }
+    dest->elements_count = elements_count;
+    dest->reserved_count = reserved_count;
+    dest->bytes_per_element = src->bytes_per_element;
+    dest->data_offset = src->data_offset;
+    if (return_state) *return_state = CDS_SUCCESS;
+    return dest;
+}
+
 /// @brief Resize the input array to new data buffer length.
 ///     The buffer will only be reallocated if new_elements_count is greater 
 ///     than the reserved length of the data buffer.

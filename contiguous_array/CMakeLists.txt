@@ -19,6 +19,14 @@ add_test(
     NAME copy_create_destroy_int_array
     COMMAND copy_create_destroy_int_array.exe
 )
+add_executable(copy_create_destroy_int_array_range 
+    tests/copy_create_destroy_int_array_range.c
+)
+target_link_libraries(copy_create_destroy_int_array_range PRIVATE array array_tests)
+add_test(
+    NAME copy_create_destroy_int_array_range
+    COMMAND copy_create_destroy_int_array_range.exe
+)
 add_executable(copy_int_array tests/copy_int_array.c)
 target_link_libraries(copy_int_array PRIVATE array array_tests)
 add_test(NAME copy_int_array COMMAND copy_int_array.exe)

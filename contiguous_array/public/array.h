@@ -15,6 +15,12 @@ struct cds_array* cds_copy_and_create_array(
     enum cds_status *restrict const return_state
 );
 
+struct cds_array* cds_copy_and_create_array_range(
+    const struct cds_array *restrict const src, 
+    const void* const src_begin, const void* const src_end,
+    enum cds_status *restrict const return_state
+);
+
 struct cds_array* cds_resize_array(
     struct cds_array *restrict *restrict const array, 
     const size_t new_elements_count,
