@@ -132,6 +132,21 @@ cds_prepend_singly_linked_list_with_beginning_with_timeout(
     enum cds_status *restrict const return_state
 );
 
+struct cds_singly_linked_list*
+cds_pop_singly_linked_list_range_with_timeout(
+    struct cds_singly_linked_list_node* const begin_prev,
+    struct cds_singly_linked_list_node* const end_prev,
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
+);
+
+struct cds_singly_linked_list*
+cds_pop_singly_linked_list_beginning_with_timeout(
+    struct cds_singly_linked_list_node *restrict const end_prev,
+    const struct timespec *restrict const mutex_timeout,
+    enum cds_status *restrict const return_state
+);
+
 #ifndef CDS_SINGLY_LINKED_LIST_H
 #define CDS_SINGLY_LINKED_LIST_H
 
@@ -535,6 +550,27 @@ cds_prepend_singly_linked_list_with_beginning_with_timeout(
     ){
         return cds_prepend_singly_linked_list_with_beginning_with_timeout(
             dest_list, src_end_prev, &cds_default_mutex_timeout, return_state
+        );
+    }
+
+    static inline struct cds_singly_linked_list*
+    cds_pop_singly_linked_list_range(
+        struct cds_singly_linked_list_node* const begin_prev,
+        struct cds_singly_linked_list_node* const end_prev,
+        enum cds_status *restrict const return_state
+    ){
+        return cds_pop_singly_linked_list_range_with_timeout(
+            begin_prev, end_prev, &cds_default_mutex_timeout, return_state
+        );
+    }
+
+    static inline struct cds_singly_linked_list*
+    cds_pop_singly_linked_list_beginning(
+        struct cds_singly_linked_list_node *restrict const end_prev,
+        enum cds_status *restrict const return_state
+    ){
+        return cds_pop_singly_linked_list_beginning_with_timeout(
+            end_prev, &cds_default_mutex_timeout, return_state
         );
     }
 

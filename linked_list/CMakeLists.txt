@@ -230,10 +230,28 @@ add_test(
 add_executable(prepend_singly_linked_list_with_beginning
     tests/prepend_singly_linked_list_with_beginning.c
 )
-target_link_libraries(prepend_singly_linked_list_with_beginning PRIVATE linked_list)
+target_link_libraries(prepend_singly_linked_list_with_beginning PRIVATE 
+    linked_list
+)
 add_test(
     NAME prepend_singly_linked_list_with_beginning
     COMMAND prepend_singly_linked_list_with_beginning.exe
+)
+add_executable(pop_singly_linked_list_beginning
+    tests/pop_singly_linked_list_beginning.c
+)
+target_link_libraries(pop_singly_linked_list_beginning PRIVATE linked_list)
+add_test(
+    NAME pop_singly_linked_list_beginning
+    COMMAND pop_singly_linked_list_beginning.exe
+)
+add_executable(pop_singly_linked_list_range
+    tests/pop_singly_linked_list_range.c
+)
+target_link_libraries(pop_singly_linked_list_range PRIVATE linked_list)
+add_test(
+    NAME pop_singly_linked_list_range
+    COMMAND pop_singly_linked_list_range.exe
 )
 add_executable(copy_create_destroy_doubly_linked_list 
     tests/copy_create_destroy_doubly_linked_list.c
@@ -484,4 +502,14 @@ target_link_libraries(append_doubly_linked_list_with_range PRIVATE
 add_test(
     NAME append_doubly_linked_list_with_range
     COMMAND append_doubly_linked_list_with_range.exe
+)
+add_executable(pop_doubly_linked_list_range
+    tests/pop_doubly_linked_list_range.c
+)
+target_link_libraries(pop_doubly_linked_list_range PRIVATE 
+    linked_list
+)
+add_test(
+    NAME pop_doubly_linked_list_range
+    COMMAND pop_doubly_linked_list_range.exe
 )
